@@ -7,9 +7,8 @@ import java.util.List;
  * Class that represents package of classes in API.
  * @author Jan Hýbl
  */
-public class APIPackage {
+public class APIPackage extends APIItem{
     
-    private String name;
     private List<APIClass> classes;
 
     public APIPackage(String name) {
@@ -27,5 +26,10 @@ public class APIPackage {
         sb.append("package ").append(name).append('\n');
         for(APIClass c : classes) sb.append("    ").append(c).append('\n');
         return sb.toString();
-    }        
+    }
+
+    public List<APIClass> getClasses() {
+        return classes;
+    }
+    
 }

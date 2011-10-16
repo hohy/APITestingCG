@@ -13,8 +13,7 @@ import javax.lang.model.element.Modifier;
  * Represents method.
  * @author Jan Hýbl
  */
-public class APIMethod {
-    private String name;
+public class APIMethod extends APIItem {
     private Set<Modifier> modifiers;
     private List<APIField> parameters;
     private String returnType;
@@ -41,5 +40,17 @@ public class APIMethod {
         if(parameters.size() > 0) sb.deleteCharAt(sb.length()-1);
         sb.append(')');
         return sb.toString();
-    }    
+    }
+
+    public Set<Modifier> getModifiers() {
+        return modifiers;
+    }
+
+    public List<APIField> getParameters() {
+        return parameters;
+    }
+
+    public String getReturnType() {
+        return returnType;
+    }        
 }

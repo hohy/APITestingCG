@@ -8,13 +8,13 @@ import java.util.List;
  * provides to client.
  * @author Jan Hýbl
  */
-public class API {
+public class API extends APIItem{
     
-    private String name;
+    //private String name;
     private List<APIPackage> packages;
 
     public API(String name) {
-        this.name = name; 
+        super.name = name; 
         packages = new LinkedList<APIPackage>();
     }
     
@@ -28,5 +28,10 @@ public class API {
         sb.append("API ").append(name).append(":\n");
         for(APIPackage p : packages) sb.append("  ").append(p).append('\n');
         return sb.toString();
-    }       
+    }
+
+    public List<APIPackage> getPackages() {
+        return packages;
+    }
+    
 }
