@@ -8,6 +8,7 @@ import com.sun.tools.javac.main.JavaCompiler;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Options;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -69,6 +70,8 @@ public class Scanner {
             for (CompilationUnitTree cut : units) {                
                 sc.visitTopLevel((JCCompilationUnit) cut);                
             }
+            API api = sc.getAPI();
+            System.out.println(api);
         } catch (IOException ex) {
             Logger.getLogger(Scanner.class.getName()).log(Level.SEVERE, null, ex);
         }

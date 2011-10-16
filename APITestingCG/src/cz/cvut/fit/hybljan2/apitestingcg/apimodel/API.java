@@ -1,5 +1,6 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -13,10 +14,19 @@ public class API {
     private List<APIPackage> packages;
 
     public API(String name) {
-        this.name = name;       
+        this.name = name; 
+        packages = new LinkedList<APIPackage>();
     }
     
     public void addPackage(APIPackage pkg) {
         packages.add(pkg);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("API ").append(name).append(":\n");
+        for(APIPackage p : packages) sb.append("  ").append(p).append('\n');
+        return sb.toString();
+    }       
 }
