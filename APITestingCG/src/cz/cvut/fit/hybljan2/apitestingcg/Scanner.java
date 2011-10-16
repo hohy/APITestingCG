@@ -37,28 +37,26 @@ public class Scanner {
     }
         
     /**
-     * Do something
+     * Scan something
      */
-    public void scan() {
+    public API scan() {
         try {
-            Context ctx = new Context();
-            Options opt = Options.instance(ctx);
-            // TODO 1.5 by to nemelo byt na pevno, ale melo by se to brat jako parametr
+            Context ctx = new Context();        
+            
+            Options opt = Options.instance(ctx);            
             opt.put("-source", sourceVersion);
             JavaCompiler compiler = JavaCompiler.instance(ctx);
             compiler.attrParseOnly = true;
-            compiler.keepComments = true;
-            //compiler.genEndPos = true;
-            //compiler.verbose = true;
+            compiler.keepComments = true;            
 
             List<String> files = listFiles(sourceDir);
-            //System.out.println("files: " + files);
             
             JavacFileManager fileManager = (JavacFileManager) ctx.get(JavaFileManager.class);
             List<JavaFileObject> fileObjects = new ArrayList<JavaFileObject>();
             for (String s : files) {
                 fileObjects.add(fileManager.getFileForInput(s));
             }
+            
             JavacTool tool = JavacTool.create();
             List<String> options = Arrays.asList("-cp", classPath);
             JavacTaskImpl javacTaskImpl = (JavacTaskImpl) tool.getTask(null, fileManager, null, options, null, fileObjects);
@@ -66,19 +64,22 @@ public class Scanner {
             
             Iterable<? extends CompilationUnitTree> units = javacTaskImpl.parse();
             javacTaskImpl.analyze();
+            
             SourceScanner sc = new SourceScanner();
             for (CompilationUnitTree cut : units) {                
                 sc.visitTopLevel((JCCompilationUnit) cut);                
             }
+            
             API api = sc.getAPI();
-            System.out.println(api);
+            return api;
         } catch (IOException ex) {
             Logger.getLogger(Scanner.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
         }
     }    
 
     /**
-     * TODO write doc. Taken from Tronicek.
+     * Gets list of java files in directory with given path.
      * @param path
      * @return 
      */
