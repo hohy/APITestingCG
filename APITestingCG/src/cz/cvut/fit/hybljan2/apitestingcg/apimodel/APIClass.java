@@ -14,7 +14,7 @@ import javax.lang.model.element.Modifier;
  * @author hohy
  */
 public class APIClass extends APIItem {
-    private Set<Modifier> modifiers;
+
     private List<APIMethod> methods;
     private Set<APIField> fields;
 
@@ -53,9 +53,5 @@ public class APIClass extends APIItem {
 
     public List<APIMethod> getMethods() {
         return methods;
-    }
-
-    public Set<Modifier> getModifiers() {
-        return modifiers;
-    }          
+    }        
 }
