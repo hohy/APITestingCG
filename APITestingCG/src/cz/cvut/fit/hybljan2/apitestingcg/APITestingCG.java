@@ -11,5 +11,7 @@ public class APITestingCG {
      */
     public static void main(String[] args) {
         // TODO code application logic here
+        Scanner sc = new Scanner("/media/data/javalibs/SmallSQL/src/smallsql/database", "", "1.5");
+        sc.scan();
     }
 }
