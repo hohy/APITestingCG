@@ -12,9 +12,12 @@ package cz.cvut.fit.hybljan2.apitestingcg.view;
 
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIField;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIItem;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIMethod;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIPackage;
+import java.awt.Font;
+import javax.swing.JLabel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
@@ -46,8 +49,9 @@ public class APIViewForm extends javax.swing.JFrame {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         apiTree = new javax.swing.JTree();
-        jPanel1 = new javax.swing.JPanel();
-        contentLabel = new javax.swing.JLabel();
+        contentScrollPanel = new javax.swing.JScrollPane();
+        contentPanel = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -59,24 +63,12 @@ public class APIViewForm extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(apiTree);
 
-        contentLabel.setText("<< select API item");
+        contentPanel.setLayout(new javax.swing.BoxLayout(contentPanel, javax.swing.BoxLayout.Y_AXIS));
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(contentLabel)
-                .addContainerGap(167, Short.MAX_VALUE))
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(contentLabel)
-                .addContainerGap(395, Short.MAX_VALUE))
-        );
+        jLabel1.setText("<< Select API Item");
+        contentPanel.add(jLabel1);
+
+        contentScrollPanel.setViewportView(contentPanel);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -86,7 +78,7 @@ public class APIViewForm extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 297, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(contentScrollPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 307, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -94,8 +86,8 @@ public class APIViewForm extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 422, Short.MAX_VALUE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(contentScrollPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 422, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 422, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -108,7 +100,48 @@ public class APIViewForm extends javax.swing.JFrame {
         
         APIInfo apiinfo = (APIInfo) node.getUserObject();
         APIItem item = apiinfo.getItem();
-        contentLabel.setText(item.toString());
+        
+        contentPanel.removeAll();
+        
+        JLabel nameLabel = new JLabel(item.getName());
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 15));        
+        
+        if(item.getClass().equals(APIPackage.class)) {
+            APIPackage pkg = (APIPackage) item;
+            // show info from pkg
+            contentPanel.add(new JLabel("package"));
+            contentPanel.add(nameLabel);
+            
+        } else if(item.getClass().equals(APIClass.class)) {
+            APIClass cls = (APIClass) item;
+            contentPanel.add(new JLabel("class"));
+            contentPanel.add(nameLabel);
+            if(cls.getModifiers() != null) contentPanel.add(new JLabel("Modifiers: " + cls.getModifiers()));
+            if(cls.getFields() != null && cls.getFields().size() > 0) {
+                contentPanel.add(new JLabel("Fields:"));
+                for(APIField f : cls.getFields()) { 
+                    contentPanel.add(new JLabel(f.toString()));
+                }
+            }
+        } else if(item.getClass().equals(APIMethod.class)) {
+            APIMethod mth = (APIMethod) item;
+            contentPanel.add(new JLabel("method"));
+            contentPanel.add(nameLabel);
+            
+            if(mth.getModifiers() != null) contentPanel.add(new JLabel("Modifiers: " + mth.getModifiers()));
+            
+            if(mth.getParameters() != null && mth.getParameters().size() > 0) {
+                contentPanel.add(new JLabel("Parameters:"));
+                for(APIField f : mth.getParameters()) { 
+                    contentPanel.add(new JLabel(f.toString()));
+                }
+            }
+            
+            contentPanel.add(new JLabel("Return type: " + mth.getReturnType()));
+            
+        }
+        //contentLabel.setText(item.toString());
+        contentPanel.updateUI();
     }//GEN-LAST:event_sourceTreeValueChangedHandler
 
     private DefaultMutableTreeNode generateAPITree() {
@@ -170,8 +203,9 @@ public class APIViewForm extends javax.swing.JFrame {
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTree apiTree;
-    private javax.swing.JLabel contentLabel;
-    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel contentPanel;
+    private javax.swing.JScrollPane contentScrollPanel;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 }
