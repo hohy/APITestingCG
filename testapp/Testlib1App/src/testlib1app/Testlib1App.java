@@ -1,5 +1,7 @@
 package testlib1app;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import testlib1.ClassA;
 import testlib1.ClassB;
 
@@ -55,6 +57,9 @@ class ClassAExtender extends ClassA {
     public void printApiMethodAdd() {
         System.out.println(apiMethodAdd(1, 2));
         System.out.println(apiMethodAdd(null, null));
+        try {
+            exceptionMethod();
+        } catch (Exception ex) {}
     }
         
     public void testProtectedMethods() {
