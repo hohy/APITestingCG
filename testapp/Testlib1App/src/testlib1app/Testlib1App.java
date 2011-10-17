@@ -32,6 +32,9 @@ public class Testlib1App {
         ClassAExtender clsAex = new ClassAExtender();
         clsAex.printApiMethodAdd();
         
+        //Test constant and other fields in ClassA
+        System.out.println(ClassA.CONST);
+        System.out.println(ClassA.WORD);
         
         /**
          * Test of ClassB from TestLib1
@@ -69,8 +72,13 @@ public class Testlib1App {
  */
 class ClassAExtender extends ClassA {
     public void printApiMethodAdd() {
+        
         System.out.println(apiMethodAdd(1, 2));
         System.out.println(apiMethodAdd(null, null));
+        
+        System.out.println(CONST);
+        System.out.println(WORD);
+        
         try {
             exceptionMethod();
         } catch (RuntimeException ex) {}
