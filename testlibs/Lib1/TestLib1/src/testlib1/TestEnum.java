@@ -9,5 +9,5 @@ package testlib1;
  * @author Jan Hýbl
  */
 public enum TestEnum {
-    OK, INFO, WARNING, ERROR
+    OK, INFO, WARNING, ERROR, CANCEL
 }
