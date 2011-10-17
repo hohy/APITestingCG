@@ -43,6 +43,7 @@ public class Testlib1App {
         
         /**
          * Test of TestEnum from TestLib1
+         * We have to test if some item from enum wasnt removed.
          */
         TestEnum x = TestEnum.OK;
         switch(x) {
