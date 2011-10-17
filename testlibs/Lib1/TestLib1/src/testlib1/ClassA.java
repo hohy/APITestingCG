@@ -8,4 +8,8 @@ public class ClassA {
     public int apiMethodAdd(Integer a, Integer b) {
         return a + b;
     }
+    
+    protected int apiMethodSub(int a, int b) {
+        return a - b;
+    }
 }
