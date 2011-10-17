@@ -4,6 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import testlib1.ClassA;
 import testlib1.ClassB;
+import testlib1.TestEnum;
 
 /**
  *
@@ -38,6 +39,18 @@ public class Testlib1App {
         ClassB clsB = new ClassB();
         Object object = clsB.someMethod(Double.NaN, Double.NaN);
         object = clsB.someMethod(Integer.MAX_VALUE, Integer.MIN_VALUE);
+        
+        
+        /**
+         * Test of TestEnum from TestLib1
+         */
+        TestEnum x = TestEnum.OK;
+        switch(x) {
+            case OK: break;
+            case INFO: break;
+            case WARNING: break;
+            case ERROR: break;
+        }
         
         // someMethod can be called with Double or with Integer params. So it can't be called with null
         //object = clsB.someMethod(null, null);
