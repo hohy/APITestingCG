@@ -2,6 +2,7 @@ package testlib1app;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import testlib1.AnotationTest;
 import testlib1.ClassA;
 import testlib1.ClassB;
 import testlib1.TestEnum;
@@ -10,12 +11,16 @@ import testlib1.TestEnum;
  *
  * @author Jan Hybl
  */
+@AnotationTest(text="Hello anotation")
 public class Testlib1App {
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        
+        // Anotation testing...
+        System.out.println(new Testlib1App().getClass().getAnnotation(AnotationTest.class).text());
         
         /**
          * Test of ClassA from TestLib1
