@@ -12,4 +12,8 @@ public class ClassA {
     protected int apiMethodSub(int a, int b) {
         return a - b;
     }
+    
+    public void exceptionMethod() throws Exception {
+        throw new Exception();
+    }
 }
