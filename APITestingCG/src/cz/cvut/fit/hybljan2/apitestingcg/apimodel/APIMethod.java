@@ -1,5 +1,7 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
+import com.sun.tools.javac.code.Type;
+import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import java.util.HashSet;
@@ -17,7 +19,8 @@ public class APIMethod extends APIItem {
 
     private List<APIField> parameters;
     private String returnType;
-
+    private List<String> thrown;
+    
     public APIMethod(String name) {
         this.name = name;
     }
@@ -25,6 +28,10 @@ public class APIMethod extends APIItem {
     public APIMethod(JCMethodDecl jcmd) {
         this.name = jcmd.name.toString();
         this.modifiers = jcmd.getModifiers().getFlags();
+        this.thrown = new LinkedList<String>();
+        if(jcmd.getThrows() != null) {
+            for(JCExpression e : jcmd.getThrows()) this.thrown.add(e.toString());
+        }
         this.parameters = new LinkedList<APIField>();
         if(jcmd.getReturnType() == null) this.returnType = "void";
         else this.returnType = jcmd.getReturnType().toString();
@@ -48,5 +55,10 @@ public class APIMethod extends APIItem {
 
     public String getReturnType() {
         return returnType;
-    }        
+    }
+
+    public List<String> getThrown() {
+        return thrown;
+    }
+        
 }

@@ -137,6 +137,13 @@ public class APIViewForm extends javax.swing.JFrame {
                 }
             }
             
+            if(mth.getThrown() != null && mth.getThrown().size() > 0) {
+                contentPanel.add(new JLabel("Throws:"));
+                for(String s : mth.getThrown()) { 
+                    contentPanel.add(new JLabel(s));
+                }
+            }            
+            
             contentPanel.add(new JLabel("Return type: " + mth.getReturnType()));
             
         }
