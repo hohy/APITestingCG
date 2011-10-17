@@ -5,6 +5,9 @@ package testlib1;
  * @author Jan Hýbl
  */
 public class ClassA {
+    public static final int CONST = 999;
+    public static final String WORD = "Hello";
+    
     public int apiMethodAdd(Integer a, Integer b) {
         return a + b;
     }
