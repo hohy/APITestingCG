@@ -13,7 +13,7 @@ public class ClassA {
         return a - b;
     }
     
-    public void exceptionMethod() throws Exception {
-        throw new Exception();
+    public void exceptionMethod() throws RuntimeException {
+        throw new RuntimeException();
     }
 }
