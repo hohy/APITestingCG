@@ -59,7 +59,7 @@ class ClassAExtender extends ClassA {
         System.out.println(apiMethodAdd(null, null));
         try {
             exceptionMethod();
-        } catch (Exception ex) {}
+        } catch (RuntimeException ex) {}
     }
         
     public void testProtectedMethods() {
