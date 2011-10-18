@@ -1,6 +1,7 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
+import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCModifiers;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -17,6 +18,8 @@ public class APIClass extends APIItem {
 
     private List<APIMethod> methods;
     private Set<APIField> fields;
+    private String extending;
+    private List<String> implementing;
 
     public APIClass(String name) {
         this.name = name;
@@ -30,6 +33,11 @@ public class APIClass extends APIItem {
         this.modifiers = jccd.mods.getFlags();
         this.fields = new HashSet<APIField>();
         this.kind = jccd.getKind();
+        if(jccd.getExtendsClause() != null) this.extending = jccd.getExtendsClause().getTree().toString();
+        if(jccd.getImplementsClause() != null) {
+            this.implementing = new LinkedList<String>();
+            for(JCExpression e : jccd.getImplementsClause()) this.implementing.add(e.toString());
+        }
     }
     
     public void addMethod(APIMethod method) {
