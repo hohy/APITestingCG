@@ -36,6 +36,7 @@ public class APIMethod extends APIItem {
         if(jcmd.getReturnType() == null) this.returnType = "void";
         else this.returnType = jcmd.getReturnType().toString();
         for(JCVariableDecl jcvd : jcmd.getParameters()) parameters.add(new APIField(jcvd));
+        this.kind = jcmd.getKind();
     }
 
     @Override

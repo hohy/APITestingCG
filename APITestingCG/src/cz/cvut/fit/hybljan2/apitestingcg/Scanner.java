@@ -21,9 +21,7 @@ import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 
 /**
- * Trida vezme danou slozku, preda javacu soubory, ktere obsahuje a vrati API
- * TODO Vylepsit tenhe popisek. Ted jeste presne nevim co to bude delat, tak to nemuzu poradne popsat
- * @author Jan Hýbl
+ * TODO: write some javadoc
  */
 public class Scanner {
     private String sourceDir;
@@ -37,7 +35,7 @@ public class Scanner {
     }
         
     /**
-     * Scan something
+     * Scan
      */
     public API scan() {
         try {

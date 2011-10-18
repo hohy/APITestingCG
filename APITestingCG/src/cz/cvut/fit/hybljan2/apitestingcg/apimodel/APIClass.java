@@ -29,6 +29,7 @@ public class APIClass extends APIItem {
         this.methods = new LinkedList<APIMethod>();        
         this.modifiers = jccd.mods.getFlags();
         this.fields = new HashSet<APIField>();
+        this.kind = jccd.getKind();
     }
     
     public void addMethod(APIMethod method) {

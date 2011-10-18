@@ -1,15 +1,11 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
  * APIViewForm.java
  *
  * Created on 16.10.2011, 16:13:55
  */
 package cz.cvut.fit.hybljan2.apitestingcg.view;
 
+import com.sun.tools.javac.tree.JCTree;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIField;
@@ -23,7 +19,7 @@ import javax.swing.tree.DefaultTreeModel;
 
 /**
  *
- * @author hohy
+ * @author Jan Hýbl
  */
 public class APIViewForm extends javax.swing.JFrame {
 
@@ -34,8 +30,7 @@ public class APIViewForm extends javax.swing.JFrame {
     public APIViewForm(API apiModel) {
         this.apiModel = apiModel;
         apiTreeModel = new DefaultTreeModel(generateAPITree());
-        initComponents();
-        
+        initComponents();        
     }
 
     /** This method is called from within the constructor to
@@ -104,7 +99,7 @@ public class APIViewForm extends javax.swing.JFrame {
         contentPanel.removeAll();
         
         JLabel nameLabel = new JLabel(item.getName());
-        nameLabel.setFont(new Font("Arial", Font.BOLD, 15));        
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 15));                        
         
         if(item.getClass().equals(APIPackage.class)) {
             APIPackage pkg = (APIPackage) item;
@@ -114,7 +109,7 @@ public class APIViewForm extends javax.swing.JFrame {
             
         } else if(item.getClass().equals(APIClass.class)) {
             APIClass cls = (APIClass) item;
-            contentPanel.add(new JLabel("class"));
+            contentPanel.add(new JLabel(item.getType().toString()));
             contentPanel.add(nameLabel);
             if(cls.getModifiers() != null) contentPanel.add(new JLabel("Modifiers: " + cls.getModifiers()));
             if(cls.getFields() != null && cls.getFields().size() > 0) {
@@ -125,7 +120,7 @@ public class APIViewForm extends javax.swing.JFrame {
             }
         } else if(item.getClass().equals(APIMethod.class)) {
             APIMethod mth = (APIMethod) item;
-            contentPanel.add(new JLabel("method"));
+            contentPanel.add(new JLabel(item.getType().toString()));
             contentPanel.add(nameLabel);
             
             if(mth.getModifiers() != null) contentPanel.add(new JLabel("Modifiers: " + mth.getModifiers()));
