@@ -11,6 +11,12 @@ import javax.lang.model.element.Modifier;
 public abstract class APIItem {
     protected String name;
     protected Set<Modifier> modifiers;
+    /**
+     * TODO: mozna, kdyz uz si delam svuj model API, tak bych si mel udělat 
+     * i vlastni ENUM pro Kind a nespolehat se na ten od Sunu... ale zase podle
+     * javadocu je tohle normálně veřejné API, ne jak ty věci z com.sun.tools.javac...
+     * takže bych to použít mohl...
+     */ 
     protected Kind kind;
     
     public String getName() {
