@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import testlib1.AnotationTest;
 import testlib1.ClassA;
 import testlib1.ClassB;
+import testlib1.ITestInterface;
 import testlib1.TestEnum;
 
 /**
@@ -118,4 +119,13 @@ class ClassBExender extends ClassB {
         return super.someMethod(param1, param2);
     }
     
+}
+
+class ITestInterfaceImplementator implements ITestInterface {
+
+    @Override
+    public void doSomething() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 }
