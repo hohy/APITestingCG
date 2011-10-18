@@ -1,5 +1,6 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
+import com.sun.source.tree.Tree.Kind;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,6 +15,7 @@ public class APIPackage extends APIItem{
     public APIPackage(String name) {
         this.name = name;
         classes = new LinkedList<APIClass>();
+        this.kind = Kind.COMPILATION_UNIT;
     }
     
     public void addClass(APIClass clazz) {

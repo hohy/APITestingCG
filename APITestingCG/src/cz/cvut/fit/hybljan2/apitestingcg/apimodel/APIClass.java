@@ -62,5 +62,13 @@ public class APIClass extends APIItem {
 
     public List<APIMethod> getMethods() {
         return methods;
-    }        
+    }
+
+    public String getExtending() {
+        return extending;
+    }
+
+    public List<String> getImplementing() {
+        return implementing;
+    }
 }

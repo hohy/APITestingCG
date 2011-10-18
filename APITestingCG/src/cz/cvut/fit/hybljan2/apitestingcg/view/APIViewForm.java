@@ -5,6 +5,7 @@
  */
 package cz.cvut.fit.hybljan2.apitestingcg.view;
 
+import com.sun.source.tree.Tree.Kind;
 import com.sun.tools.javac.tree.JCTree;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
@@ -12,7 +13,10 @@ import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIField;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIItem;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIMethod;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIPackage;
+import java.awt.Dimension;
 import java.awt.Font;
+import javax.lang.model.element.Modifier;
+import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -58,6 +62,8 @@ public class APIViewForm extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(apiTree);
 
+        contentPanel.setAlignmentX(5.0F);
+        contentPanel.setAlignmentY(5.0F);
         contentPanel.setLayout(new javax.swing.BoxLayout(contentPanel, javax.swing.BoxLayout.Y_AXIS));
 
         jLabel1.setText("<< Select API Item");
@@ -101,47 +107,76 @@ public class APIViewForm extends javax.swing.JFrame {
         JLabel nameLabel = new JLabel(item.getName());
         nameLabel.setFont(new Font("Arial", Font.BOLD, 15));                        
         
-        if(item.getClass().equals(APIPackage.class)) {
-            APIPackage pkg = (APIPackage) item;
-            // show info from pkg
-            contentPanel.add(new JLabel("package"));
-            contentPanel.add(nameLabel);
-            
-        } else if(item.getClass().equals(APIClass.class)) {
-            APIClass cls = (APIClass) item;
-            contentPanel.add(new JLabel(item.getType().toString()));
-            contentPanel.add(nameLabel);
-            if(cls.getModifiers() != null) contentPanel.add(new JLabel("Modifiers: " + cls.getModifiers()));
-            if(cls.getFields() != null && cls.getFields().size() > 0) {
-                contentPanel.add(new JLabel("Fields:"));
-                for(APIField f : cls.getFields()) { 
-                    contentPanel.add(new JLabel(f.toString()));
-                }
-            }
-        } else if(item.getClass().equals(APIMethod.class)) {
-            APIMethod mth = (APIMethod) item;
-            contentPanel.add(new JLabel(item.getType().toString()));
-            contentPanel.add(nameLabel);
-            
-            if(mth.getModifiers() != null) contentPanel.add(new JLabel("Modifiers: " + mth.getModifiers()));
-            
-            if(mth.getParameters() != null && mth.getParameters().size() > 0) {
-                contentPanel.add(new JLabel("Parameters:"));
-                for(APIField f : mth.getParameters()) { 
-                    contentPanel.add(new JLabel(f.toString()));
-                }
-            }
-            
-            if(mth.getThrown() != null && mth.getThrown().size() > 0) {
-                contentPanel.add(new JLabel("Throws:"));
-                for(String s : mth.getThrown()) { 
-                    contentPanel.add(new JLabel(s));
-                }
-            }            
-            
-            contentPanel.add(new JLabel("Return type: " + mth.getReturnType()));
-            
+        JLabel itemTypeLabel = new JLabel();
+        if(item.getType() == Kind.COMPILATION_UNIT) { // If its null then it is package
+            itemTypeLabel.setText("package");
+        } else {
+            itemTypeLabel.setText(item.getType().toString());
         }
+        
+        JLabel modifiersLabel = new JLabel();
+        if(item.getModifiers() != null) {
+            StringBuilder mods = new StringBuilder("Modifiers:");
+            for(Modifier m :item.getModifiers()) mods.append(' ').append(m.toString());
+            modifiersLabel.setText(mods.toString());
+        }
+        contentPanel.add(itemTypeLabel);
+        contentPanel.add(nameLabel);
+        contentPanel.add(Box.createVerticalStrut(10));
+        contentPanel.add(modifiersLabel);
+        contentPanel.add(contentPanel.add(Box.createVerticalStrut(10)));
+        
+        // add item-type specific content
+        switch(item.getType()) {
+            case CLASS:
+            case ANNOTATION:
+            case ENUM:
+                APIClass cls = (APIClass) item;
+                
+                if(cls.getExtending() != null) {
+                    JLabel extLabel = new JLabel("Extending: " + cls.getExtending());
+                    contentPanel.add(extLabel);
+                    contentPanel.add(contentPanel.add(Box.createVerticalStrut(10)));
+                }
+                
+                if(cls.getImplementing() != null && cls.getImplementing().size() > 0) {
+                    StringBuilder imp = new StringBuilder("Implementing:");
+                    for(String s : cls.getImplementing()) imp.append(' ').append(s);
+                    JLabel imlLabel = new JLabel(imp.toString());
+                    contentPanel.add(imlLabel);
+                    contentPanel.add(contentPanel.add(Box.createVerticalStrut(10)));
+                }
+                
+                // TODO: zobrazovat tady fields, nebo je dat do stromu?
+                if(cls.getFields() != null && cls.getFields().size() > 0) {
+                    contentPanel.add(new JLabel("Fields:"));
+                    for(APIField f : cls.getFields()) { 
+                        contentPanel.add(new JLabel("  " + f.toString()));
+                    }                    
+                }
+                break;
+            case METHOD:
+                APIMethod mth = (APIMethod) item;
+                
+                contentPanel.add(new JLabel("Return type: " + mth.getReturnType()));
+                contentPanel.add(contentPanel.add(Box.createVerticalStrut(10)));
+                
+                if(mth.getParameters() != null && mth.getParameters().size() > 0) {
+                    contentPanel.add(new JLabel("Parameters:"));
+                    for(APIField f : mth.getParameters()) { 
+                        contentPanel.add(new JLabel("  " + f.toString()));
+                    }
+                    contentPanel.add(contentPanel.add(Box.createVerticalStrut(10)));
+                }                                
+                
+                if(mth.getThrown() != null && mth.getThrown().size() > 0) {
+                    contentPanel.add(new JLabel("Throws:"));
+                    for(String s : mth.getThrown()) { 
+                        contentPanel.add(new JLabel("  " + s));
+                    }                    
+                } 
+                
+        }               
         //contentLabel.setText(item.toString());
         contentPanel.updateUI();
     }//GEN-LAST:event_sourceTreeValueChangedHandler

@@ -69,6 +69,10 @@
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
         <Container class="javax.swing.JPanel" name="contentPanel">
+          <Properties>
+            <Property name="alignmentX" type="float" value="5.0"/>
+            <Property name="alignmentY" type="float" value="5.0"/>
+          </Properties>
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout">
             <Property name="axis" type="int" value="1"/>
