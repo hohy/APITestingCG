@@ -2,6 +2,7 @@ package testlib1app;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import testlib1.AbstractClassC;
 import testlib1.AnotationTest;
 import testlib1.ClassA;
 import testlib1.ClassB;
@@ -126,6 +127,20 @@ class ITestInterfaceImplementator implements ITestInterface {
     @Override
     public void doSomething() {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+}
+
+class AbstractClassCExtender extends AbstractClassC {
+    
+    public void useMethodsAndFields() {
+        x = 5;
+        method();
+    }
+    
+    @Override
+    public void abstractMethod() {
+        System.out.println("Implementation of abstract method...");
     }
 
 }
