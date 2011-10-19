@@ -1,7 +1,9 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
+import com.sun.source.tree.Tree.Kind;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
+import java.lang.reflect.Field;
 import java.util.Set;
 import javax.lang.model.element.Modifier;
 
@@ -19,6 +21,20 @@ public class APIField extends APIItem{
         this.kind = jcvd.getKind();
     }
 
+    APIField(Field f) {
+        this.name = f.getName();
+        this.varType = f.getType().getSimpleName();
+        this.modifiers = getModifiersSet(f.getModifiers());
+        this.kind = Kind.OTHER;        // TODO: Find right kind
+    }
+
+    APIField(Class c) {
+        this.name = "var";
+        this.varType = c.getSimpleName();
+        this.modifiers = getModifiersSet(c.getModifiers());
+        this.kind = Kind.OTHER;        // TODO: Find right kind
+    }
+    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

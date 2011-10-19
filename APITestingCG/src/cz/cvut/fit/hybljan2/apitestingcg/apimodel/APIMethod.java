@@ -1,9 +1,11 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
+import com.sun.source.tree.Tree.Kind;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,6 +41,21 @@ public class APIMethod extends APIItem {
         this.kind = jcmd.getKind();
     }
 
+    public APIMethod(Method mth) {
+        this.name = mth.getName();
+        this.modifiers = getModifiersSet(mth.getModifiers());
+        this.thrown = new LinkedList<String>();
+        for(java.lang.reflect.Type excType : mth.getGenericExceptionTypes()) {
+            this.thrown.add(excType.getClass().getSimpleName());
+        }
+        this.parameters = new LinkedList<APIField>();
+        for(Class c : mth.getParameterTypes()) {
+            this.parameters.add(new APIField(c));
+        }        
+        this.returnType = mth.getReturnType().getSimpleName();
+        this.kind = Kind.METHOD;
+    }
+    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

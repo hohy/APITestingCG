@@ -18,6 +18,6 @@ public class APITestingCG {
         //APIScanner sc = new ByteCodeScanner("/home/hohy/NetBeansProjects/APITestingCG/testlibs/Lib1/TestLib1/dist/TestLib1.jar");
         APIScanner sc = new ByteCodeScanner("/media/data/javalibs/SmallSQL/smallsql.jar");
         API api = sc.scan();
-        //new APIViewForm(api).setVisible(true);
+        new APIViewForm(api).setVisible(true);
     }
 }

@@ -1,8 +1,12 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
+import com.sun.source.tree.Tree.Kind;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCModifiers;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,6 +44,26 @@ public class APIClass extends APIItem {
         }
     }
     
+    public APIClass(Class cls) {
+        this.name = cls.getSimpleName();
+        this.methods = new LinkedList<APIMethod>();        
+        for(Method mth : cls.getDeclaredMethods()) {
+            APIMethod apimth = new APIMethod(mth);
+            this.methods.add(apimth);
+        }
+        this.modifiers = getModifiersSet(cls.getModifiers());
+        this.fields = new HashSet<APIField>();
+        for(Field f : cls.getDeclaredFields()) {
+            fields.add(new APIField(f));
+        }
+        this.kind = getKind(cls);
+        if(cls.getSuperclass() != null) this.extending = cls.getSuperclass().getSimpleName();
+        this.implementing = new LinkedList<String>();
+        for(Class intfc : cls.getInterfaces()) {
+            this.implementing.add(intfc.getSimpleName());
+        }
+    }
+    
     public void addMethod(APIMethod method) {
         methods.add(method);
     }
@@ -70,5 +94,11 @@ public class APIClass extends APIItem {
 
     public List<String> getImplementing() {
         return implementing;
+    }
+
+    private Kind getKind(Class cls) {
+        // TODO: add other kinds like ENUM, ANOTATION...
+        if(java.lang.reflect.Modifier.isInterface(cls.getModifiers())) return Kind.INTERFACE;
+        return Kind.CLASS;
     }
 }

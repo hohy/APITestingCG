@@ -1,6 +1,8 @@
 package cz.cvut.fit.hybljan2.apitestingcg;
 
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIPackage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -8,6 +10,10 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.logging.Level;
@@ -28,6 +34,7 @@ public class ByteCodeScanner implements APIScanner {
     @Override
     public API scan() {
         JarInputStream jis = null;
+        Map<String, APIPackage> pkgMap = new TreeMap<String, APIPackage>();
         try {
             File jarFile = new File(jarFilePath);
             jis = new JarInputStream(new FileInputStream(jarFile));
@@ -43,8 +50,18 @@ public class ByteCodeScanner implements APIScanner {
                     className = className.substring(0,className.length() - 6);
                     System.out.println("Class: " + className);
                     Class classToLoad = Class.forName (className, true, urlcl);
-                    Method m[] = classToLoad.getDeclaredMethods();
-                    for (int i = 0; i < m.length; i++) System.out.println("  " + m[i].toString());
+                    //Method m[] = classToLoad.getDeclaredMethods();
+                    
+                    APIClass apicls = new APIClass(classToLoad);
+                    classToLoad.getPackage().getName();
+                    if(pkgMap.containsKey(classToLoad.getPackage().getName())) {
+                        pkgMap.get(classToLoad.getPackage().getName()).addClass(apicls);
+                    } else {
+                        APIPackage pkg = new APIPackage(classToLoad.getPackage().getName());
+                        pkg.addClass(apicls);
+                        pkgMap.put(pkg.getName(), pkg);
+                    }
+                    //for (int i = 0; i < m.length; i++) System.out.println("  " + m[i].toString());
                 } else {
                     System.out.println("Package: " + jarEntry.getName().substring(0, jarEntry.getName().length()-1).replaceAll("/", "\\."));
                 }                
@@ -61,7 +78,9 @@ public class ByteCodeScanner implements APIScanner {
                 Logger.getLogger(ByteCodeScanner.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        return null;
+        API api = new API(jarFilePath);
+        for(APIPackage pkg : pkgMap.values()) api.addPackage(pkg);
+        return api;
     }
     
 }
