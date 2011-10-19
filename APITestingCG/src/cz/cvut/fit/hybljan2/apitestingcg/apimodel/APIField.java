@@ -25,14 +25,14 @@ public class APIField extends APIItem{
         this.name = f.getName();
         this.varType = f.getType().getSimpleName();
         this.modifiers = getModifiersSet(f.getModifiers());
-        this.kind = Kind.OTHER;        // TODO: Find right kind
+        this.kind = Kind.VARIABLE;
     }
 
     APIField(Class c) {
         this.name = "var";
         this.varType = c.getSimpleName();
         this.modifiers = getModifiersSet(c.getModifiers());
-        this.kind = Kind.OTHER;        // TODO: Find right kind
+        this.kind = Kind.VARIABLE;
     }
     
     @Override
