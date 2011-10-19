@@ -3,6 +3,7 @@ package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 import com.sun.source.tree.Tree.Kind;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
+import cz.cvut.fit.hybljan2.apitestingcg.VariableNameManager;
 import java.lang.reflect.Field;
 import java.util.Set;
 import javax.lang.model.element.Modifier;
@@ -29,7 +30,7 @@ public class APIField extends APIItem{
     }
 
     APIField(Class c) {
-        this.name = "var";
+        this.name = VariableNameManager.getInstance().getVariableName();
         this.varType = c.getSimpleName();
         this.modifiers = getModifiersSet(c.getModifiers());
         this.kind = Kind.VARIABLE;

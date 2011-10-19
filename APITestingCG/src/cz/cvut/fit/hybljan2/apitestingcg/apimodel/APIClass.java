@@ -49,12 +49,17 @@ public class APIClass extends APIItem {
         this.methods = new LinkedList<APIMethod>();        
         for(Method mth : cls.getDeclaredMethods()) {
             APIMethod apimth = new APIMethod(mth);
-            this.methods.add(apimth);
+            if(apimth.getModifiers().contains(Modifier.PUBLIC) 
+                    || apimth.getModifiers().contains(Modifier.PROTECTED)) 
+                this.methods.add(apimth);
         }
         this.modifiers = getModifiersSet(cls.getModifiers());
         this.fields = new HashSet<APIField>();
         for(Field f : cls.getDeclaredFields()) {
-            fields.add(new APIField(f));
+            APIField apifield = new APIField(f);
+            if(apifield.getModifiers().contains(Modifier.PUBLIC) 
+                    || apifield.getModifiers().contains(Modifier.PROTECTED))
+                this.fields.add(new APIField(f));
         }
         this.kind = getKind(cls);
         if(cls.getSuperclass() != null) this.extending = cls.getSuperclass().getSimpleName();

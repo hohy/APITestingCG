@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashSet;
@@ -51,15 +52,16 @@ public class ByteCodeScanner implements APIScanner {
                     System.out.println("Class: " + className);
                     Class classToLoad = Class.forName (className, true, urlcl);
                     //Method m[] = classToLoad.getDeclaredMethods();
-                    
-                    APIClass apicls = new APIClass(classToLoad);
-                    classToLoad.getPackage().getName();
-                    if(pkgMap.containsKey(classToLoad.getPackage().getName())) {
-                        pkgMap.get(classToLoad.getPackage().getName()).addClass(apicls);
-                    } else {
-                        APIPackage pkg = new APIPackage(classToLoad.getPackage().getName());
-                        pkg.addClass(apicls);
-                        pkgMap.put(pkg.getName(), pkg);
+                    if(Modifier.isPublic(classToLoad.getModifiers()) || Modifier.isProtected(classToLoad.getModifiers())) {
+                        APIClass apicls = new APIClass(classToLoad);
+                        classToLoad.getPackage().getName();
+                        if(pkgMap.containsKey(classToLoad.getPackage().getName())) {
+                            pkgMap.get(classToLoad.getPackage().getName()).addClass(apicls);
+                        } else {
+                            APIPackage pkg = new APIPackage(classToLoad.getPackage().getName());
+                            pkg.addClass(apicls);
+                            pkgMap.put(pkg.getName(), pkg);
+                        }
                     }
                     //for (int i = 0; i < m.length; i++) System.out.println("  " + m[i].toString());
                 } else {
