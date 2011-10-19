@@ -13,8 +13,8 @@ public class APITestingCG {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        //Scanner sc = new Scanner("/media/data/javalibs/SmallSQL/src/smallsql/database", "", "1.5");
-        Scanner sc = new Scanner("/home/hohy/NetBeansProjects/APITestingCG/testlibs/Lib1/TestLib1", "", "1.6");
+        //Scanner sc = new SourceScanner("/media/data/javalibs/SmallSQL/src/smallsql/database", "", "1.5");
+        APIScanner sc = new SourceScanner("/home/hohy/NetBeansProjects/APITestingCG/testlibs/Lib1/TestLib1", "", "1.6");
         API api = sc.scan();
         new APIViewForm(api).setVisible(true);
     }

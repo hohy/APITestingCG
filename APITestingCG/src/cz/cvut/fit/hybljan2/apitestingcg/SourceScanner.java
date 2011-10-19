@@ -1,94 +1,112 @@
 package cz.cvut.fit.hybljan2.apitestingcg;
 
-import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.code.Symbol.ClassSymbol;
-import com.sun.tools.javac.code.Symbol.MethodSymbol;
-import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.tree.JCTree.JCAnnotation;
-import com.sun.tools.javac.tree.JCTree.JCClassDecl;
+import com.sun.source.tree.CompilationUnitTree;
+import com.sun.tools.javac.api.JavacTaskImpl;
+import com.sun.tools.javac.api.JavacTool;
+import com.sun.tools.javac.file.JavacFileManager;
+import com.sun.tools.javac.main.JavaCompiler;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
-import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
-import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
-import com.sun.tools.javac.tree.TreeScanner;
+import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.Options;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIField;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIMethod;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIPackage;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.tools.JavaFileManager;
+import javax.tools.JavaFileObject;
 
 /**
- *
- * @author Jan Hýbl
+ * TODO: write some javadoc
  */
-public class SourceScanner extends TreeScanner{
-    private int stack = 0;
-    private API api;
-    private APIPackage currentPackage;
-    private APIClass currentClass;
-    private Stack<APIClass> classes = new Stack<APIClass>();    
-    private Map<String, APIPackage> pkgs = new HashMap<String, APIPackage>();    
-    
-    public API getAPI() {
-        api = new API("");
-        for(APIPackage p : pkgs.values()) api.addPackage(p);
-        return api;
-    }
-    
-    @Override
-    public void visitTopLevel(JCCompilationUnit jccu) {
-        String n = jccu.packge.fullname.toString();
-        currentPackage = pkgs.get(n);
-        if (currentPackage == null) {
-            currentPackage = new APIPackage(n);
-            pkgs.put(n, currentPackage);
-        }
-        super.visitTopLevel(jccu);
-        currentPackage = null;        
-    }      
-    
-    @Override
-    public void visitClassDef(JCClassDecl jccd) {
-        ClassSymbol cs = jccd.sym;
-        if ((cs.flags() & (Flags.PUBLIC | Flags.PROTECTED)) != 0) {
-            classes.push(currentClass);
-            currentClass = new APIClass(jccd);
-            super.visitClassDef(jccd);
-            currentPackage.addClass(currentClass);
-            currentClass = classes.pop();
-        }
-    }
+public class SourceScanner implements APIScanner {
+    private String sourceDir;
+    private String classPath;
+    private String sourceVersion;
 
+    public SourceScanner(String sourceDir, String classPath, String sourceVersion) {
+        this.sourceDir = sourceDir;
+        this.classPath = classPath;
+        this.sourceVersion = sourceVersion;
+    }
+        
+    /**
+     * Scan
+     */
     @Override
-    public void visitMethodDef(JCMethodDecl jcmd) {
-        MethodSymbol ms = jcmd.sym;
-        if ((ms.flags() & Flags.DEPRECATED) != 0) {
-            System.out.println("deprecated: " + jcmd);
+    public API scan() {
+        try {
+            Context ctx = new Context();        
+            
+            Options opt = Options.instance(ctx);            
+            opt.put("-source", sourceVersion);
+            JavaCompiler compiler = JavaCompiler.instance(ctx);
+            compiler.attrParseOnly = true;
+            compiler.keepComments = true;            
+
+            List<String> files = listFiles(sourceDir);
+            
+            JavacFileManager fileManager = (JavacFileManager) ctx.get(JavaFileManager.class);
+            List<JavaFileObject> fileObjects = new ArrayList<JavaFileObject>();
+            for (String s : files) {
+                fileObjects.add(fileManager.getFileForInput(s));
+            }
+            
+            JavacTool tool = JavacTool.create();
+            List<String> options = Arrays.asList("-cp", classPath);
+            JavacTaskImpl javacTaskImpl = (JavacTaskImpl) tool.getTask(null, fileManager, null, options, null, fileObjects);
+            javacTaskImpl.updateContext(ctx);        
+            
+            Iterable<? extends CompilationUnitTree> units = javacTaskImpl.parse();
+            javacTaskImpl.analyze();
+            
+            SourceTreeScanner sc = new SourceTreeScanner();
+            for (CompilationUnitTree cut : units) {                
+                sc.visitTopLevel((JCCompilationUnit) cut);                
+            }
+            
+            API api = sc.getAPI();
+            return api;
+        } catch (IOException ex) {
+            Logger.getLogger(SourceScanner.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
         }
-        if ((ms.flags() & (Flags.PUBLIC | Flags.PROTECTED)) != 0) {
-            if ((ms.flags() & Flags.GENERATEDCONSTR) == 0) {
-                currentClass.addMethod(new APIMethod(jcmd));
-                super.visitMethodDef(jcmd);
+    }    
+
+    /**
+     * Gets list of java files in directory with given path.
+     * @param path
+     * @return 
+     */
+    private List<String> listFiles(String path) {
+        List<String> p = new ArrayList<String>();
+        File dir = new File(path);
+        FileFilter filter = new FileFilter() {
+
+            @Override
+            public boolean accept(File f) {
+                if (f.isDirectory()) {
+                    return true;
+                }
+                if (f.getName().endsWith(".java")) {
+                    return true;
+                }
+                return false;
+            }
+        };
+        for (File f : dir.listFiles(filter)) {
+            if (f.isFile()) {
+                p.add(f.getPath());
+            } else if (f.isDirectory()) {
+                List<String> pp = listFiles(f.getPath());
+                p.addAll(pp);
             }
         }
-    }
-    
-    private String getStackSpace() {
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0; i <= stack; i++) {
-            sb.append(' ');
-        }
-        return sb.toString();
+        return p;
     }
 
-    @Override
-    public void visitVarDef(JCVariableDecl jcvd) {
-        VarSymbol vs = jcvd.sym;
-        if ((vs.flags() & (Flags.PUBLIC | Flags.PROTECTED)) != 0) {
-            currentClass.addField(new APIField(jcvd));
-            super.visitVarDef(jcvd);
-        }
-    }
-    }
+}
