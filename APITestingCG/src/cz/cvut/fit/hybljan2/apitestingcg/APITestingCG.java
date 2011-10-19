@@ -14,8 +14,10 @@ public class APITestingCG {
      */
     public static void main(String[] args) {
         //Scanner sc = new SourceScanner("/media/data/javalibs/SmallSQL/src/smallsql/database", "", "1.5");
-        APIScanner sc = new SourceScanner("/home/hohy/NetBeansProjects/APITestingCG/testlibs/Lib1/TestLib1", "", "1.6");
+        //APIScanner sc = new SourceScanner("/home/hohy/NetBeansProjects/APITestingCG/testlibs/Lib1/TestLib1", "", "1.6");
+        //APIScanner sc = new ByteCodeScanner("/home/hohy/NetBeansProjects/APITestingCG/testlibs/Lib1/TestLib1/dist/TestLib1.jar");
+        APIScanner sc = new ByteCodeScanner("/media/data/javalibs/SmallSQL/smallsql.jar");
         API api = sc.scan();
-        new APIViewForm(api).setVisible(true);
+        //new APIViewForm(api).setVisible(true);
     }
 }
