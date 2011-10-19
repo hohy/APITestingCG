@@ -4,7 +4,7 @@ package testlib1;
  *
  * @author Jan Hýbl
  */
-public class ClassB {
+public class ClassB extends ClassA {
     public Object someMethod(Integer param1, Integer param2) {
         return null;
     }

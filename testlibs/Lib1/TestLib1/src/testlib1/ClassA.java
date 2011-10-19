@@ -4,7 +4,7 @@ package testlib1;
  *
  * @author Jan Hýbl
  */
-public class ClassA {
+public class ClassA implements ITestInterface {
     public static final int CONST = 999;
     public static final String WORD = "Hello";
     
@@ -18,5 +18,10 @@ public class ClassA {
     
     public void exceptionMethod() throws RuntimeException {
         throw new RuntimeException();
+    }
+
+    @Override
+    public void doSomething() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
