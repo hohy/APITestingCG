@@ -1,4 +1,4 @@
-package cz.cvut.fit.hybljan2.apitestingcg;
+package cz.cvut.fit.hybljan2.apitestingcg.scanner;
 
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;

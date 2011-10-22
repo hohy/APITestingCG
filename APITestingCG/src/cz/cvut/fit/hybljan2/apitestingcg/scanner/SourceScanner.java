@@ -1,4 +1,4 @@
-package cz.cvut.fit.hybljan2.apitestingcg;
+package cz.cvut.fit.hybljan2.apitestingcg.scanner;
 
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.tools.javac.api.JavacTaskImpl;

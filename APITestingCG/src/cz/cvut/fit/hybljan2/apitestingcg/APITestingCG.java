@@ -1,5 +1,7 @@
 package cz.cvut.fit.hybljan2.apitestingcg;
 
+import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
+import cz.cvut.fit.hybljan2.apitestingcg.scanner.ByteCodeScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 import cz.cvut.fit.hybljan2.apitestingcg.view.APIViewForm;
 

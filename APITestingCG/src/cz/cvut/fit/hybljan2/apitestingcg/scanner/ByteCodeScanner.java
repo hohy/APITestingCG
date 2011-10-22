@@ -1,4 +1,4 @@
-package cz.cvut.fit.hybljan2.apitestingcg;
+package cz.cvut.fit.hybljan2.apitestingcg.scanner;
 
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
