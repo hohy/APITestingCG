@@ -46,7 +46,7 @@ public class SourceScanner implements APIScanner {
             opt.put("-source", sourceVersion);
             JavaCompiler compiler = JavaCompiler.instance(ctx);
             compiler.attrParseOnly = true;
-            compiler.keepComments = true;            
+            compiler.keepComments = true;
 
             List<String> files = listFiles(sourceDir);
             
