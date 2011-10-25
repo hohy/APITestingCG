@@ -4,6 +4,7 @@ import com.sun.source.tree.Tree.Kind;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCModifiers;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.EnumSet;
@@ -46,7 +47,13 @@ public class APIClass extends APIItem {
     
     public APIClass(Class cls) {
         this.name = cls.getSimpleName();
-        this.methods = new LinkedList<APIMethod>();        
+        this.methods = new LinkedList<APIMethod>();  
+        for(Constructor constr : cls.getDeclaredConstructors()) {
+            APIMethod apimth = new APIMethod(constr);
+            if(apimth.getModifiers().contains(Modifier.PUBLIC) 
+                    || apimth.getModifiers().contains(Modifier.PROTECTED)) 
+                this.methods.add(apimth);
+        }
         for(Method mth : cls.getDeclaredMethods()) {
             APIMethod apimth = new APIMethod(mth);
             if(apimth.getModifiers().contains(Modifier.PUBLIC) 

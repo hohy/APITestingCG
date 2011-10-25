@@ -5,6 +5,7 @@ import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -45,8 +46,8 @@ public class APIMethod extends APIItem {
         this.name = mth.getName();
         this.modifiers = getModifiersSet(mth.getModifiers());
         this.thrown = new LinkedList<String>();
-        for(java.lang.reflect.Type excType : mth.getGenericExceptionTypes()) {
-            this.thrown.add(excType.getClass().getSimpleName());
+        for(java.lang.reflect.Type excType : mth.getExceptionTypes()) {
+            this.thrown.add(excType.toString().substring(6));  // TODO: toto by chtělo asi udělat nějak elegantnějš...            
         }
         this.parameters = new LinkedList<APIField>();
         for(Class c : mth.getParameterTypes()) {
@@ -54,6 +55,21 @@ public class APIMethod extends APIItem {
         }        
         this.returnType = mth.getReturnType().getSimpleName();
         this.kind = Kind.METHOD;
+    }
+    
+    public APIMethod(Constructor c) {
+        this.name = c.getName();
+        this.modifiers = getModifiersSet(c.getModifiers());
+        this.thrown = new LinkedList<String>();
+        for(java.lang.reflect.Type excType : c.getExceptionTypes()) {
+            this.thrown.add(excType.toString().substring(6));  // TODO: toto by chtělo asi udělat nějak elegantnějš...            
+        }
+        this.parameters = new LinkedList<APIField>();
+        for(Class paramc : c.getParameterTypes()) {
+            this.parameters.add(new APIField(paramc));
+        }        
+        this.returnType = null;
+        this.kind = Kind.METHOD;        
     }
     
     @Override

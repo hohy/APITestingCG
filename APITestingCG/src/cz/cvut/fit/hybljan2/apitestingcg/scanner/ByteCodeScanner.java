@@ -54,11 +54,12 @@ public class ByteCodeScanner implements APIScanner {
                     //Method m[] = classToLoad.getDeclaredMethods();
                     if(Modifier.isPublic(classToLoad.getModifiers()) || Modifier.isProtected(classToLoad.getModifiers())) {
                         APIClass apicls = new APIClass(classToLoad);
-                        classToLoad.getPackage().getName();
-                        if(pkgMap.containsKey(classToLoad.getPackage().getName())) {
-                            pkgMap.get(classToLoad.getPackage().getName()).addClass(apicls);
+                        String packageName = "default package";
+                        if(classToLoad.getPackage() != null) packageName = classToLoad.getPackage().getName();
+                        if(pkgMap.containsKey(packageName)) {
+                            pkgMap.get(packageName).addClass(apicls);
                         } else {
-                            APIPackage pkg = new APIPackage(classToLoad.getPackage().getName());
+                            APIPackage pkg = new APIPackage(packageName);
                             pkg.addClass(apicls);
                             pkgMap.put(pkg.getName(), pkg);
                         }
