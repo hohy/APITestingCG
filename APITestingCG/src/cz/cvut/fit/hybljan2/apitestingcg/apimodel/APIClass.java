@@ -109,7 +109,6 @@ public class APIClass extends APIItem {
     }
 
     private Kind getKind(Class cls) {
-        // TODO: add other kinds like ENUM, ANOTATION...
         if(cls.isAnnotation()) return Kind.ANNOTATION;
         if(cls.isInterface()) return Kind.INTERFACE;
         if(cls.isEnum()) return Kind.ENUM;        
