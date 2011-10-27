@@ -32,6 +32,10 @@ public abstract class APIItem {
         return kind;
     }
     
+    protected String getClassName(Class c) {
+        return c.getName();
+    }
+    
     protected Set<Modifier> getModifiersSet(int modifiers) {
         Set<Modifier> result = new HashSet<Modifier>();
         if(java.lang.reflect.Modifier.isAbstract(modifiers)) result.add(Modifier.ABSTRACT);

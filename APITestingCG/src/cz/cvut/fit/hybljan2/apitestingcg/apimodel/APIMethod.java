@@ -1,17 +1,13 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
 import com.sun.source.tree.Tree.Kind;
-import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import javax.lang.model.element.Modifier;
 
 /**
@@ -20,7 +16,7 @@ import javax.lang.model.element.Modifier;
  */
 public class APIMethod extends APIItem {
 
-    private List<APIField> parameters;
+    private List<String> parameters;
     private String returnType;
     private List<String> thrown;
     
@@ -35,10 +31,11 @@ public class APIMethod extends APIItem {
         if(jcmd.getThrows() != null) {
             for(JCExpression e : jcmd.getThrows()) this.thrown.add(e.toString());
         }
-        this.parameters = new LinkedList<APIField>();
+        this.parameters = new LinkedList<String>();
         if(jcmd.getReturnType() == null) this.returnType = "void";
         else this.returnType = jcmd.getReturnType().toString();
-        for(JCVariableDecl jcvd : jcmd.getParameters()) parameters.add(new APIField(jcvd));
+        // TODO: chtělo by to zjistit celé jméno třídy, včetně balíčku.
+        for(JCVariableDecl jcvd : jcmd.getParameters()) parameters.add(jcvd.getType().toString());
         this.kind = jcmd.getKind();
     }
 
@@ -49,9 +46,9 @@ public class APIMethod extends APIItem {
         for(java.lang.reflect.Type excType : mth.getExceptionTypes()) {
             this.thrown.add(excType.toString().substring(6));  // TODO: toto by chtělo asi udělat nějak elegantnějš...            
         }
-        this.parameters = new LinkedList<APIField>();
+        this.parameters = new LinkedList<String>();
         for(Class c : mth.getParameterTypes()) {
-            this.parameters.add(new APIField(c));
+            this.parameters.add(getClassName(c));
         }        
         this.returnType = mth.getReturnType().getSimpleName();
         this.kind = Kind.METHOD;
@@ -64,9 +61,9 @@ public class APIMethod extends APIItem {
         for(java.lang.reflect.Type excType : c.getExceptionTypes()) {
             this.thrown.add(excType.toString().substring(6));  // TODO: toto by chtělo asi udělat nějak elegantnějš...            
         }
-        this.parameters = new LinkedList<APIField>();
+        this.parameters = new LinkedList<String>();
         for(Class paramc : c.getParameterTypes()) {
-            this.parameters.add(new APIField(paramc));
+            this.parameters.add(getClassName(paramc));
         }        
         this.returnType = null;
         this.kind = Kind.METHOD;        
@@ -77,13 +74,13 @@ public class APIMethod extends APIItem {
         StringBuilder sb = new StringBuilder();
         for(Modifier m : modifiers) sb.append(m).append(' ');        
         sb.append(" method ").append(returnType).append(' ').append(name).append('(');
-        for(APIField f : parameters) sb.append(f).append(',');
+        for(String f : parameters) sb.append(f).append(',');
         if(parameters.size() > 0) sb.deleteCharAt(sb.length()-1);
         sb.append(')');
         return sb.toString();
     }
 
-    public List<APIField> getParameters() {
+    public List<String> getParameters() {
         return parameters;
     }
 

@@ -163,7 +163,7 @@ public class APIViewForm extends javax.swing.JFrame {
                 
                 if(mth.getParameters() != null && mth.getParameters().size() > 0) {
                     contentPanel.add(new JLabel("Parameters:"));
-                    for(APIField f : mth.getParameters()) { 
+                    for(String f : mth.getParameters()) { 
                         contentPanel.add(new JLabel("  " + f.toString()));
                     }
                     contentPanel.add(contentPanel.add(Box.createVerticalStrut(10)));
