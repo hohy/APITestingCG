@@ -33,7 +33,8 @@ public class SourceTreeScanner extends TreeScanner{
     
     public API getAPI() {
         api = new API("");
-        for(APIPackage p : pkgs.values()) api.addPackage(p);
+        // Add all packages to API. We don't want default package in API, we can't import it!
+        for(APIPackage p : pkgs.values()) if(!p.getName().equals("")) api.addPackage(p);
         return api;
     }
     
@@ -64,23 +65,12 @@ public class SourceTreeScanner extends TreeScanner{
     @Override
     public void visitMethodDef(JCMethodDecl jcmd) {
         MethodSymbol ms = jcmd.sym;
-        if ((ms.flags() & Flags.DEPRECATED) != 0) {
-            System.out.println("deprecated: " + jcmd);
-        }
         if ((ms.flags() & (Flags.PUBLIC | Flags.PROTECTED)) != 0) {
             if ((ms.flags() & Flags.GENERATEDCONSTR) == 0) {
                 currentClass.addMethod(new APIMethod(jcmd));
                 super.visitMethodDef(jcmd);
             }
         }
-    }
-    
-    private String getStackSpace() {
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0; i <= stack; i++) {
-            sb.append(' ');
-        }
-        return sb.toString();
     }
 
     @Override
