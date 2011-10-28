@@ -106,6 +106,8 @@ public class APIViewForm extends javax.swing.JFrame {
         
         JLabel nameLabel = new JLabel(item.getName());
         nameLabel.setFont(new Font("Arial", Font.BOLD, 15));                        
+        JLabel fullNameLabel = new JLabel();
+        fullNameLabel.setFont(new Font("Arial", Font.PLAIN, 10));
         
         JLabel itemTypeLabel = new JLabel();
         if(item.getType() == Kind.COMPILATION_UNIT) { // If its null then it is package
@@ -122,6 +124,7 @@ public class APIViewForm extends javax.swing.JFrame {
         }
         contentPanel.add(itemTypeLabel);
         contentPanel.add(nameLabel);
+        contentPanel.add(fullNameLabel);
         contentPanel.add(Box.createVerticalStrut(10));
         contentPanel.add(modifiersLabel);
         contentPanel.add(contentPanel.add(Box.createVerticalStrut(10)));
@@ -131,8 +134,9 @@ public class APIViewForm extends javax.swing.JFrame {
             case CLASS:
             case ANNOTATION:
             case ENUM:
+            case INTERFACE:
                 APIClass cls = (APIClass) item;
-                
+                fullNameLabel.setText(cls.getFullName());
                 if(cls.getExtending() != null) {
                     JLabel extLabel = new JLabel("Extending: " + cls.getExtending());
                     contentPanel.add(extLabel);

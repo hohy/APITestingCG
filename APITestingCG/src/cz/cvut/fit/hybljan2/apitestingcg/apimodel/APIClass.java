@@ -25,6 +25,8 @@ public class APIClass extends APIItem {
     private Set<APIField> fields;
     private String extending;
     private List<String> implementing;
+    // Full name of class (contains package name) - expample: java.util.Set
+    private String fullName;
 
     public APIClass(String name) {
         this.name = name;
@@ -34,6 +36,8 @@ public class APIClass extends APIItem {
 
     public APIClass(JCClassDecl jccd) {
         this.name = jccd.name.toString();
+        // TODO: don't know, how to get full name from source code
+        this.fullName = jccd.name.toString();
         this.methods = new LinkedList<APIMethod>();        
         this.modifiers = jccd.mods.getFlags();
         this.fields = new HashSet<APIField>();
@@ -47,6 +51,7 @@ public class APIClass extends APIItem {
     
     public APIClass(Class cls) {
         this.name = cls.getSimpleName();
+        this.fullName = getClassName(cls);
         this.methods = new LinkedList<APIMethod>();  
         for(Constructor constr : cls.getDeclaredConstructors()) {
             APIMethod apimth = new APIMethod(constr);
@@ -106,6 +111,10 @@ public class APIClass extends APIItem {
 
     public List<String> getImplementing() {
         return implementing;
+    }
+
+    public String getFullName() {
+        return fullName;
     }
 
     private Kind getKind(Class cls) {
