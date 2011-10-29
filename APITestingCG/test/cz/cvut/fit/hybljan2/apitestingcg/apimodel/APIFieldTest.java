@@ -52,7 +52,7 @@ public class APIFieldTest {
         String expResults[] = {
             "protected final double DOUBLE_CONST",
             "public static final int INT_CONST",
-            "public static final java.lang.Object OBJECT_CONST",            
+            "public static final Object OBJECT_CONST",            
             "public java.io.File file",
             "protected float floatVar",            
         };

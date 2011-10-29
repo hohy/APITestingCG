@@ -3,6 +3,7 @@ package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 import com.sun.source.tree.Tree.Kind;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import java.lang.reflect.Field;
+import java.util.Map;
 import javax.lang.model.element.Modifier;
 
 /**
@@ -12,9 +13,9 @@ import javax.lang.model.element.Modifier;
 public class APIField extends APIItem implements Comparable<APIField> {
     private String varType;
 
-    public APIField(JCVariableDecl jcvd) {
+    public APIField(JCVariableDecl jcvd, Map<String, String> importsMap) {
         this.name = jcvd.name.toString();
-        this.varType = jcvd.vartype.toString();
+        this.varType = getFullClassName(jcvd.vartype.toString(), importsMap);
         this.modifiers = jcvd.getModifiers().getFlags();
         this.kind = jcvd.getKind();
     }

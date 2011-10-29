@@ -4,9 +4,9 @@ import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
+import com.sun.tools.javac.tree.JCTree.JCImport;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.tree.TreeScanner;
@@ -24,7 +24,7 @@ import java.util.Stack;
  * @author Jan Hýbl
  */
 public class SourceTreeScanner extends TreeScanner{
-    private int stack = 0;
+    private Map<String,String> currentClassImports = new HashMap<String, String>();
     private API api;
     private APIPackage currentPackage;
     private APIClass currentClass;
@@ -53,12 +53,13 @@ public class SourceTreeScanner extends TreeScanner{
     @Override
     public void visitClassDef(JCClassDecl jccd) {
         ClassSymbol cs = jccd.sym;
-        if ((cs.flags() & (Flags.PUBLIC | Flags.PROTECTED)) != 0) {
+        if ((cs.flags() & (Flags.PUBLIC | Flags.PROTECTED)) != 0) {            
             classes.push(currentClass);
             currentClass = new APIClass(jccd);
             super.visitClassDef(jccd);
             currentPackage.addClass(currentClass);
-            currentClass = classes.pop();
+            currentClass = classes.pop(); 
+            currentClassImports = new HashMap<String, String>();
         }
     }
 
@@ -67,7 +68,7 @@ public class SourceTreeScanner extends TreeScanner{
         MethodSymbol ms = jcmd.sym;
         if ((ms.flags() & (Flags.PUBLIC | Flags.PROTECTED)) != 0) {
             if ((ms.flags() & Flags.GENERATEDCONSTR) == 0) {
-                currentClass.addMethod(new APIMethod(jcmd));
+                currentClass.addMethod(new APIMethod(jcmd, currentClassImports));
                 super.visitMethodDef(jcmd);
             }
         }
@@ -77,8 +78,18 @@ public class SourceTreeScanner extends TreeScanner{
     public void visitVarDef(JCVariableDecl jcvd) {
         VarSymbol vs = jcvd.sym;
         if ((vs.flags() & (Flags.PUBLIC | Flags.PROTECTED)) != 0) {
-            currentClass.addField(new APIField(jcvd));
-            super.visitVarDef(jcvd);
+            currentClass.addField(new APIField(jcvd, currentClassImports));
+            super.visitVarDef(jcvd);            
         }
     }
+
+    @Override
+    public void visitImport(JCImport jci) {        
+        String importClassName = jci.getQualifiedIdentifier().toString();
+        String simpleClassName = importClassName.substring(importClassName.lastIndexOf('.')+1);
+        currentClassImports.put(simpleClassName, importClassName);        
+        super.visitImport(jci);
+    }
+    
+    
     }

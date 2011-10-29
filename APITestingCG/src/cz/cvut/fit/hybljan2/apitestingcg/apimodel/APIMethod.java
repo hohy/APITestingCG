@@ -8,6 +8,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import javax.lang.model.element.Modifier;
 
 /**
@@ -24,18 +25,22 @@ public class APIMethod extends APIItem {
         this.name = name;
     }
 
-    public APIMethod(JCMethodDecl jcmd) {
+    public APIMethod(JCMethodDecl jcmd, Map<String, String> importsMap) {
         this.name = jcmd.name.toString();
         this.modifiers = jcmd.getModifiers().getFlags();
+        
         this.thrown = new LinkedList<String>();
         if(jcmd.getThrows() != null) {
-            for(JCExpression e : jcmd.getThrows()) this.thrown.add(e.toString());
+            for(JCExpression e : jcmd.getThrows()) 
+                this.thrown.add(getFullClassName(e.toString(), importsMap));
         }
-        this.parameters = new LinkedList<String>();
+        
         if(jcmd.getReturnType() == null) this.returnType = "void";
-        else this.returnType = jcmd.getReturnType().toString();
-        // TODO: chtělo by to zjistit celé jméno třídy, včetně balíčku.
-        for(JCVariableDecl jcvd : jcmd.getParameters()) parameters.add(jcvd.getType().toString());
+        else this.returnType = getFullClassName(jcmd.getReturnType().toString(), importsMap);
+                
+        this.parameters = new LinkedList<String>();
+        for(JCVariableDecl jcvd : jcmd.getParameters()) 
+            parameters.add(getFullClassName(jcvd.getType().toString(), importsMap));
         this.kind = jcmd.getKind();
     }
 

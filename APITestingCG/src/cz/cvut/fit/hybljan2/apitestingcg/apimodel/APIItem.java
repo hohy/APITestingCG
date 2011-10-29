@@ -2,6 +2,7 @@ package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
 import com.sun.source.tree.Tree.Kind;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.lang.model.element.Modifier;
 
@@ -51,6 +52,18 @@ public abstract class APIItem {
         if(java.lang.reflect.Modifier.isTransient(modifiers)) result.add(Modifier.TRANSIENT);
         if(java.lang.reflect.Modifier.isVolatile(modifiers)) result.add(Modifier.VOLATILE);
         return result;
+    }
+    
+    protected String getFullClassName(String simpleName, Map<String, String> importsMap) {
+        // if class name doesn't contains dot, 
+        // it's not full class name with package name
+        // have to try to add it.
+        if(!simpleName.contains(".")) { 
+            if(importsMap.containsKey(simpleName)) {
+                return importsMap.get(simpleName);                
+            }            
+        }
+        return simpleName;
     }
     
 }
