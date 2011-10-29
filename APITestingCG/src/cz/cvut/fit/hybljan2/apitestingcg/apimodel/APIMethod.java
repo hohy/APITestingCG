@@ -69,14 +69,21 @@ public class APIMethod extends APIItem {
         this.kind = Kind.METHOD;        
     }
     
+    /**
+     * Return string representation of APIMethod.
+     * Format is [Modifiers] method [Name] [ReturnType] ([Parameteres])
+     * Example: public static doSomething Object (int, double)
+     * @return 
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for(Modifier m : modifiers) sb.append(m).append(' ');        
-        sb.append(" method ").append(returnType).append(' ').append(name).append('(');
+        sb.append("method ").append(returnType).append(' ').append(name).append('(');
         for(String f : parameters) sb.append(f).append(',');
         if(parameters.size() > 0) sb.deleteCharAt(sb.length()-1);
         sb.append(')');
+        // TODO: add list of throws exceptions.
         return sb.toString();
     }
 
