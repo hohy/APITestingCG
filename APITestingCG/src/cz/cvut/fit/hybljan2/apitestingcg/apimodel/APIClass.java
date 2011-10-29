@@ -6,7 +6,6 @@ import com.sun.tools.javac.tree.JCTree.JCExpression;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -36,7 +35,6 @@ public class APIClass extends APIItem {
 
     public APIClass(JCClassDecl jccd) {
         this.name = jccd.name.toString();
-        // TODO: don't know, how to get full name from source code
         this.fullName = jccd.name.toString();
         this.methods = new LinkedList<APIMethod>();        
         this.modifiers = jccd.mods.getFlags();
@@ -89,11 +87,28 @@ public class APIClass extends APIItem {
         fields.add(field);
     }
 
+    /**
+     * Converts this class to String.
+     * String format: [modifiers] [kind] [fullName] extends [extending] implements [implementing]\n
+     * [fields] [methods]
+     * @return  String representation of this class 
+     */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Class ").append(name).append(" mods: ").append(modifiers).append('\n');
-        for(APIMethod m : methods) sb.append("      ").append(m).append('\n');
+        StringBuilder sb = new StringBuilder();        
+        if(modifiers != null && modifiers.size() > 0) {            
+            for(Modifier m : modifiers) sb.append(m).append(' ');
+        }
+        sb.append(kind).append(' ');
+        sb.append(fullName);
+        if(extending != null) sb.append(" extending ").append(extending);
+        if(implementing != null && implementing.size() > 0) {
+            sb.append(" implementing");
+            for(String i : implementing) sb.append(' ').append(i);
+        }
+        sb.append('\n');
+        if(fields != null) for(APIField f : fields) sb.append(' ').append(f.toString()).append('\n');
+        if(methods != null) for(APIMethod m : methods) sb.append(' ').append(m.toString()).append('\n');
         return sb.toString();
     }
 
