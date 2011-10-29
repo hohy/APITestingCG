@@ -1,19 +1,16 @@
 package cz.cvut.fit.hybljan2.apitestingcg.scanner;
 
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.ScannerConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIPackage;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
@@ -31,7 +28,14 @@ public class ByteCodeScanner implements APIScanner {
     public ByteCodeScanner(String jarFilePath) {
         this.jarFilePath = jarFilePath;
     }
-        
+
+    public ByteCodeScanner() {        
+    }
+    
+    @Override
+    public void setConfiguration(ScannerConfiguration sc) {
+        this.jarFilePath = sc.getPath();
+    }        
     @Override
     public API scan() {
         JarInputStream jis = null;
@@ -49,7 +53,7 @@ public class ByteCodeScanner implements APIScanner {
                 if(jarEntry.getName().endsWith(".class")) {                    
                     String className = jarEntry.getName().replaceAll("/", "\\.");
                     className = className.substring(0,className.length() - 6);
-                    System.out.println("Class: " + className);
+                    //System.out.println("Class: " + className);
                     Class classToLoad = Class.forName (className, true, urlcl);
                     //Method m[] = classToLoad.getDeclaredMethods();
                     if(Modifier.isPublic(classToLoad.getModifiers()) || Modifier.isProtected(classToLoad.getModifiers())) {
@@ -67,7 +71,7 @@ public class ByteCodeScanner implements APIScanner {
                     }
                     //for (int i = 0; i < m.length; i++) System.out.println("  " + m[i].toString());
                 } else {
-                    System.out.println("Package: " + jarEntry.getName().substring(0, jarEntry.getName().length()-1).replaceAll("/", "\\."));
+                    //System.out.println("Package: " + jarEntry.getName().substring(0, jarEntry.getName().length()-1).replaceAll("/", "\\."));
                 }                
             }
             

@@ -1,5 +1,6 @@
 package cz.cvut.fit.hybljan2.apitestingcg.scanner;
 
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.ScannerConfiguration;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.tools.javac.api.JavacTaskImpl;
 import com.sun.tools.javac.api.JavacTool;
@@ -33,7 +34,16 @@ public class SourceScanner implements APIScanner {
         this.classPath = classPath;
         this.sourceVersion = sourceVersion;
     }
-        
+
+    public SourceScanner() {        
+    }
+    
+    @Override
+    public void setConfiguration(ScannerConfiguration sc) {
+        if(sc.getPath() != null) this.sourceDir = sc.getPath();
+        if(sc.getClasspath() != null) this.classPath = sc.getClasspath();
+        if(sc.getSourceVersion() != null) this.sourceVersion = sc.getSourceVersion();
+    }        
     /**
      * Scan
      */
@@ -42,7 +52,7 @@ public class SourceScanner implements APIScanner {
         try {
             Context ctx = new Context();        
             
-            Options opt = Options.instance(ctx);            
+            Options opt = Options.instance(ctx); 
             opt.put("-source", sourceVersion);
             JavaCompiler compiler = JavaCompiler.instance(ctx);
             compiler.attrParseOnly = true;
