@@ -3,15 +3,15 @@ package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 import com.sun.source.tree.Tree.Kind;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
-import com.sun.tools.javac.tree.JCTree.JCModifiers;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import javax.lang.model.element.Modifier;
 
 /**
@@ -22,7 +22,7 @@ import javax.lang.model.element.Modifier;
 public class APIClass extends APIItem {
 
     private List<APIMethod> methods;
-    private Set<APIField> fields;
+    private SortedSet<APIField> fields;
     private String extending;
     private List<String> implementing;
     // Full name of class (contains package name) - expample: java.util.Set
@@ -31,7 +31,7 @@ public class APIClass extends APIItem {
     public APIClass(String name) {
         this.name = name;
         methods = new LinkedList<APIMethod>();
-        fields = new HashSet<APIField>();
+        fields = new TreeSet<APIField>();
     }
 
     public APIClass(JCClassDecl jccd) {
@@ -40,7 +40,7 @@ public class APIClass extends APIItem {
         this.fullName = jccd.name.toString();
         this.methods = new LinkedList<APIMethod>();        
         this.modifiers = jccd.mods.getFlags();
-        this.fields = new HashSet<APIField>();
+        this.fields = new TreeSet<APIField>();
         this.kind = jccd.getKind();
         if(jccd.getExtendsClause() != null) this.extending = jccd.getExtendsClause().getTree().toString();
         if(jccd.getImplementsClause() != null) {
@@ -66,7 +66,7 @@ public class APIClass extends APIItem {
                 this.methods.add(apimth);
         }
         this.modifiers = getModifiersSet(cls.getModifiers());
-        this.fields = new HashSet<APIField>();
+        this.fields = new TreeSet<APIField>();
         for(Field f : cls.getDeclaredFields()) {
             APIField apifield = new APIField(f);
             if(apifield.getModifiers().contains(Modifier.PUBLIC) 
