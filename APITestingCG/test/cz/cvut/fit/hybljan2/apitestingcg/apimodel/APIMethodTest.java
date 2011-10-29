@@ -1,5 +1,7 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
+import java.util.TreeSet;
+import java.util.Set;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import java.util.LinkedList;
 import java.util.List;
@@ -102,10 +104,10 @@ public class APIMethodTest {
     public void testGetThrown() {
         System.out.println("getThrown");        
         APIMethod instance = testInstaces[3];
-        List expResult = new LinkedList();
+        Set expResult = new TreeSet();
         expResult.add("java.lang.Exception");
         expResult.add("java.io.IOException");
-        List result = instance.getThrown();
+        Set result = instance.getThrown();
         assertEquals(expResult, result);
     }
 }

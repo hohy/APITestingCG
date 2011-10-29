@@ -9,6 +9,8 @@ import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import javax.lang.model.element.Modifier;
 
 /**
@@ -19,7 +21,7 @@ public class APIMethod extends APIItem {
 
     private List<String> parameters;
     private String returnType;
-    private List<String> thrown;
+    private SortedSet<String> thrown;
     
     public APIMethod(String name) {
         this.name = name;
@@ -29,7 +31,7 @@ public class APIMethod extends APIItem {
         this.name = jcmd.name.toString();
         this.modifiers = jcmd.getModifiers().getFlags();
         
-        this.thrown = new LinkedList<String>();
+        this.thrown = new TreeSet<String>();
         if(jcmd.getThrows() != null) {
             for(JCExpression e : jcmd.getThrows()) 
                 this.thrown.add(getFullClassName(e.toString(), importsMap));
@@ -47,7 +49,7 @@ public class APIMethod extends APIItem {
     public APIMethod(Method mth) {
         this.name = mth.getName();
         this.modifiers = getModifiersSet(mth.getModifiers());
-        this.thrown = new LinkedList<String>();
+        this.thrown = new TreeSet<String>();
         for(java.lang.reflect.Type excType : mth.getExceptionTypes()) {
             this.thrown.add(excType.toString().substring(6));  // TODO: toto by chtělo asi udělat nějak elegantnějš...            
         }
@@ -62,7 +64,7 @@ public class APIMethod extends APIItem {
     public APIMethod(Constructor c) {
         this.name = c.getName();
         this.modifiers = getModifiersSet(c.getModifiers());
-        this.thrown = new LinkedList<String>();
+        this.thrown = new TreeSet<String>();
         for(java.lang.reflect.Type excType : c.getExceptionTypes()) {
             this.thrown.add(excType.toString().substring(6));  // TODO: toto by chtělo asi udělat nějak elegantnějš...            
         }
@@ -88,7 +90,12 @@ public class APIMethod extends APIItem {
         for(String f : parameters) sb.append(f).append(',');
         if(parameters.size() > 0) sb.deleteCharAt(sb.length()-1);
         sb.append(')');
-        // TODO: add list of throws exceptions.
+        if(thrown != null && thrown.size() > 0) {
+            sb.append(" throws");
+            for(String ex : thrown) {
+                sb.append(" ").append(ex);
+            }
+        }
         return sb.toString();
     }
 
@@ -100,7 +107,7 @@ public class APIMethod extends APIItem {
         return returnType;
     }
 
-    public List<String> getThrown() {
+    public SortedSet<String> getThrown() {
         return thrown;
     }
         
