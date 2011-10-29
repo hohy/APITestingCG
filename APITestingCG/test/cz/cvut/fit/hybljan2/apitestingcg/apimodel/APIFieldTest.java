@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
  */
 public class APIFieldTest {
     
-    private static APIField[] testInstances = new APIField[4];
+    private static APIField[] testInstances = new APIField[5];
     
     public APIFieldTest() {
     }
@@ -53,7 +53,8 @@ public class APIFieldTest {
             "protected final double DOUBLE_CONST",
             "public static final int INT_CONST",
             "public static final Object OBJECT_CONST",            
-            "protected float floatVar",                
+            "public java.io.File file",
+            "protected float floatVar",            
         };
         for (int i = 0; i < expResults.length; i++) {
             String expResult = expResults[i];
