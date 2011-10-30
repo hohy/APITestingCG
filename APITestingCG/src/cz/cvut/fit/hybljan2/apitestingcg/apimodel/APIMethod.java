@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -23,8 +24,13 @@ public class APIMethod extends APIItem {
     private String returnType;
     private SortedSet<String> thrown;
     
-    public APIMethod(String name) {
+    public APIMethod(String name, Set<Modifier> modifiers, List<String> params, String returnType, SortedSet<String> thrown) {
         this.name = name;
+        this.kind = Kind.METHOD;
+        this.modifiers = modifiers;
+        this.parameters = params;
+        this.returnType = returnType;
+        this.thrown = thrown;
     }
 
     public APIMethod(JCMethodDecl jcmd, Map<String, String> importsMap) {
@@ -110,5 +116,26 @@ public class APIMethod extends APIItem {
     public SortedSet<String> getThrown() {
         return thrown;
     }
-        
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final APIMethod other = (APIMethod) obj;
+        if (this.parameters != other.parameters && (this.parameters == null || !this.parameters.equals(other.parameters))) {
+            return false;
+        }
+        if ((this.returnType == null) ? (other.returnType != null) : !this.returnType.equals(other.returnType)) {
+            return false;
+        }
+        if (this.thrown != other.thrown && (this.thrown == null || !this.thrown.equals(other.thrown))) {
+            return false;
+        }
+        if(!super.equals(obj)) return false;        
+        return true;
+    }
 }

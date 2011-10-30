@@ -6,7 +6,6 @@ import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Set;
-//import javax.lang.model.element.Modifier;
 
 /**
  *
@@ -19,6 +18,7 @@ public class APIField extends APIItem implements Comparable<APIField> {
         this.varType = varType;
         this.modifiers = modifiers;
         this.name = name;
+        this.kind = Kind.VARIABLE;
     }    
     
     public APIField(JCVariableDecl jcvd, Map<String, String> importsMap) {
@@ -60,4 +60,18 @@ public class APIField extends APIItem implements Comparable<APIField> {
     public int compareTo(APIField t) {
         return name.compareTo(t.name);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final APIField other = (APIField) obj;
+        
+        return this.name.equals(other.name) && this.kind.equals(other.kind) && this.modifiers.equals(other.modifiers) && this.varType.equals(other.varType);
+    }
+
 }

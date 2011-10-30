@@ -56,5 +56,25 @@ public abstract class APIItem {
         }
         return simpleName;
     }
-    
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final APIItem other = (APIItem) obj;
+        if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
+            return false;
+        }
+        if (this.modifiers != other.modifiers && (this.modifiers == null || !this.modifiers.equals(other.modifiers))) {
+            return false;
+        }
+        if (this.kind != other.kind) {
+            return false;
+        }
+        return true;
+    }
 }
