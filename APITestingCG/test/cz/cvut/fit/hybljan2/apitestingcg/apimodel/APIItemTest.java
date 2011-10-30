@@ -1,9 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
+import java.util.HashSet;
+import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import com.sun.source.tree.Tree.Kind;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,15 +16,20 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author hohy
+ * @author Jan Hybl
  */
 public class APIItemTest {
+    
+    private static APIItem[] testInstances = new APIItem[2];
     
     public APIItemTest() {
     }
 
     @BeforeClass
     public static void setUpClass() throws Exception {
+        SourceScanner sc = new SourceScanner("testres/testAPIClassRes/", "", "1.7");
+        API api = sc.scan();
+        api.getPackages().get(0).getClasses().toArray(testInstances);        
     }
 
     @AfterClass
@@ -47,11 +51,9 @@ public class APIItemTest {
     public void testGetName() {
         System.out.println("getName");
         APIItem instance = new APIItemImpl();
-        String expResult = "";
+        String expResult = "somePkgName.SomeAPIItem";
         String result = instance.getName();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -61,11 +63,11 @@ public class APIItemTest {
     public void testGetModifiers() {
         System.out.println("getModifiers");
         APIItem instance = new APIItemImpl();
-        Set expResult = null;
+        Set expResult = new HashSet<Modifier>();
+        expResult.add(Modifier.PUBLIC);
+        expResult.add(Modifier.FINAL);
         Set result = instance.getModifiers();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -75,30 +77,13 @@ public class APIItemTest {
     public void testGetType() {
         System.out.println("getType");
         APIItem instance = new APIItemImpl();
-        Kind expResult = null;
+        Kind expResult = Kind.CLASS;
         Kind result = instance.getType();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
-     * Test of getClassName method, of class APIItem.
-     */
-    @Test
-    public void testGetClassName() {
-        System.out.println("getClassName");
-        Class c = null;
-        APIItem instance = new APIItemImpl();
-        String expResult = "";
-        String result = instance.getClassName(c);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getFullClassName method, of class APIItem.
+     * Test of findFullClassName method, of class APIItem.
      */
     @Test
     public void testGetFullClassName() {
@@ -108,7 +93,7 @@ public class APIItemTest {
         importsMap.put("List", "java.util.List");
         APIItem instance = new APIItemImpl();
         String expResult = "java.util.List";
-        String result = instance.getFullClassName(simpleName, importsMap);
+        String result = instance.findFullClassName(simpleName, importsMap);
         assertEquals(expResult, result);
     }
 
@@ -121,10 +106,19 @@ public class APIItemTest {
         importsMap.put("File", "java.io.File");
         APIItem instance = new APIItemImpl();
         String expResult = "java.util.List<java.io.File>";
-        String result = instance.getFullClassName(simpleName, importsMap);
+        String result = instance.findFullClassName(simpleName, importsMap);
         assertEquals(expResult, result);    
     }
     
     public class APIItemImpl extends APIItem {
+
+        public APIItemImpl() {
+            name = "somePkgName.SomeAPIItem";
+            modifiers = new HashSet<Modifier>();
+            modifiers.add(Modifier.PUBLIC);
+            modifiers.add(Modifier.FINAL);            
+            kind = Kind.CLASS;            
+        }
+        
     }
 }
