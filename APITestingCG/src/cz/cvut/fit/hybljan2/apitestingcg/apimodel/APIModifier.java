@@ -11,7 +11,13 @@ public class APIModifier {
 
     public enum Modifier {
     PUBLIC, PROTECTED, PRIVATE, ABSTRACT, FINAL, NATIVE, STRICTFP, STATIC,
-    SYNCHRONIZED, TRANSIENT, VOLATILE }
+    SYNCHRONIZED, TRANSIENT, VOLATILE;
+
+        @Override
+        public String toString() {
+            return super.toString().toLowerCase();
+        }
+    }
 
     /**
      * Method that translate java.lang.reflect.Modifier to our APIModifier.
@@ -54,6 +60,5 @@ public class APIModifier {
         if(flags.contains(javax.lang.model.element.Modifier.VOLATILE)) result.add(Modifier.VOLATILE);
         return result;
     }
-    
-    
+
 }
