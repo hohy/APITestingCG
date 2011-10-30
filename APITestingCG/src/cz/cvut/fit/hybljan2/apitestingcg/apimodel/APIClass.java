@@ -41,16 +41,16 @@ public class APIClass extends APIItem {
         this.modifiers = APIModifier.getModifiersSet(jccd.mods.getFlags());
         this.fields = new TreeSet<APIField>();
         this.kind = jccd.getKind();
-        if(jccd.getExtendsClause() != null) this.extending = getFullClassName(jccd.getExtendsClause().getTree().toString(), importsMap);
+        if(jccd.getExtendsClause() != null) this.extending = findFullClassName(jccd.getExtendsClause().getTree().toString(), importsMap);
         if(jccd.getImplementsClause() != null) {
             this.implementing = new LinkedList<String>();
-            for(JCExpression e : jccd.getImplementsClause()) this.implementing.add(getFullClassName(e.toString(), importsMap));
+            for(JCExpression e : jccd.getImplementsClause()) this.implementing.add(findFullClassName(e.toString(), importsMap));
         }
     }
     
     public APIClass(Class cls) {
         this.name = cls.getSimpleName();
-        this.fullName = getClassName(cls);
+        this.fullName = cls.getName();
         this.methods = new LinkedList<APIMethod>();  
         for(Constructor constr : cls.getDeclaredConstructors()) {
             APIMethod apimth = new APIMethod(constr);

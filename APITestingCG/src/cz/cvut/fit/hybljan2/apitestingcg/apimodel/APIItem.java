@@ -32,11 +32,7 @@ public abstract class APIItem {
         return kind;
     }
     
-    protected String getClassName(Class c) {
-        return c.getName();
-    }    
-    
-    protected String getFullClassName(String simpleName, Map<String, String> importsMap) {
+    protected String findFullClassName(String simpleName, Map<String, String> importsMap) {
         // if class name doesn't contains dot, 
         // it's not full class name with package name
         // have to try to add it.

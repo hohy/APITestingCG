@@ -40,15 +40,15 @@ public class APIMethod extends APIItem {
         this.thrown = new TreeSet<String>();
         if(jcmd.getThrows() != null) {
             for(JCExpression e : jcmd.getThrows()) 
-                this.thrown.add(getFullClassName(e.toString(), importsMap));
+                this.thrown.add(findFullClassName(e.toString(), importsMap));
         }
         
         if(jcmd.getReturnType() == null) this.returnType = "void";
-        else this.returnType = getFullClassName(jcmd.getReturnType().toString(), importsMap);
+        else this.returnType = findFullClassName(jcmd.getReturnType().toString(), importsMap);
                 
         this.parameters = new LinkedList<String>();
         for(JCVariableDecl jcvd : jcmd.getParameters()) 
-            parameters.add(getFullClassName(jcvd.getType().toString(), importsMap));
+            parameters.add(findFullClassName(jcvd.getType().toString(), importsMap));
         this.kind = jcmd.getKind();
     }
 
@@ -61,7 +61,7 @@ public class APIMethod extends APIItem {
         }
         this.parameters = new LinkedList<String>();
         for(Class c : mth.getParameterTypes()) {
-            this.parameters.add(getClassName(c));
+            this.parameters.add(c.getName());
         }        
         this.returnType = mth.getReturnType().getSimpleName();
         this.kind = Kind.METHOD;
@@ -76,7 +76,7 @@ public class APIMethod extends APIItem {
         }
         this.parameters = new LinkedList<String>();
         for(Class paramc : c.getParameterTypes()) {
-            this.parameters.add(getClassName(paramc));
+            this.parameters.add(c.getName());
         }        
         this.returnType = null;
         this.kind = Kind.METHOD;        
