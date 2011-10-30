@@ -55,7 +55,7 @@ public class SourceTreeScanner extends TreeScanner{
         ClassSymbol cs = jccd.sym;
         if ((cs.flags() & (Flags.PUBLIC | Flags.PROTECTED)) != 0) {            
             classes.push(currentClass);
-            currentClass = new APIClass(jccd);
+            currentClass = new APIClass(jccd, currentPackage.getName(), currentClassImports);
             super.visitClassDef(jccd);
             currentPackage.addClass(currentClass);
             currentClass = classes.pop(); 
