@@ -40,7 +40,7 @@ public class APIClass extends APIItem {
         this.methods = new LinkedList<APIMethod>();        
         this.modifiers = APIModifier.getModifiersSet(jccd.mods.getFlags());
         this.fields = new TreeSet<APIField>();
-        this.kind = jccd.getKind();
+        this.kind = getKind(jccd.getKind());
         if(jccd.getExtendsClause() != null) this.extending = findFullClassName(jccd.getExtendsClause().getTree().toString(), importsMap);
         if(jccd.getImplementsClause() != null) {
             this.implementing = new LinkedList<String>();

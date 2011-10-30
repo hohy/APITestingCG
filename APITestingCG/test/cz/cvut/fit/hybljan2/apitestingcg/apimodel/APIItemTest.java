@@ -1,9 +1,9 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIItem.Kind;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import java.util.HashSet;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
-import com.sun.source.tree.Tree.Kind;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;

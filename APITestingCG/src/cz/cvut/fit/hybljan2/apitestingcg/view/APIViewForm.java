@@ -5,17 +5,16 @@
  */
 package cz.cvut.fit.hybljan2.apitestingcg.view;
 
-import com.sun.source.tree.Tree.Kind;
-import com.sun.tools.javac.tree.JCTree;
+
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIField;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIItem;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIItem.Kind;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIMethod;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIPackage;
-import java.awt.Dimension;
 import java.awt.Font;
-import javax.lang.model.element.Modifier;
 import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -110,7 +109,7 @@ public class APIViewForm extends javax.swing.JFrame {
         fullNameLabel.setFont(new Font("Arial", Font.PLAIN, 10));
         
         JLabel itemTypeLabel = new JLabel();
-        if(item.getType() == Kind.COMPILATION_UNIT) { // If its null then it is package
+        if(item.getType() == Kind.PACKAGE) { // If its null then it is package
             itemTypeLabel.setText("package");
         } else {
             itemTypeLabel.setText(item.getType().toString());

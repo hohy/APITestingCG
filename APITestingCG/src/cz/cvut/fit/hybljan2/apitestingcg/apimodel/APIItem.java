@@ -1,6 +1,5 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
-import com.sun.source.tree.Tree.Kind;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import java.util.Map;
 import java.util.Set;
@@ -13,10 +12,9 @@ public abstract class APIItem {
     protected String name;
     protected Set<Modifier> modifiers;
     /**
-     * TODO: mozna, kdyz uz si delam svuj model API, tak bych si mel udělat 
-     * i vlastni ENUM pro Kind a nespolehat se na ten od Sunu... ale zase podle
-     * javadocu je tohle normálně veřejné API, ne jak ty věci z com.sun.tools.javac...
-     * takže bych to použít mohl...
+     * TODO: Poutřebuju vůbec kind? bych řekl že skoro ne... by se to dalo 
+     * udelat jako normalni tridy... už to tak v podstate mam jen chybí intefacy
+     * enumy, anotace... ale to by byly jen potomci APIClass.
      */ 
     protected Kind kind;
     
@@ -32,6 +30,12 @@ public abstract class APIItem {
         return kind;
     }
     
+    /**
+     * Method adds to class simple name package name. Example: File -> java.io.File
+     * @param simpleName    Simple class name - without package name
+     * @param importsMap    Maps simple names to full names.
+     * @return  fulll class name 
+     */
     protected String findFullClassName(String simpleName, Map<String, String> importsMap) {
         // if class name doesn't contains dot, 
         // it's not full class name with package name
@@ -73,4 +77,21 @@ public abstract class APIItem {
         }
         return true;
     }
+
+    protected Kind getKind(com.sun.tools.javac.tree.JCTree.JCClassDecl.Kind kind) {
+        switch(kind) {
+            case CLASS: return Kind.CLASS;
+            case METHOD: return Kind.METHOD;
+            case INTERFACE: return Kind.INTERFACE;
+            case ANNOTATION: return Kind.ANNOTATION;
+            case ENUM: return Kind.ENUM;
+            case VARIABLE: return Kind.VARIABLE;
+        }
+        return null;
+    }    
+    
+    public enum Kind {
+        CLASS, METHOD, INTERFACE, ANNOTATION, ENUM, VARIABLE, PACKAGE
+    }
+
 }

@@ -49,7 +49,7 @@ public class APIMethod extends APIItem {
         this.parameters = new LinkedList<String>();
         for(JCVariableDecl jcvd : jcmd.getParameters()) 
             parameters.add(findFullClassName(jcvd.getType().toString(), importsMap));
-        this.kind = jcmd.getKind();
+        this.kind = getKind(jcmd.getKind());
     }
 
     public APIMethod(Method mth) {

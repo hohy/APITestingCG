@@ -15,7 +15,7 @@ public class APIPackage extends APIItem{
     public APIPackage(String name) {
         this.name = name;
         classes = new LinkedList<APIClass>();
-        this.kind = Kind.COMPILATION_UNIT;
+        this.kind = Kind.PACKAGE;
     }
     
     public void addClass(APIClass clazz) {

@@ -25,7 +25,7 @@ public class APIField extends APIItem implements Comparable<APIField> {
         this.name = jcvd.name.toString();
         this.varType = findFullClassName(jcvd.vartype.toString(), importsMap);
         this.modifiers = APIModifier.getModifiersSet(jcvd.getModifiers().getFlags());
-        this.kind = jcvd.getKind();
+        this.kind = getKind(jcvd.getKind());
     }
 
     public APIField(Field f) {
