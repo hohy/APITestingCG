@@ -4,6 +4,7 @@ import com.sun.source.tree.Tree.Kind;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
@@ -11,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import javax.lang.model.element.Modifier;
 
 /**
  * Represents method.
@@ -29,7 +29,7 @@ public class APIMethod extends APIItem {
 
     public APIMethod(JCMethodDecl jcmd, Map<String, String> importsMap) {
         this.name = jcmd.name.toString();
-        this.modifiers = jcmd.getModifiers().getFlags();
+        this.modifiers = APIModifier.getModifiersSet(jcmd.getModifiers().getFlags());
         
         this.thrown = new TreeSet<String>();
         if(jcmd.getThrows() != null) {
@@ -48,7 +48,7 @@ public class APIMethod extends APIItem {
 
     public APIMethod(Method mth) {
         this.name = mth.getName();
-        this.modifiers = getModifiersSet(mth.getModifiers());
+        this.modifiers = APIModifier.getModifiersSet(mth.getModifiers());
         this.thrown = new TreeSet<String>();
         for(java.lang.reflect.Type excType : mth.getExceptionTypes()) {
             this.thrown.add(excType.toString().substring(6));  // TODO: toto by chtělo asi udělat nějak elegantnějš...            
@@ -63,7 +63,7 @@ public class APIMethod extends APIItem {
     
     public APIMethod(Constructor c) {
         this.name = c.getName();
-        this.modifiers = getModifiersSet(c.getModifiers());
+        this.modifiers = APIModifier.getModifiersSet(c.getModifiers());
         this.thrown = new TreeSet<String>();
         for(java.lang.reflect.Type excType : c.getExceptionTypes()) {
             this.thrown.add(excType.toString().substring(6));  // TODO: toto by chtělo asi udělat nějak elegantnějš...            

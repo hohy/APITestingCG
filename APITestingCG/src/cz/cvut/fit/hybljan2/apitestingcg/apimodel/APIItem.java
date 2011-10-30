@@ -1,10 +1,9 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
 import com.sun.source.tree.Tree.Kind;
-import java.util.HashSet;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import java.util.Map;
 import java.util.Set;
-import javax.lang.model.element.Modifier;
 
 /**
  *
@@ -35,33 +34,25 @@ public abstract class APIItem {
     
     protected String getClassName(Class c) {
         return c.getName();
-    }
-    
-    protected Set<Modifier> getModifiersSet(int modifiers) {
-        Set<Modifier> result = new HashSet<Modifier>();
-        if(java.lang.reflect.Modifier.isAbstract(modifiers)) result.add(Modifier.ABSTRACT);
-        if(java.lang.reflect.Modifier.isFinal(modifiers)) result.add(Modifier.FINAL);
-//        if(java.lang.reflect.Modifier.isInterface(modifiers)) result.add(Modifier.);        
-        if(java.lang.reflect.Modifier.isNative(modifiers)) result.add(Modifier.NATIVE);
-        if(java.lang.reflect.Modifier.isPrivate(modifiers)) result.add(Modifier.PRIVATE);
-        if(java.lang.reflect.Modifier.isProtected(modifiers)) result.add(Modifier.PROTECTED);
-        if(java.lang.reflect.Modifier.isPublic(modifiers)) result.add(Modifier.PUBLIC);
-        if(java.lang.reflect.Modifier.isStatic(modifiers)) result.add(Modifier.STATIC);
-        if(java.lang.reflect.Modifier.isStrict(modifiers)) result.add(Modifier.STRICTFP);
-        if(java.lang.reflect.Modifier.isSynchronized(modifiers)) result.add(Modifier.SYNCHRONIZED);
-        if(java.lang.reflect.Modifier.isTransient(modifiers)) result.add(Modifier.TRANSIENT);
-        if(java.lang.reflect.Modifier.isVolatile(modifiers)) result.add(Modifier.VOLATILE);
-        return result;
-    }
+    }    
     
     protected String getFullClassName(String simpleName, Map<String, String> importsMap) {
         // if class name doesn't contains dot, 
         // it's not full class name with package name
         // have to try to add it.
-        if(!simpleName.contains(".")) { 
-            if(importsMap.containsKey(simpleName)) {
-                return importsMap.get(simpleName);                
-            }            
+        if(!simpleName.contains(".")) {
+            // if class is generics, we have to get full name for both classes
+            if(!simpleName.contains("<")) {                       
+                if(importsMap.containsKey(simpleName)) {
+                    return importsMap.get(simpleName);                
+                }
+            } else {
+                String firstName = simpleName.substring(0, simpleName.indexOf('<'));
+                String secondName = simpleName.substring(simpleName.indexOf('<')+1, simpleName.length()-1);
+                if(importsMap.containsKey(firstName)) firstName = importsMap.get(firstName);
+                if(importsMap.containsKey(secondName)) secondName = importsMap.get(secondName);
+                return firstName + '<' + secondName + '>';
+            }
         }
         return simpleName;
     }

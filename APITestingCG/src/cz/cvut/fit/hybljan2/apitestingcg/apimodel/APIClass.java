@@ -3,15 +3,16 @@ package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 import com.sun.source.tree.Tree.Kind;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import javax.lang.model.element.Modifier;
 
 /**
  * Represent java class. Store information about it. Contains list of class
@@ -33,17 +34,17 @@ public class APIClass extends APIItem {
         fields = new TreeSet<APIField>();
     }
 
-    public APIClass(JCClassDecl jccd) {
+    public APIClass(JCClassDecl jccd, String packageName, Map<String, String> importsMap) {
         this.name = jccd.name.toString();
-        this.fullName = jccd.name.toString();
+        this.fullName = packageName + '.' + jccd.name.toString();
         this.methods = new LinkedList<APIMethod>();        
-        this.modifiers = jccd.mods.getFlags();
+        this.modifiers = APIModifier.getModifiersSet(jccd.mods.getFlags());
         this.fields = new TreeSet<APIField>();
         this.kind = jccd.getKind();
-        if(jccd.getExtendsClause() != null) this.extending = jccd.getExtendsClause().getTree().toString();
+        if(jccd.getExtendsClause() != null) this.extending = getFullClassName(jccd.getExtendsClause().getTree().toString(), importsMap);
         if(jccd.getImplementsClause() != null) {
             this.implementing = new LinkedList<String>();
-            for(JCExpression e : jccd.getImplementsClause()) this.implementing.add(e.toString());
+            for(JCExpression e : jccd.getImplementsClause()) this.implementing.add(getFullClassName(e.toString(), importsMap));
         }
     }
     
@@ -63,7 +64,7 @@ public class APIClass extends APIItem {
                     || apimth.getModifiers().contains(Modifier.PROTECTED)) 
                 this.methods.add(apimth);
         }
-        this.modifiers = getModifiersSet(cls.getModifiers());
+        this.modifiers = APIModifier.getModifiersSet(cls.getModifiers());
         this.fields = new TreeSet<APIField>();
         for(Field f : cls.getDeclaredFields()) {
             APIField apifield = new APIField(f);
@@ -99,16 +100,15 @@ public class APIClass extends APIItem {
         if(modifiers != null && modifiers.size() > 0) {            
             for(Modifier m : modifiers) sb.append(m).append(' ');
         }
-        sb.append(kind).append(' ');
+        sb.append(kind.toString().toLowerCase()).append(' ');
         sb.append(fullName);
-        if(extending != null) sb.append(" extending ").append(extending);
+        if(extending != null) sb.append(" extends ").append(extending);
         if(implementing != null && implementing.size() > 0) {
-            sb.append(" implementing");
+            sb.append(" implements");
             for(String i : implementing) sb.append(' ').append(i);
         }
-        sb.append('\n');
-        if(fields != null) for(APIField f : fields) sb.append(' ').append(f.toString()).append('\n');
-        if(methods != null) for(APIMethod m : methods) sb.append(' ').append(m.toString()).append('\n');
+        if(fields != null) for(APIField f : fields) sb.append("\n ").append(f.toString());
+        if(methods != null) for(APIMethod m : methods) sb.append("\n ").append(m.toString());
         return sb.toString();
     }
 
