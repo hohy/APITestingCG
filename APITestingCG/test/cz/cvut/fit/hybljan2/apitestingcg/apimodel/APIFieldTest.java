@@ -4,8 +4,11 @@
  */
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
+import java.util.Set;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
+import java.util.HashSet;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -62,4 +65,44 @@ public class APIFieldTest {
             assertEquals(expResult, result);
         }
     }
+    
+    
+    @Test
+    public void testEquals() {
+        System.out.println("equals");
+        boolean expResult = true;
+        
+        Set<Modifier> modifiersA = new HashSet<Modifier>();
+        Set<Modifier> modifiersB = new HashSet<Modifier>();
+        modifiersA.add(Modifier.PUBLIC);                
+        modifiersA.add(Modifier.FINAL);
+        modifiersA.add(Modifier.STATIC);
+        modifiersB.add(Modifier.STATIC);
+        modifiersB.add(Modifier.FINAL);
+        modifiersB.add(Modifier.PUBLIC);
+        
+        APIField instanceA = new APIField("java.io.File", "src", modifiersA);
+        APIField instanceB = new APIField("java.io.File", "src", modifiersB);
+        
+        boolean result = instanceA.equals(instanceB);
+        
+        assertEquals(result, expResult);
+    }
+    
+    @Test
+    public void testEquals2() {
+        System.out.println("equals");
+        boolean expResult = false;
+        
+        Set<Modifier> modifiersA = new HashSet<Modifier>();
+        Set<Modifier> modifiersB = new HashSet<Modifier>();
+        modifiersA.add(Modifier.PUBLIC);        
+        modifiersB.add(Modifier.PROTECTED);        
+        APIField instanceA = new APIField("java.io.File", "src", modifiersA);
+        APIField instanceB = new APIField("java.io.File", "src", modifiersB);
+        
+        boolean result = instanceA.equals(instanceB);
+        
+        assertEquals(result, expResult);
+    }    
 }
