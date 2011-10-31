@@ -33,5 +33,19 @@ public class API extends APIItem{
     public List<APIPackage> getPackages() {
         return packages;
     }
-    
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final API other = (API) obj;
+        if (this.packages != other.packages && (this.packages == null || !this.packages.equals(other.packages))) {
+            return false;
+        }
+        return true;
+    }
 }

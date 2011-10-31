@@ -1,6 +1,5 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
-import com.sun.source.tree.Tree.Kind;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;

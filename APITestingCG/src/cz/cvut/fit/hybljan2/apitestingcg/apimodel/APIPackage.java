@@ -25,13 +25,28 @@ public class APIPackage extends APIItem{
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("package ").append(name).append('\n');
-        for(APIClass c : classes) sb.append("    ").append(c).append('\n');
+        sb.append("\npackage ").append(name).append("\n\n");
+        for(APIClass c : classes) sb.append(c).append('\n');
         return sb.toString();
     }
 
     public List<APIClass> getClasses() {
         return classes;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final APIPackage other = (APIPackage) obj;
+        if (this.classes != other.classes && (this.classes == null || !this.classes.equals(other.classes))) {
+            return false;
+        }
+        return true;
     }
     
 }

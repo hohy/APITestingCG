@@ -1,10 +1,12 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
+import java.util.List;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIItem.Kind;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import java.util.HashSet;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import org.junit.After;
@@ -66,7 +68,7 @@ public class APIItemTest {
         Set expResult = new HashSet<Modifier>();
         expResult.add(Modifier.PUBLIC);
         expResult.add(Modifier.FINAL);
-        Set result = instance.getModifiers();
+        List result = instance.getModifiers();
         assertEquals(expResult, result);
     }
 
@@ -114,7 +116,7 @@ public class APIItemTest {
 
         public APIItemImpl() {
             name = "somePkgName.SomeAPIItem";
-            modifiers = new HashSet<Modifier>();
+            modifiers = new LinkedList<Modifier> ();
             modifiers.add(Modifier.PUBLIC);
             modifiers.add(Modifier.FINAL);            
             kind = Kind.CLASS;            

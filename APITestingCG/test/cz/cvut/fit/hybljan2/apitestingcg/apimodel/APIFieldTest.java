@@ -4,6 +4,8 @@
  */
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
+import java.util.List;
+import java.util.LinkedList;
 import java.util.Set;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
@@ -72,8 +74,8 @@ public class APIFieldTest {
         System.out.println("equals");
         boolean expResult = true;
         
-        Set<Modifier> modifiersA = new HashSet<Modifier>();
-        Set<Modifier> modifiersB = new HashSet<Modifier>();
+        List<Modifier> modifiersA = new LinkedList<Modifier>();
+        List<Modifier> modifiersB = new LinkedList<Modifier>();
         modifiersA.add(Modifier.PUBLIC);                
         modifiersA.add(Modifier.FINAL);
         modifiersA.add(Modifier.STATIC);
@@ -94,8 +96,8 @@ public class APIFieldTest {
         System.out.println("equals");
         boolean expResult = false;
         
-        Set<Modifier> modifiersA = new HashSet<Modifier>();
-        Set<Modifier> modifiersB = new HashSet<Modifier>();
+        List<Modifier> modifiersA = new LinkedList<Modifier>();
+        List<Modifier> modifiersB = new LinkedList<Modifier>();
         modifiersA.add(Modifier.PUBLIC);        
         modifiersB.add(Modifier.PROTECTED);        
         APIField instanceA = new APIField("java.io.File", "src", modifiersA);

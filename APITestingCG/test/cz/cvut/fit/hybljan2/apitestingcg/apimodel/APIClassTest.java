@@ -59,7 +59,7 @@ public class APIClassTest {
         System.out.println("addMethod");
         
         List<String> params = new LinkedList<String>();  
-        Set<Modifier> modifiers = new HashSet<Modifier>();
+        List<Modifier> modifiers = new LinkedList<Modifier>();
         modifiers.add(Modifier.PUBLIC);
         SortedSet<String> thrown = new TreeSet<String>();
         APIMethod method1 = new APIMethod("run", modifiers, params, "void", thrown); 
@@ -83,7 +83,7 @@ public class APIClassTest {
     public void testAddField() {
         System.out.println("addField");
         
-        Set<Modifier> modifiers2 = new TreeSet<Modifier>();
+        List<Modifier> modifiers2 = new LinkedList<Modifier>();
         modifiers2.add(Modifier.PROTECTED);
         APIField field = new APIField("java.io.File", "source", modifiers2);
         
@@ -124,12 +124,12 @@ public class APIClassTest {
         APIClass instance = testInstances[1];
          
         Set expResult = new TreeSet();
-        Set<Modifier> modifiers = new TreeSet<Modifier>();
+        List<Modifier> modifiers = new LinkedList<Modifier>();
         modifiers.add(Modifier.PUBLIC);
         modifiers.add(Modifier.STATIC);
         modifiers.add(Modifier.FINAL);        
         expResult.add(new APIField("int", "SIZE", modifiers));
-        Set<Modifier> modifiers2 = new TreeSet<Modifier>();
+        List<Modifier> modifiers2 = new LinkedList<Modifier>();
         modifiers2.add(Modifier.PROTECTED);
         expResult.add(new APIField("java.io.File", "source", modifiers2));
         
@@ -147,7 +147,7 @@ public class APIClassTest {
         List expResult = new LinkedList();
         
         List<String> params = new LinkedList<String>();  
-        Set<Modifier> modifiers = new HashSet<Modifier>();
+        List<Modifier> modifiers = new LinkedList<Modifier>();
         modifiers.add(Modifier.PUBLIC);
         SortedSet<String> thrown = new TreeSet<String>();
         APIMethod method1 = new APIMethod("run", modifiers, params, "void", thrown);        
@@ -156,7 +156,7 @@ public class APIClassTest {
         List<String> params2 = new LinkedList<String>();
         params2.add("String");
         params2.add("int");
-        Set<Modifier> modifiers2 = new HashSet<Modifier>();
+        List<Modifier> modifiers2 = new LinkedList<Modifier>();
         modifiers2.add(Modifier.PROTECTED);
         SortedSet<String> thrown2 = new TreeSet<String>();
         thrown2.add("java.io.IOException");       

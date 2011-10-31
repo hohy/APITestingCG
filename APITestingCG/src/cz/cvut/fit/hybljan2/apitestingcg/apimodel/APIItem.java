@@ -1,6 +1,7 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -10,7 +11,7 @@ import java.util.Set;
  */
 public abstract class APIItem {
     protected String name;
-    protected Set<Modifier> modifiers;
+    protected List<Modifier> modifiers;
     /**
      * TODO: Poutřebuju vůbec kind? bych řekl že skoro ne... by se to dalo 
      * udelat jako normalni tridy... už to tak v podstate mam jen chybí intefacy
@@ -22,7 +23,7 @@ public abstract class APIItem {
         return name;
     }
     
-    public Set<Modifier> getModifiers() {
+    public List<Modifier> getModifiers() {
         return modifiers;
     }
 

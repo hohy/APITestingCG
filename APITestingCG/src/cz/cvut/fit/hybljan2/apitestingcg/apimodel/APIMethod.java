@@ -24,7 +24,7 @@ public class APIMethod extends APIItem {
     private String returnType;
     private SortedSet<String> thrown;
     
-    public APIMethod(String name, Set<Modifier> modifiers, List<String> params, String returnType, SortedSet<String> thrown) {
+    public APIMethod(String name, List<Modifier> modifiers, List<String> params, String returnType, SortedSet<String> thrown) {
         this.name = name;
         this.kind = Kind.METHOD;
         this.modifiers = modifiers;
