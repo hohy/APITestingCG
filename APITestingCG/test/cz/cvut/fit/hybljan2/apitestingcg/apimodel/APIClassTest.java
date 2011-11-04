@@ -8,7 +8,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -174,16 +173,7 @@ public class APIClassTest {
         List expResult = new LinkedList();        
         List result = instance.getMethods();
         assertEquals(expResult, result);
-    }
-    
-    @Test
-    public void testGetMethods3() {
-        System.out.println("getMethods");
-        APIClass instance = testInstances[0];
-        List expResult = null;
-        List result = instance.getMethods();
-        assertEquals(expResult, result);
-    }    
+    }      
     
     /**
      * Test of getExtending method, of class APIClass.
@@ -204,16 +194,7 @@ public class APIClassTest {
         String expResult = null;
         String result = instance.getExtending();
         assertEquals(expResult, result);        
-    }    
-
-    @Test
-    public void testGetExtending3() {
-        System.out.println("getExtending");
-        APIClass instance = testInstances[0];
-        String expResult = "";
-        String result = instance.getExtending();
-        assertEquals(expResult, result);        
-    }    
+    }       
     
     /**
      * Test of getImplementing method, of class APIClass.
@@ -236,16 +217,7 @@ public class APIClassTest {
         List expResult = new LinkedList();
         List result = instance.getImplementing();
         assertEquals(expResult, result);        
-    }
-    
-    @Test
-    public void testGetImplementing3() {
-        System.out.println("getImplementing");
-        APIClass instance = testInstances[0];
-        List expResult = null;
-        List result = instance.getImplementing();
-        assertEquals(expResult, result);        
-    }
+    }   
         
     /**
      * Test of getFullName method, of class APIClass.
