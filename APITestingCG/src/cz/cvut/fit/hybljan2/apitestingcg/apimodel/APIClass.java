@@ -23,14 +23,18 @@ public class APIClass extends APIItem {
     private List<APIMethod> methods;
     private SortedSet<APIField> fields;
     private String extending;
-    private List<String> implementing;
+    private List<String> implementing = new LinkedList<String>();
     // Full name of class (contains package name) - expample: java.util.Set
     private String fullName;
 
     public APIClass(String name) {
         this.name = name;
+        this.fullName = name;
         methods = new LinkedList<APIMethod>();
         fields = new TreeSet<APIField>();
+        kind = Kind.CLASS;
+        modifiers = new LinkedList<Modifier>();
+        modifiers.add(Modifier.PUBLIC);
     }
 
     public APIClass(JCClassDecl jccd, String packageName, Map<String, String> importsMap) {
@@ -137,4 +141,39 @@ public class APIClass extends APIItem {
         if(cls.isEnum()) return Kind.ENUM;        
         return Kind.CLASS;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final APIClass other = (APIClass) obj;
+        if (this.methods != other.methods && (this.methods == null || !this.methods.equals(other.methods))) {
+            return false;
+        }
+        if (this.fields != other.fields && (this.fields == null || !this.fields.equals(other.fields))) {
+            return false;
+        }
+        if ((this.extending == null) ? (other.extending != null) : !this.extending.equals(other.extending)) {
+            return false;
+        }
+        if (this.implementing != other.implementing && (this.implementing == null || !this.implementing.equals(other.implementing))) {
+            return false;
+        }
+        if ((this.fullName == null) ? (other.fullName != null) : !this.fullName.equals(other.fullName)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        return hash;
+    }
+    
+    
 }

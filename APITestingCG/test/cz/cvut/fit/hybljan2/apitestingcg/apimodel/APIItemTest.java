@@ -65,7 +65,7 @@ public class APIItemTest {
     public void testGetModifiers() {
         System.out.println("getModifiers");
         APIItem instance = new APIItemImpl();
-        Set expResult = new HashSet<Modifier>();
+        List expResult = new LinkedList<Modifier>();
         expResult.add(Modifier.PUBLIC);
         expResult.add(Modifier.FINAL);
         List result = instance.getModifiers();

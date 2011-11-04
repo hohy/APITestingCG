@@ -26,8 +26,8 @@ public class APIPackage extends APIItem{
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("\npackage ").append(name).append("\n\n");
-        for(APIClass c : classes) sb.append(c).append('\n');
-        return sb.toString();
+        for(APIClass c : classes) sb.append(c).append("\n");
+        return sb.toString().substring(0, sb.length()-1);
     }
 
     public List<APIClass> getClasses() {

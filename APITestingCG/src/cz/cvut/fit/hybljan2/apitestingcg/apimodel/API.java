@@ -26,8 +26,8 @@ public class API extends APIItem{
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("API ").append(name).append(":\n");
-        for(APIPackage p : packages) sb.append("  ").append(p).append('\n');
-        return sb.toString();
+        for(APIPackage p : packages) sb.append(p).append('\n');
+        return sb.toString().substring(0,sb.length()-1);
     }
 
     public List<APIPackage> getPackages() {

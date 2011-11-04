@@ -1,6 +1,7 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -70,9 +71,12 @@ public abstract class APIItem {
         if ((this.name == null) ? (other.name != null) : !this.name.equals(other.name)) {
             return false;
         }
-        if (this.modifiers != other.modifiers && (this.modifiers == null || !this.modifiers.equals(other.modifiers))) {
-            return false;
-        }
+        
+        //public static is equal to static public, so create set from list and compare it
+        Set modsA = new HashSet(modifiers);
+        Set modsB = new HashSet(other.modifiers);
+        if(!modsA.equals(modsB)) return false;
+        
         if (this.kind != other.kind) {
             return false;
         }

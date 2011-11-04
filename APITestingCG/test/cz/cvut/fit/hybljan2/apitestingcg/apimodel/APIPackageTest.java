@@ -71,8 +71,6 @@ public class APIPackageTest {
         APIPackage instance = testInstances[0];
         String expResult = readFileToString("testres" + File.separator + "testAPIPackageRes" + File.separator + "testAPIPackageRes.string");
         String result = instance.toString();  
-        System.out.println("E:" + expResult);
-        System.out.println("R:" + result);
         assertEquals(expResult, result);
     }
 
