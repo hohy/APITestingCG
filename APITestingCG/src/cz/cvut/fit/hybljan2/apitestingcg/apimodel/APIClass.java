@@ -119,18 +119,37 @@ public class APIClass extends APIItem {
         return fields;
     }
 
+    /**
+     * Return list of method of the class. Return empty list, if class has no methods.
+     * @return 
+     */
     public List<APIMethod> getMethods() {
         return methods;
     }
 
+    /**
+     * Return name of class, that class is extending. Return null, if class extending
+     * java.lang.Object (default situation).
+     * @return 
+     */
     public String getExtending() {
         return extending;
     }
 
+    /**
+     * Return list of names of interfaces, that class is implmenting. Return empty list,
+     * if class implements no interface.
+     * @return 
+     */
     public List<String> getImplementing() {
         return implementing;
     }
 
+    /**
+     * Return full name of class - with package name.
+     * Example: java.io.File
+     * @return 
+     */
     public String getFullName() {
         return fullName;
     }
@@ -167,12 +186,6 @@ public class APIClass extends APIItem {
             return false;
         }
         return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        return hash;
     }
     
     
