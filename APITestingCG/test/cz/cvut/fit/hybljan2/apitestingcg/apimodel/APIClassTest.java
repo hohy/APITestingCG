@@ -1,5 +1,6 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
+import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
@@ -70,7 +71,7 @@ public class APIClassTest {
         instance.addMethod(method1);
         
         String resultString = instance.toString();
-        String expString = readFileToString("testres" + File.separator + "testAPIClassRes" + File.separator + "TestAPIClass2.string");
+        String expString = TestUtils.readFileToString("testres" + File.separator + "testAPIClassRes" + File.separator + "TestAPIClass2.string");
         
         assertEquals(expString, resultString);
     }
@@ -93,7 +94,7 @@ public class APIClassTest {
         instance.addField(field);
         
         String resultString = instance.toString();
-        String expString = readFileToString("testres" + File.separator + "testAPIClassRes" + File.separator + "TestAPIClass3.string");
+        String expString = TestUtils.readFileToString("testres" + File.separator + "testAPIClassRes" + File.separator + "TestAPIClass3.string");
         
         assertEquals(expString, resultString);
     }
@@ -108,7 +109,7 @@ public class APIClassTest {
     public void testToString() {
         System.out.println("toString");
         for(APIClass cls : testInstances) {
-            String expResult = readFileToString("testres" + File.separatorChar + "testAPIClassRes" + File.separatorChar + cls.getName() + ".string");
+            String expResult = TestUtils.readFileToString("testres" + File.separatorChar + "testAPIClassRes" + File.separatorChar + cls.getName() + ".string");
             String result = cls.toString();
             assertEquals(expResult, result);
         }
@@ -239,25 +240,4 @@ public class APIClassTest {
         String result = instance.getFullName();
         assertEquals(expResult, result);        
     }    
-
-    private String readFileToString(String fileName) {
-        StringBuilder sb = new StringBuilder();
-        BufferedReader br = null;
-        try {
-            br = new BufferedReader(new FileReader(fileName));
-            String line;
-            while((line = br.readLine()) != null) {
-                sb.append('\n').append(line);
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(APIClassTest.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                br.close();
-            } catch (IOException ex) {
-                Logger.getLogger(APIClassTest.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        return sb.toString().substring(1);
-    }
 }

@@ -4,6 +4,7 @@
  */
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
+import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -69,7 +70,7 @@ public class APIPackageTest {
     public void testToString() {
         System.out.println("toString");
         APIPackage instance = testInstances[0];
-        String expResult = readFileToString("testres" + File.separator + "testAPIPackageRes" + File.separator + "testAPIPackageRes.string");
+        String expResult = TestUtils.readFileToString("testres" + File.separator + "testAPIPackageRes" + File.separator + "testAPIPackageRes.string");
         String result = instance.toString();  
         assertEquals(expResult, result);
     }
@@ -106,28 +107,5 @@ public class APIPackageTest {
         boolean result = instance.equals(obj);
         assertEquals(expResult, result);        
     }
-
-    private String readFileToString(String fileName) {
-        StringBuilder sb = new StringBuilder();
-        BufferedReader br = null;
-        try {
-            br = new BufferedReader(new FileReader(fileName));
-            String line;
-            while((line = br.readLine()) != null) {
-                sb.append('\n').append(line);
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(APIClassTest.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                br.close();
-            } catch (IOException ex) {
-                Logger.getLogger(APIClassTest.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        return sb.toString().substring(1);
-    }
     
-
-
 }
