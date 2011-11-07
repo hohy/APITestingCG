@@ -27,6 +27,10 @@ public abstract class APIItem {
     public List<Modifier> getModifiers() {
         return modifiers;
     }
+    
+    public void setModifiers(List<Modifier> modifiers) {
+        this.modifiers = modifiers;
+    }
 
     public Kind getType() {
         return kind;

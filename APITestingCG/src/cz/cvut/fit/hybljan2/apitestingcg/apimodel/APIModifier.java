@@ -61,6 +61,5 @@ public class APIModifier {
         if(flags.contains(javax.lang.model.element.Modifier.TRANSIENT)) result.add(Modifier.TRANSIENT);
         if(flags.contains(javax.lang.model.element.Modifier.VOLATILE)) result.add(Modifier.VOLATILE);
         return result;
-    }
-
+    }       
 }

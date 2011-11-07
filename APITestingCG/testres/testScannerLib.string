@@ -1,0 +1,37 @@
+Test APIScanner Library v0.1:
+
+package testScannerLib.pkga
+
+public abstract class testScannerLib.pkga.AbstractClass
+public class testScannerLib.pkga.BasicClass
+ public static final int CONST
+ public static final java.util.List<Character> WORD
+ public java.util.List<java.io.File> files
+ protected static final int PROTECTED_CONST
+ protected static final java.util.List<Character> PROTECTED_WORD
+ protected java.util.List<java.io.File> protected_files
+ public method methodA void ()
+ public static method methodB void ()
+ public method methodC int ()
+ public method methodD java.io.File ()
+ public method methodE void (int)
+ public method methodF void (java.io.File)
+ protected method methodG ()
+ public method methodH (int, int, float, double, java.io.File, java.util.List<Integer>)
+ public method methodI () throws java.io.IOException
+ public method methodJ () throws java.io.IOException, Exception
+public class testScannerLib.pkga.BasicClassExtender extends testScannerLib.pkga.BasicClass
+public class testScannerLib.pkga.BasicClassExtenderExtender extends testScannerLib.pkga.BasicClassExtender
+public enum BasicEnum
+ public static final BasicEnum VALA
+ public static final BasicEnum VALB
+ public static final BasicEnum VALC
+ public method doSomething void ()
+ public method getIntValue int ()
+public interface testScannerLib.pkga.BasicInterface
+public interface testScannerLib.pkga.BasicInterfaceImplementator
+public final class FinalClass
+
+package testScannerLib.pkgb
+
+public class testScannerLib.pkgb.PkgBClass
