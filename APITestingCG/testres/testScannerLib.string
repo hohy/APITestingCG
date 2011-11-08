@@ -5,32 +5,32 @@ package testScannerLib.pkga
 public abstract class testScannerLib.pkga.AbstractClass
 public class testScannerLib.pkga.BasicClass
  public static final int CONST
- public static final java.util.List<Character> WORD
- public java.util.List<java.io.File> files
  protected static final int PROTECTED_CONST
  protected static final java.util.List<Character> PROTECTED_WORD
- protected java.util.List<java.io.File> protected_files
- public method methodA void ()
- public static method methodB void ()
- public method methodC int ()
- public method methodD java.io.File ()
- public method methodE void (int)
- public method methodF void (java.io.File)
- protected method methodG ()
- public method methodH (int, int, float, double, java.io.File, java.util.List<Integer>)
- public method methodI () throws java.io.IOException
- public method methodJ () throws java.io.IOException, Exception
-public class testScannerLib.pkga.BasicClassExtender extends testScannerLib.pkga.BasicClass
-public class testScannerLib.pkga.BasicClassExtenderExtender extends testScannerLib.pkga.BasicClassExtender
-public enum BasicEnum
+ public static final java.util.List<Character> WORD
+ public java.util.List<java.io.File> files
+ protected final java.util.List<java.io.File> protectedFiles
+ public method void methodA()
+ public static method void methodB()
+ public method int methodC()
+ public method java.io.File methodD()
+ public method void methodE(int)
+ public method void methodF(java.io.File)
+ protected method void methodG()
+ public method void methodH(int,int,float,double,java.io.File,java.util.List<Integer>)
+ public method void methodI() throws java.io.IOException
+ public method void methodJ() throws Exception java.io.IOException
+public class testScannerLib.pkga.BasicClassExtender extends BasicClass
+public class testScannerLib.pkga.BasicClassExtenderExtender extends BasicClassExtender
+public enum testScannerLib.pkga.BasicEnum
  public static final BasicEnum VALA
  public static final BasicEnum VALB
  public static final BasicEnum VALC
- public method doSomething void ()
- public method getIntValue int ()
+ public method void doSomething()
+ public method int getIntValue()
 public interface testScannerLib.pkga.BasicInterface
-public interface testScannerLib.pkga.BasicInterfaceImplementator
-public final class FinalClass
+public class testScannerLib.pkga.BasicInterfaceImplementator implements BasicInterface
+public final class testScannerLib.pkga.FinalClass
 
 package testScannerLib.pkgb
 

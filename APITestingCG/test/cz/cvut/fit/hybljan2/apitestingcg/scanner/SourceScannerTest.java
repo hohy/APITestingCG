@@ -37,7 +37,7 @@ public class SourceScannerTest {
     public static void setUpClass() throws Exception {
         testLibCfg = new ScannerConfiguration();
         testLibCfg.setApiName("Test APIScanner Library");
-        testLibCfg.setApiVersion("0.1");
+        testLibCfg.setApiVersion("v0.1");
         testLibCfg.setClasspath("");
         testLibCfg.setPath("testres" + File.separator + "testScannerLib/");
         testLibCfg.setSource(ScannerConfiguration.APISource.SOURCECODE);

@@ -17,7 +17,7 @@ public class BasicClass {
   protected static final List<Character> PROTECTED_WORD = null;
   protected final List<File> protectedFiles = null;
     
-  public void mathodA() {}
+  public void methodA() {}
   public static void methodB(){}
   public int methodC(){return 1;}
   public File methodD(){return null;}

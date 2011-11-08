@@ -61,5 +61,25 @@ public class APIModifier {
         if(flags.contains(javax.lang.model.element.Modifier.TRANSIENT)) result.add(Modifier.TRANSIENT);
         if(flags.contains(javax.lang.model.element.Modifier.VOLATILE)) result.add(Modifier.VOLATILE);
         return result;
-    }       
+    }   
+    
+    /**
+     * Method convert list of modifiers to string. Modifiers has always same order.
+     */
+    public static String modifiersToString(List<Modifier> mods) {
+        if(mods == null) return "";
+        StringBuilder sb = new StringBuilder();        
+        if(mods.contains(Modifier.PUBLIC)) sb.append("public ");
+        if(mods.contains(Modifier.PROTECTED)) sb.append("protected ");
+        if(mods.contains(Modifier.PRIVATE)) sb.append("private ");
+        if(mods.contains(Modifier.ABSTRACT)) sb.append("abstract " );
+        if(mods.contains(Modifier.STATIC)) sb.append("static ");
+        if(mods.contains(Modifier.FINAL)) sb.append("final ");
+        if(mods.contains(Modifier.NATIVE)) sb.append("native ");
+        if(mods.contains(Modifier.STRICTFP)) sb.append("strictfp ");
+        if(mods.contains(Modifier.SYNCHRONIZED)) sb.append("synchronized ");
+        if(mods.contains(Modifier.TRANSIENT)) sb.append("transient ");
+        if(mods.contains(Modifier.VOLATILE)) sb.append("volatile ");
+        return sb.toString();        
+    }
 }

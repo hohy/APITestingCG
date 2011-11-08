@@ -24,6 +24,10 @@ public abstract class APIItem {
         return name;
     }
     
+    public void setName(String name) {
+        this.name = name;
+    }
+    
     public List<Modifier> getModifiers() {
         return modifiers;
     }

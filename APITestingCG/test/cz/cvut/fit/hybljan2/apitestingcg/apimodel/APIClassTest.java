@@ -36,7 +36,7 @@ public class APIClassTest {
     public static void setUpClass() throws Exception {
         SourceScanner sc = new SourceScanner("testres/testAPIClassRes/", "", "1.7");
         API api = sc.scan();
-        api.getPackages().get(0).getClasses().toArray(testInstances);
+        api.getPackages().first().getClasses().toArray(testInstances);
     }
 
     @AfterClass
@@ -67,7 +67,7 @@ public class APIClassTest {
         SourceScanner sc = new SourceScanner("testres/testAPIClassRes/", "", "1.7");
         API api = sc.scan();
                 
-        APIClass instance = api.getPackages().get(0).getClasses().get(0);
+        APIClass instance = api.getPackages().first().getClasses().first();
         instance.addMethod(method1);
         
         String resultString = instance.toString();
@@ -90,7 +90,7 @@ public class APIClassTest {
         SourceScanner sc = new SourceScanner("testres/testAPIClassRes/", "", "1.7");
         API api = sc.scan();
                 
-        APIClass instance = api.getPackages().get(0).getClasses().get(0);
+        APIClass instance = api.getPackages().first().getClasses().first();
         instance.addField(field);
         
         String resultString = instance.toString();
@@ -239,5 +239,56 @@ public class APIClassTest {
         String expResult = "testAPIClassRes.TestAPIClass";
         String result = instance.getFullName();
         assertEquals(expResult, result);        
+    }
+    
+    @Test
+    public void testEquals() {
+        System.out.println("equals");
+        APIClass instance = testInstances[0];
+        APIClass obj = new APIClass("testAPIClassRes.TestAPIClass");
+        boolean result = instance.equals(obj);
+        boolean expResult = true;
+        assertEquals(result, expResult);
+    }
+    
+    @Test
+    public void testEquals2() {
+        System.out.println("equals");
+        APIClass instance = testInstances[1];
+        APIClass obj = new APIClass("testAPIClassRes.TestAPIClassB");
+        List<Modifier> pubmod = new LinkedList<Modifier>();
+        pubmod.add(Modifier.PUBLIC);
+        obj.setModifiers(pubmod);
+        obj.setExtends("javax.swing.JFrame");
+        
+        List<String> implement = new LinkedList<String>();
+        implement.add("Runnable");
+        obj.setImplementing(implement);
+        
+        List<Modifier> psfmod = new LinkedList<Modifier>();
+        psfmod.add(Modifier.PUBLIC);
+        psfmod.add(Modifier.STATIC);
+        psfmod.add(Modifier.FINAL);
+        
+        APIField size = new APIField("int", "SIZE", psfmod);
+        obj.addField(size);
+        List<Modifier> promod = new LinkedList<Modifier>();
+        promod.add(Modifier.PROTECTED);
+        APIField source = new APIField("java.io.File", "source", promod);
+        obj.addField(source);
+        SortedSet<String> thrown = new TreeSet<String>();
+        APIMethod run = new APIMethod("run", pubmod, new LinkedList<String>(), "void", thrown);
+        obj.addMethod(run);
+        
+        List<String> params = new LinkedList<String>();
+        params.add("String");
+        params.add("int");
+        SortedSet<String> thrown2 = new TreeSet<String>();
+        thrown2.add("java.io.IOException");
+        APIMethod getList = new APIMethod("getList", promod, params, "java.util.List<Integer>", thrown2);
+        obj.addMethod(getList);
+        boolean result = instance.equals(obj);
+        boolean expResult = true;
+        assertEquals(result, expResult);
     }    
 }

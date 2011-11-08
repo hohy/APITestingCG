@@ -33,7 +33,7 @@ public class APIFieldTest {
     public static void setUpClass() throws Exception {
         SourceScanner sc = new SourceScanner("testres/testAPIFieldRes/", "", "1.7");
         API api = sc.scan();
-        api.getPackages().get(0).getClasses().get(0).getFields().toArray(testInstances);
+        api.getPackages().first().getClasses().first().getFields().toArray(testInstances);
     }
 
     @AfterClass

@@ -1,5 +1,7 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
+import java.util.SortedSet;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import java.util.TreeSet;
 import java.util.Set;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
@@ -27,7 +29,7 @@ public class APIMethodTest {
     public static void setUpClass() throws Exception {
         SourceScanner sc = new SourceScanner("testres/testAPIMethodRes/", "", "1.7");
         API api = sc.scan();
-        api.getPackages().get(0).getClasses().get(0).getMethods().toArray(testInstaces);
+        api.getPackages().first().getClasses().first().getMethods().toArray(testInstaces);
     }
 
     @AfterClass
@@ -109,5 +111,46 @@ public class APIMethodTest {
         expResult.add("java.io.IOException");
         Set result = instance.getThrown();
         assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testEquals() {
+        System.out.println("equals");
+        APIMethod instance = testInstaces[0];
+        List<Modifier> pubmod = new LinkedList<Modifier>();
+        pubmod.add(Modifier.PUBLIC);
+        SortedSet<String> thrown = new TreeSet<String>();
+        APIMethod obj = new APIMethod("methodA", pubmod, new LinkedList<String>(), "void", thrown);
+        boolean result = instance.equals(obj);
+        boolean expResults = true;
+        assertEquals(expResults, result);
+        instance = testInstaces[1];
+        pubmod.add(Modifier.STATIC);
+        pubmod.add(Modifier.FINAL);
+        List<String> params = new LinkedList<String>();
+        params.add("int");
+        params.add("int");
+        obj = new APIMethod("methodB", pubmod, params, "int", thrown);
+        result = instance.equals(obj);
+        assertEquals(expResults, result);
+        instance = testInstaces[2];
+        pubmod.clear();
+        pubmod.add(Modifier.PROTECTED);
+        params.clear();
+        params.add("java.util.List");
+        params.add("float");
+        params.add("java.util.Queue");
+        obj = new APIMethod("methodC", pubmod, params, "java.io.File", thrown);
+        result = instance.equals(obj);
+        assertEquals(expResults, result);
+        instance = testInstaces[3];
+        pubmod.clear();
+        pubmod.add(Modifier.PUBLIC);
+        params.clear();
+        thrown.add("java.io.IOException");
+        thrown.add("java.lang.Exception");
+        obj = new APIMethod("methodD", pubmod, params, "void", thrown);
+        result = instance.equals(obj);
+        assertEquals(expResults, result);        
     }
 }

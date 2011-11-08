@@ -31,7 +31,7 @@ public class APIItemTest {
     public static void setUpClass() throws Exception {
         SourceScanner sc = new SourceScanner("testres/testAPIClassRes/", "", "1.7");
         API api = sc.scan();
-        api.getPackages().get(0).getClasses().toArray(testInstances);        
+        api.getPackages().first().getClasses().toArray(testInstances);        
     }
 
     @AfterClass

@@ -4,6 +4,6 @@ package testScannerLib.pkga;
  *
  * @author Jan Hýbl
  */
-public class BasicClassExtenderExtender {
+public class BasicClassExtenderExtender extends BasicClassExtender{
     
 }

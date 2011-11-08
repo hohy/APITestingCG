@@ -2,6 +2,8 @@ package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Represents API of library or framework. Contains classes and methods library 
@@ -9,13 +11,20 @@ import java.util.List;
  * @author Jan Hýbl
  */
 public class API extends APIItem{
-    
-    //private String name;
-    private List<APIPackage> packages;
+        
+    private SortedSet<APIPackage> packages;
+    private String version;
 
     public API(String name) {
         super.name = name; 
-        packages = new LinkedList<APIPackage>();
+        packages = new TreeSet<APIPackage>();
+        version = "";
+    }    
+    
+    public API(String name, String version) {
+        super.name = name; 
+        packages = new TreeSet<APIPackage>();
+        this.version = version;
     }
     
     public void addPackage(APIPackage pkg) {        
@@ -25,15 +34,15 @@ public class API extends APIItem{
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("API ").append(name).append(":\n");
+        sb.append(name).append(" ").append(version).append(":\n");
         for(APIPackage p : packages) sb.append(p).append('\n');
         return sb.toString().substring(0,sb.length()-1);
     }
 
-    public List<APIPackage> getPackages() {
+    public SortedSet<APIPackage> getPackages() {
         return packages;
     }
-
+    
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -48,4 +57,12 @@ public class API extends APIItem{
         }
         return true;
     }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }    
 }

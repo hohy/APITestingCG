@@ -4,6 +4,7 @@
  */
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
+import java.util.Set;
 import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -14,6 +15,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeSet;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -60,7 +62,7 @@ public class APIPackageTest {
         APIClass clazz = new APIClass("Cls");
         APIPackage instance = new APIPackage("test.package");
         instance.addClass(clazz);
-        assertEquals(instance.getClasses().get(0), clazz);
+        assertEquals(instance.getClasses().first(), clazz);
     }
 
     /**
@@ -82,12 +84,12 @@ public class APIPackageTest {
     public void testGetClasses() {
         System.out.println("getClasses");
         APIPackage instance = testInstances[0];
-        List expResult = new LinkedList();
+        Set expResult = new TreeSet();
         APIClass clsA = new APIClass("testres.testAPIPackageRes.TestClassA");
         APIClass clsB = new APIClass("testres.testAPIPackageRes.TestClassB");        
         expResult.add(clsA);
         expResult.add(clsB);
-        List result = instance.getClasses();
+        Set result = instance.getClasses();
         assertEquals(expResult, result);   
     }
 
@@ -105,7 +107,7 @@ public class APIPackageTest {
         APIPackage instance = testInstances[0];
         boolean expResult = true;
         boolean result = instance.equals(obj);
-        assertEquals(expResult, result);        
+        assertEquals(obj, instance);        
     }
     
 }

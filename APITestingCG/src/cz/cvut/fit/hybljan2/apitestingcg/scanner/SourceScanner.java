@@ -28,6 +28,8 @@ public class SourceScanner implements APIScanner {
     private String sourceDir;
     private String classPath;
     private String sourceVersion;
+    private String apiName;
+    private String apiVersion;
 
     public SourceScanner(String sourceDir, String classPath, String sourceVersion) {
         this.sourceDir = sourceDir;
@@ -43,6 +45,8 @@ public class SourceScanner implements APIScanner {
         if(sc.getPath() != null) this.sourceDir = sc.getPath();
         if(sc.getClasspath() != null) this.classPath = sc.getClasspath();
         if(sc.getSourceVersion() != null) this.sourceVersion = sc.getSourceVersion();
+        if(sc.getApiName() != null) this.apiName = sc.getApiName();
+        if(sc.getApiVersion() != null) this.apiVersion = sc.getApiVersion();
     }        
     /**
      * Scan
@@ -80,6 +84,8 @@ public class SourceScanner implements APIScanner {
             }
             
             API api = sc.getAPI();
+            api.setName(apiName);
+            api.setVersion(apiVersion);
             return api;
         } catch (IOException ex) {
             Logger.getLogger(SourceScanner.class.getName()).log(Level.SEVERE, null, ex);

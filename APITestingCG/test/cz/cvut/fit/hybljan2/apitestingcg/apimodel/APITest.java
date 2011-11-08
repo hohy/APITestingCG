@@ -4,6 +4,8 @@
  */
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
+import java.util.TreeSet;
+import java.util.Set;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import java.util.LinkedList;
 import java.util.List;
@@ -53,7 +55,7 @@ public class APITest {
         APIPackage pkg = new APIPackage("test.package");
         API instance = new API("test api");
         instance.addPackage(pkg);
-        assertEquals(pkg, instance.getPackages().get(0));
+        assertEquals(pkg, instance.getPackages().first());
     }    
 
     /**
@@ -77,12 +79,12 @@ public class APITest {
     public void testGetPackages() {
         System.out.println("getPackages");
         API instance = testInstance;
-        List expResult = new LinkedList();
+        Set expResult = new TreeSet();
         APIPackage p = new APIPackage("testres.testAPIPackageRes");
         p.addClass(new APIClass("testres.testAPIPackageRes.TestClassA"));
         p.addClass(new APIClass("testres.testAPIPackageRes.TestClassB"));
         expResult.add(p);
-        List result = instance.getPackages();
+        Set result = instance.getPackages();
         assertEquals(expResult, result);
     }
 }

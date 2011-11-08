@@ -18,7 +18,7 @@ import java.util.TreeSet;
  * methods.
  * @author hohy
  */
-public class APIClass extends APIItem {
+public class APIClass extends APIItem implements Comparable<APIClass> {
 
     private List<APIMethod> methods;
     private SortedSet<APIField> fields;
@@ -28,7 +28,8 @@ public class APIClass extends APIItem {
     private String fullName;
 
     public APIClass(String name) {
-        this.name = name;
+        if(name.contains(".")) this.name = name.substring(name.lastIndexOf('.')+1);
+        else this.name = name;
         this.fullName = name;
         methods = new LinkedList<APIMethod>();
         fields = new TreeSet<APIField>();
@@ -99,10 +100,8 @@ public class APIClass extends APIItem {
      */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();        
-        if(modifiers != null && modifiers.size() > 0) {            
-            for(Modifier m : modifiers) sb.append(m).append(' ');
-        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(APIModifier.modifiersToString(modifiers));
         sb.append(kind.toString().toLowerCase()).append(' ');
         sb.append(fullName);
         if(extending != null) sb.append(" extends ").append(extending);
@@ -186,6 +185,19 @@ public class APIClass extends APIItem {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public int compareTo(APIClass t) {
+        return this.getName().compareTo(t.getName());
+    }
+
+    void setExtends(String string) {
+        this.extending = string;
+    }
+
+    void setImplementing(List<String> implement) {
+        this.implementing = implement;
     }
     
     
