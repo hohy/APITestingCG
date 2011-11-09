@@ -24,6 +24,8 @@ import java.util.logging.Logger;
 public class ByteCodeScanner implements APIScanner {
 
     private String jarFilePath;
+    private String apiName;
+    private String apiVersion;
 
     public ByteCodeScanner(String jarFilePath) {
         this.jarFilePath = jarFilePath;
@@ -35,6 +37,8 @@ public class ByteCodeScanner implements APIScanner {
     @Override
     public void setConfiguration(ScannerConfiguration sc) {
         this.jarFilePath = sc.getPath();
+        this.apiName = sc.getApiName();
+        this.apiVersion = sc.getApiVersion();
     }        
     @Override
     public API scan() {
@@ -86,7 +90,7 @@ public class ByteCodeScanner implements APIScanner {
                 Logger.getLogger(ByteCodeScanner.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        API api = new API(jarFilePath);
+        API api = new API(apiName, apiVersion);
         for(APIPackage pkg : pkgMap.values()) api.addPackage(pkg);
         return api;
     }

@@ -65,7 +65,7 @@ public class APITest {
     public void testToString() {
         System.out.println("toString");
         API instance = testInstance;
-        String expResult = "API testapi:\n\npackage testres.testAPIPackageRes\n\n" +
+        String expResult = "testapi null:\n\npackage testres.testAPIPackageRes\n\n" +
                 "public class testres.testAPIPackageRes.TestClassA\n" +
                 "public class testres.testAPIPackageRes.TestClassB";
         String result = instance.toString();

@@ -91,8 +91,10 @@ public class APIMethod extends APIItem {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for(Modifier m : modifiers) sb.append(m).append(' ');        
-        sb.append("method ").append(returnType).append(' ').append(name).append('(');
+        for(Modifier m : modifiers) sb.append(m).append(' ');                
+        if(returnType != null) sb.append("method ").append(returnType).append(' ');
+        else sb.append("constructor ");        
+        sb.append(name).append('(');
         for(String f : parameters) sb.append(f).append(',');
         if(parameters.size() > 0) sb.deleteCharAt(sb.length()-1);
         sb.append(')');

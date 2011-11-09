@@ -57,10 +57,10 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         this.fullName = cls.getName();
         this.methods = new LinkedList<APIMethod>();  
         for(Constructor constr : cls.getDeclaredConstructors()) {
-            APIMethod apimth = new APIMethod(constr);
-            if(apimth.getModifiers().contains(Modifier.PUBLIC) 
-                    || apimth.getModifiers().contains(Modifier.PROTECTED)) 
-                this.methods.add(apimth);
+            APIMethod apiconstr = new APIMethod(constr);
+            if(apiconstr.getModifiers().contains(Modifier.PUBLIC) 
+                    || apiconstr.getModifiers().contains(Modifier.PROTECTED)) 
+                this.methods.add(apiconstr);
         }
         for(Method mth : cls.getDeclaredMethods()) {
             APIMethod apimth = new APIMethod(mth);
@@ -77,7 +77,8 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
                 this.fields.add(new APIField(f));
         }
         this.kind = getKind(cls);
-        if(cls.getSuperclass() != null) this.extending = cls.getSuperclass().getSimpleName();
+        // Check, if class has some superclass (other than Object) 
+        if(cls.getSuperclass() != null && !cls.getSuperclass().getSimpleName().equals("Object")) this.extending = cls.getSuperclass().getName();
         this.implementing = new LinkedList<String>();
         for(Class intfc : cls.getInterfaces()) {
             this.implementing.add(intfc.getSimpleName());
