@@ -18,7 +18,7 @@ import java.util.TreeSet;
  * Represents method.
  * @author Jan Hýbl
  */
-public class APIMethod extends APIItem {
+public class APIMethod extends APIItem implements Comparable<APIMethod> {
 
     private List<String> parameters;
     private String returnType;
@@ -147,5 +147,10 @@ public class APIMethod extends APIItem {
         }
         if(!super.equals(obj)) return false;        
         return true;
+    }
+
+    @Override
+    public int compareTo(APIMethod t) {
+        return this.getName().compareTo(t.getName());
     }
 }

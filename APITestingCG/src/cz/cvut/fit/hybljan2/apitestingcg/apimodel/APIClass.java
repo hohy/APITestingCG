@@ -20,8 +20,8 @@ import java.util.TreeSet;
  */
 public class APIClass extends APIItem implements Comparable<APIClass> {
 
-    private List<APIMethod> constructors;
-    private List<APIMethod> methods;
+    private SortedSet<APIMethod> constructors;
+    private SortedSet<APIMethod> methods;
     private SortedSet<APIField> fields;
     private String extending;
     private List<String> implementing = new LinkedList<String>();
@@ -32,8 +32,8 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         if(name.contains(".")) this.name = name.substring(name.lastIndexOf('.')+1);
         else this.name = name;
         this.fullName = name;
-        methods = new LinkedList<APIMethod>();
-        constructors = new LinkedList<APIMethod>();
+        methods = new TreeSet<APIMethod>();
+        constructors = new TreeSet<APIMethod>();
         fields = new TreeSet<APIField>();
         kind = Kind.CLASS;
         modifiers = new LinkedList<Modifier>();
@@ -43,8 +43,8 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     public APIClass(JCClassDecl jccd, String packageName, Map<String, String> importsMap) {
         this.name = jccd.name.toString();
         this.fullName = packageName + '.' + jccd.name.toString();
-        this.methods = new LinkedList<APIMethod>(); 
-        this.constructors = new LinkedList<APIMethod>();
+        this.methods = new TreeSet<APIMethod>(); 
+        this.constructors = new TreeSet<APIMethod>();
         this.modifiers = APIModifier.getModifiersSet(jccd.mods.getFlags());
         this.fields = new TreeSet<APIField>();
         this.kind = getKind(jccd.getKind());
@@ -58,14 +58,14 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     public APIClass(Class cls) {
         this.name = cls.getSimpleName();
         this.fullName = cls.getName();
-        this.constructors = new LinkedList<APIMethod>();
+        this.constructors = new TreeSet<APIMethod>();
         for(Constructor constr : cls.getDeclaredConstructors()) {
             APIMethod apiconstr = new APIMethod(constr);
             if(apiconstr.getModifiers().contains(Modifier.PUBLIC) 
                     || apiconstr.getModifiers().contains(Modifier.PROTECTED)) 
                 this.constructors.add(apiconstr);
         }
-        this.methods = new LinkedList<APIMethod>();
+        this.methods = new TreeSet<APIMethod>();
         for(Method mth : cls.getDeclaredMethods()) {
             APIMethod apimth = new APIMethod(mth);
             if(apimth.getModifiers().contains(Modifier.PUBLIC) 
@@ -141,7 +141,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
      * Return list of method of the class. Return empty list, if class has no methods.
      * @return 
      */
-    public List<APIMethod> getMethods() {
+    public Set<APIMethod> getMethods() {
         return methods;
     }
 

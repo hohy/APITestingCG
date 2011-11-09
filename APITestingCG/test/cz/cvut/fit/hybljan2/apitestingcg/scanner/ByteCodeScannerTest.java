@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author hohy
+ * @author Jan Hybl
  */
 public class ByteCodeScannerTest {
     private static ScannerConfiguration testLibCfg;

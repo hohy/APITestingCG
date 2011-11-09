@@ -2,5 +2,5 @@ public class testAPIClassRes.TestAPIClassB extends javax.swing.JFrame implements
  public static final int SIZE
  protected java.io.File source
  public constructor testAPIClassRes.TestAPIClassB()
- public method void run()
  protected method java.util.List<Integer> getList(String,int) throws java.io.IOException
+ public method void run()

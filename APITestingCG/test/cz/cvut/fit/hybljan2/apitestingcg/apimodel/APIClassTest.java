@@ -144,7 +144,7 @@ public class APIClassTest {
     public void testGetMethods() {
         System.out.println("getMethods");
         APIClass instance = testInstances[1];
-        List expResult = new LinkedList();
+        SortedSet expResult = new TreeSet();
         
         List<String> params = new LinkedList<String>();  
         List<Modifier> modifiers = new LinkedList<Modifier>();
@@ -163,7 +163,7 @@ public class APIClassTest {
         APIMethod method2 = new APIMethod("getList", modifiers2, params2, "java.util.List<Integer>", thrown2);
         expResult.add(method2);
         
-        List result = instance.getMethods();
+        Set result = instance.getMethods();
         assertEquals(expResult, result);
     }
 
@@ -171,8 +171,8 @@ public class APIClassTest {
     public void testGetMethods2() {
         System.out.println("getMethods");
         APIClass instance = testInstances[0];
-        List expResult = new LinkedList();        
-        List result = instance.getMethods();
+        Set expResult = new TreeSet();        
+        Set result = instance.getMethods();
         assertEquals(expResult, result);
     }      
     
