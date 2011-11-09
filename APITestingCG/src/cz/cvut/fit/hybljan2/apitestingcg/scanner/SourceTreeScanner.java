@@ -13,6 +13,8 @@ import com.sun.tools.javac.tree.TreeScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIField;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIItem;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIItem.Kind;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIMethod;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIPackage;
 import java.util.HashMap;
@@ -67,10 +69,16 @@ public class SourceTreeScanner extends TreeScanner{
     public void visitMethodDef(JCMethodDecl jcmd) {
         MethodSymbol ms = jcmd.sym;
         if ((ms.flags() & (Flags.PUBLIC | Flags.PROTECTED)) != 0) {
-            if ((ms.flags() & Flags.GENERATEDCONSTR) == 0) {
-                currentClass.addMethod(new APIMethod(jcmd, currentClassImports));
+            // if default constructor should not be part of api, uncomment this.
+            //if ((ms.flags() & Flags.GENERATEDCONSTR) == 0) {
+                APIMethod mth = new APIMethod(jcmd, currentClassImports);
+                if(mth.getType() == Kind.CONSTRUCTOR){ 
+                    mth.setName(currentClass.getFullName());
+                    currentClass.addConstructor(mth);
+                }
+                else currentClass.addMethod(mth);
                 super.visitMethodDef(jcmd);
-            }
+            //}
         }
     }
 

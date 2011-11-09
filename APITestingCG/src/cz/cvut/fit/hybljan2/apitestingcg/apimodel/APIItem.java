@@ -104,7 +104,7 @@ public abstract class APIItem {
     }    
     
     public enum Kind {
-        CLASS, METHOD, INTERFACE, ANNOTATION, ENUM, VARIABLE, PACKAGE
+        CLASS, METHOD, INTERFACE, ANNOTATION, ENUM, VARIABLE, PACKAGE, CONSTRUCTOR
     }
 
 }

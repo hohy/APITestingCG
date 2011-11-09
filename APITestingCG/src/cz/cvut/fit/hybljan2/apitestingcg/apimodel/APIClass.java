@@ -20,6 +20,7 @@ import java.util.TreeSet;
  */
 public class APIClass extends APIItem implements Comparable<APIClass> {
 
+    private List<APIMethod> constructors;
     private List<APIMethod> methods;
     private SortedSet<APIField> fields;
     private String extending;
@@ -55,13 +56,14 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     public APIClass(Class cls) {
         this.name = cls.getSimpleName();
         this.fullName = cls.getName();
-        this.methods = new LinkedList<APIMethod>();  
+        this.constructors = new LinkedList<APIMethod>();
         for(Constructor constr : cls.getDeclaredConstructors()) {
             APIMethod apiconstr = new APIMethod(constr);
             if(apiconstr.getModifiers().contains(Modifier.PUBLIC) 
                     || apiconstr.getModifiers().contains(Modifier.PROTECTED)) 
-                this.methods.add(apiconstr);
+                this.constructors.add(apiconstr);
         }
+        this.methods = new LinkedList<APIMethod>();
         for(Method mth : cls.getDeclaredMethods()) {
             APIMethod apimth = new APIMethod(mth);
             if(apimth.getModifiers().contains(Modifier.PUBLIC) 
@@ -93,6 +95,9 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         fields.add(field);
     }
 
+    public void addConstructor(APIMethod constructor) {
+        constructors.add(constructor);
+    }
     /**
      * Converts this class to String.
      * String format: [modifiers] [kind] [fullName] extends [extending] implements [implementing]\n
@@ -111,6 +116,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
             for(String i : implementing) sb.append(' ').append(i);
         }
         if(fields != null) for(APIField f : fields) sb.append("\n ").append(f.toString());
+        if(constructors != null) for(APIMethod c : constructors) sb.append("\n ").append(c.toString());
         if(methods != null) for(APIMethod m : methods) sb.append("\n ").append(m.toString());
         return sb.toString();
     }
@@ -173,6 +179,9 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         if (this.methods != other.methods && (this.methods == null || !this.methods.equals(other.methods))) {
             return false;
         }
+        if (this.constructors != other.constructors && (this.constructors == null || !this.constructors.equals(other.constructors))) {
+            return false;
+        }        
         if (this.fields != other.fields && (this.fields == null || !this.fields.equals(other.fields))) {
             return false;
         }

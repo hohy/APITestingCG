@@ -33,7 +33,9 @@ public class APIMethod extends APIItem {
         this.thrown = thrown;
     }
 
-    public APIMethod(JCMethodDecl jcmd, Map<String, String> importsMap) {
+    public APIMethod(JCMethodDecl jcmd, Map<String, String> importsMap) {        
+        boolean constructor = false;
+        if(jcmd.name.toString().equals("<init>")) constructor = true;
         this.name = jcmd.name.toString();
         this.modifiers = APIModifier.getModifiersSet(jcmd.getModifiers().getFlags());
         
@@ -43,13 +45,19 @@ public class APIMethod extends APIItem {
                 this.thrown.add(findFullClassName(e.toString(), importsMap));
         }
         
-        if(jcmd.getReturnType() == null) this.returnType = "void";
-        else this.returnType = findFullClassName(jcmd.getReturnType().toString(), importsMap);
-                
+        // Constructor should hava return type null. Void method raturns "void" 
+        // and other methods retrun full name of Class from jcmd.getReturnType()
+        if(!constructor) {
+            if(jcmd.getReturnType() == null) this.returnType = "void";
+            else this.returnType = findFullClassName(jcmd.getReturnType().toString(), importsMap);
+        }
         this.parameters = new LinkedList<String>();
         for(JCVariableDecl jcvd : jcmd.getParameters()) 
             parameters.add(findFullClassName(jcvd.getType().toString(), importsMap));
-        this.kind = getKind(jcmd.getKind());
+        
+        if(constructor) this.kind = Kind.CONSTRUCTOR;
+        else this.kind = getKind(jcmd.getKind());
+        
     }
 
     public APIMethod(Method mth) {
