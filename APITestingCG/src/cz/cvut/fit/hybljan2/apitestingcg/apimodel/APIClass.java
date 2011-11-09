@@ -33,6 +33,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         else this.name = name;
         this.fullName = name;
         methods = new LinkedList<APIMethod>();
+        constructors = new LinkedList<APIMethod>();
         fields = new TreeSet<APIField>();
         kind = Kind.CLASS;
         modifiers = new LinkedList<Modifier>();
@@ -42,7 +43,8 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     public APIClass(JCClassDecl jccd, String packageName, Map<String, String> importsMap) {
         this.name = jccd.name.toString();
         this.fullName = packageName + '.' + jccd.name.toString();
-        this.methods = new LinkedList<APIMethod>();        
+        this.methods = new LinkedList<APIMethod>(); 
+        this.constructors = new LinkedList<APIMethod>();
         this.modifiers = APIModifier.getModifiersSet(jccd.mods.getFlags());
         this.fields = new TreeSet<APIField>();
         this.kind = getKind(jccd.getKind());
@@ -97,6 +99,16 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
 
     public void addConstructor(APIMethod constructor) {
         constructors.add(constructor);
+    }
+    
+    public void addDefaultConstructor() {
+        List<Modifier> publicmodifier = new LinkedList<Modifier>();
+        publicmodifier.add(Modifier.PUBLIC);
+        LinkedList<String> params = new LinkedList<String>();
+        SortedSet<String> thrown = new TreeSet<String>();
+        APIMethod constr = new APIMethod(fullName, publicmodifier, params, null, thrown);
+        constr.kind = Kind.CONSTRUCTOR;
+        this.constructors.add(constr);
     }
     /**
      * Converts this class to String.

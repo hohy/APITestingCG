@@ -67,7 +67,9 @@ public class APITest {
         API instance = testInstance;
         String expResult = "testapi null:\n\npackage testres.testAPIPackageRes\n\n" +
                 "public class testres.testAPIPackageRes.TestClassA\n" +
-                "public class testres.testAPIPackageRes.TestClassB";
+                " public constructor testres.testAPIPackageRes.TestClassA()\n" +
+                "public class testres.testAPIPackageRes.TestClassB\n" +
+                " public constructor testres.testAPIPackageRes.TestClassB()";
         String result = instance.toString();
         assertEquals(expResult, result);
     }

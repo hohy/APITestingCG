@@ -1,2 +1,3 @@
 public class testAPIClassRes.TestAPIClass
  protected java.io.File source
+ public constructor testAPIClassRes.TestAPIClass()

@@ -46,7 +46,7 @@ public abstract class APIItem {
      * @param importsMap    Maps simple names to full names.
      * @return  fulll class name 
      */
-    protected String findFullClassName(String simpleName, Map<String, String> importsMap) {
+    protected static String findFullClassName(String simpleName, Map<String, String> importsMap) {
         // if class name doesn't contains dot, 
         // it's not full class name with package name
         // have to try to add it.
@@ -60,7 +60,7 @@ public abstract class APIItem {
                 String firstName = simpleName.substring(0, simpleName.indexOf('<'));
                 String secondName = simpleName.substring(simpleName.indexOf('<')+1, simpleName.length()-1);
                 if(importsMap.containsKey(firstName)) firstName = importsMap.get(firstName);
-                if(importsMap.containsKey(secondName)) secondName = importsMap.get(secondName);
+                secondName = findFullClassName(secondName, importsMap);
                 return firstName + '<' + secondName + '>';
             }
         }

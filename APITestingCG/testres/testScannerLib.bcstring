@@ -7,8 +7,8 @@ public abstract class testScannerLib.pkga.AbstractClass
 public class testScannerLib.pkga.BasicClass
  public static final int CONST
  protected static final int PROTECTED_CONST
- protected static final java.util.List<Character> PROTECTED_WORD
- public static final java.util.List<Character> WORD
+ protected static final java.util.List<java.lang.Character> PROTECTED_WORD
+ public static final java.util.List<java.lang.Character> WORD
  public java.util.List<java.io.File> files
  protected final java.util.List<java.io.File> protectedFiles
  public constructor testScannerLib.pkga.BasicClass()
@@ -21,7 +21,7 @@ public class testScannerLib.pkga.BasicClass
  protected method void methodG()
  public method void methodH(int,int,float,double,java.io.File,java.util.List<Integer>)
  public method void methodI() throws java.io.IOException
- public method void methodJ() throws Exception java.io.IOException
+ public method void methodJ() throws java.lang.Exception java.io.IOException
 public class testScannerLib.pkga.BasicClassExtender extends BasicClass
  public constructor testScannerLib.pkga.BasicClassExtender()
 public class testScannerLib.pkga.BasicClassExtenderExtender extends BasicClassExtender

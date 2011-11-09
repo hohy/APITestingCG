@@ -246,6 +246,7 @@ public class APIClassTest {
         System.out.println("equals");
         APIClass instance = testInstances[0];
         APIClass obj = new APIClass("testAPIClassRes.TestAPIClass");
+        obj.addDefaultConstructor();
         boolean result = instance.equals(obj);
         boolean expResult = true;
         assertEquals(result, expResult);
@@ -256,6 +257,7 @@ public class APIClassTest {
         System.out.println("equals");
         APIClass instance = testInstances[1];
         APIClass obj = new APIClass("testAPIClassRes.TestAPIClassB");
+        obj.addDefaultConstructor();
         List<Modifier> pubmod = new LinkedList<Modifier>();
         pubmod.add(Modifier.PUBLIC);
         obj.setModifiers(pubmod);

@@ -69,7 +69,7 @@ public class ByteCodeScannerTest {
         System.out.println("scan");
         ByteCodeScanner instance = new ByteCodeScanner();
         instance.setConfiguration(testLibCfg);        
-        String expResult = TestUtils.readFileToString("testres/testScannerLib.string");
+        String expResult = TestUtils.readFileToString("testres/testScannerLib.bcstring");
         API result = instance.scan();
         String strresult = result.toString();
         System.out.println("Expected:\n" + expResult);
