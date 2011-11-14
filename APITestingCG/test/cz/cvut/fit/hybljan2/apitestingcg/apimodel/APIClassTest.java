@@ -5,15 +5,10 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -197,6 +192,33 @@ public class APIClassTest {
         assertEquals(expResult, result);        
     }       
     
+
+    @Test
+    public void testGetConstructors() {
+        APIClass instance =  testInstances[0];
+        SortedSet<APIMethod> expResult = new TreeSet<APIMethod>();
+        SortedSet<String> thrown = new TreeSet<String>();
+        List<Modifier> pubmod = new LinkedList<Modifier>();
+        pubmod.add(Modifier.PUBLIC);
+        APIMethod defcon = new APIMethod("testAPIClassRes.TestAPIClass", pubmod, new LinkedList<String>(), null, thrown);
+        expResult.add(defcon);        
+        SortedSet<APIMethod> result = instance.getConstructors();
+        assertEquals(expResult, result);
+    }    
+
+    @Test
+    public void testGetConstructors2() {
+        APIClass instance =  testInstances[1];
+        SortedSet<APIMethod> expResult = new TreeSet<APIMethod>();
+        SortedSet<String> thrown = new TreeSet<String>();
+        List<Modifier> pubmod = new LinkedList<Modifier>();
+        pubmod.add(Modifier.PUBLIC);
+        APIMethod defcon = new APIMethod("testAPIClassRes.TestAPIClass", pubmod, new LinkedList<String>(), null, thrown);
+        expResult.add(defcon);        
+        SortedSet<APIMethod> result = instance.getConstructors();
+        assertEquals(expResult, result);
+    }    
+    
     /**
      * Test of getImplementing method, of class APIClass.
      */
@@ -292,5 +314,7 @@ public class APIClassTest {
         boolean result = instance.equals(obj);
         boolean expResult = true;
         assertEquals(result, expResult);
-    }    
+    }
+    
+    
 }

@@ -45,6 +45,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         this.fullName = packageName + '.' + jccd.name.toString();
         this.methods = new TreeSet<APIMethod>(); 
         this.constructors = new TreeSet<APIMethod>();
+        addDefaultConstructor();
         this.modifiers = APIModifier.getModifiersSet(jccd.mods.getFlags());
         this.fields = new TreeSet<APIField>();
         this.kind = getKind(jccd.getKind());
@@ -110,6 +111,17 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         constr.kind = Kind.CONSTRUCTOR;
         this.constructors.add(constr);
     }
+    
+    public void deleteDefaultConstructor() {
+        List<Modifier> publicmodifier = new LinkedList<Modifier>();
+        publicmodifier.add(Modifier.PUBLIC);
+        LinkedList<String> params = new LinkedList<String>();
+        SortedSet<String> thrown = new TreeSet<String>();
+        APIMethod constr = new APIMethod(fullName, publicmodifier, params, null, thrown);
+        constr.kind = Kind.CONSTRUCTOR;
+        this.constructors.remove(constr);
+    }
+    
     /**
      * Converts this class to String.
      * String format: [modifiers] [kind] [fullName] extends [extending] implements [implementing]\n
@@ -197,7 +209,8 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         }
         if (this.constructors != other.constructors && (this.constructors == null || !this.constructors.equals(other.constructors))) {
             return false;
-        }        
+        }   
+        if(!this.constructors.equals(other.constructors)) return false;
         if (this.fields != other.fields && (this.fields == null || !this.fields.equals(other.fields))) {
             return false;
         }

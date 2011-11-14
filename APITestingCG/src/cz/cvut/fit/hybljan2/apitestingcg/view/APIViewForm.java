@@ -159,6 +159,7 @@ public class APIViewForm extends javax.swing.JFrame {
                 }
                 break;
             case METHOD:
+            case CONSTRUCTOR:
                 APIMethod mth = (APIMethod) item;
                 
                 contentPanel.add(new JLabel("Return type: " + mth.getReturnType()));

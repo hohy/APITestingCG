@@ -119,6 +119,15 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         return parameters;
     }
 
+    public String getParametersString() {
+        StringBuilder sb = new StringBuilder();
+        for(String s : parameters) {
+            sb.append(s).append(',');
+        }
+        if(parameters.size() > 0) return sb.substring(0, sb.length()-1);
+        else return "";
+    }
+    
     public String getReturnType() {
         return returnType;
     }
@@ -151,6 +160,8 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
 
     @Override
     public int compareTo(APIMethod t) {
-        return this.getName().compareTo(t.getName());
+        String a = this.getName() + this.getParametersString() + this.returnType;
+        String b = t.getName() + t.getParametersString() + t.returnType;
+        return a.compareTo(b);
     }
 }

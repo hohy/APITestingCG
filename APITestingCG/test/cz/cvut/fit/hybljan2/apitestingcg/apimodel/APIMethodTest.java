@@ -143,6 +143,17 @@ public class APIMethodTest {
         obj = new APIMethod("methodC", pubmod, params, "java.io.File", thrown);
         result = instance.equals(obj);
         assertEquals(expResults, result);
+
+        params.clear();
+        params.add("java.util.List");
+        params.add("int");
+        params.add("java.util.Queue");
+        obj = new APIMethod("methodC", pubmod, params, "java.io.File", thrown);
+        result = instance.equals(obj);
+        expResults = false;
+        assertEquals(expResults, result);        
+        
+        expResults = true;
         instance = testInstaces[3];
         pubmod.clear();
         pubmod.add(Modifier.PUBLIC);
