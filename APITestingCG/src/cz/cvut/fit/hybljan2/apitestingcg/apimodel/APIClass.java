@@ -44,11 +44,11 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         this.name = jccd.name.toString();
         this.fullName = packageName + '.' + jccd.name.toString();
         this.methods = new TreeSet<APIMethod>(); 
-        this.constructors = new TreeSet<APIMethod>();
-        addDefaultConstructor();
+        this.constructors = new TreeSet<APIMethod>();        
         this.modifiers = APIModifier.getModifiersSet(jccd.mods.getFlags());
         this.fields = new TreeSet<APIField>();
         this.kind = getKind(jccd.getKind());
+        //if(this.kind == Kind.CLASS) addDefaultConstructor();
         if(jccd.getExtendsClause() != null) this.extending = findFullClassName(jccd.getExtendsClause().getTree().toString(), importsMap);
         if(jccd.getImplementsClause() != null) {
             this.implementing = new LinkedList<String>();
