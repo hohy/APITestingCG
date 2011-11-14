@@ -6,11 +6,8 @@ package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
 import java.util.List;
 import java.util.LinkedList;
-import java.util.Set;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
-import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
-import java.util.HashSet;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

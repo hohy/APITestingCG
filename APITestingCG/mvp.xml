@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration> 
+  
+  <api source="bytecode">
+    <id>mvp</id>  
+    <name>MPV</name>
+    <version>2.0</version>
+    <path>/media/data/Skola/DAO - Navrhove vzory a OOP/ukoly/3_MVC/vzor/mvp.jar</path>
+  </api>
+ 
+  <apiview>
+    <apiid>mvp</apiid>
+  </apiview>
+  
+</configuration>

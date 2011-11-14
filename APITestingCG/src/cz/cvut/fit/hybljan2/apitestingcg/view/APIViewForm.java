@@ -194,6 +194,11 @@ public class APIViewForm extends javax.swing.JFrame {
             for(APIClass cls : pkg.getClasses()) {
                 APIInfo clsInfo = new APIInfo(cls);
                 DefaultMutableTreeNode clsNode = new DefaultMutableTreeNode(clsInfo);
+                for(APIMethod mth : cls.getConstructors()) {
+                    APIInfo mthInfo = new APIInfo(mth);
+                    DefaultMutableTreeNode mthNode = new DefaultMutableTreeNode(mthInfo);
+                    clsNode.add(mthNode);
+                }                
                 for(APIMethod mth : cls.getMethods()) {
                     APIInfo mthInfo = new APIInfo(mth);
                     DefaultMutableTreeNode mthNode = new DefaultMutableTreeNode(mthInfo);

@@ -179,6 +179,10 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         return Kind.CLASS;
     }
 
+    public SortedSet<APIMethod> getConstructors() {
+        return constructors;
+    }
+    
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
