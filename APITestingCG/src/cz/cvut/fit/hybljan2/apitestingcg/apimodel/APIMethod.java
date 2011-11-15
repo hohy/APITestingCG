@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.lang.reflect.Type;
+
 
 /**
  * Represents method.
@@ -65,13 +67,13 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         this.modifiers = APIModifier.getModifiersSet(mth.getModifiers());
         this.thrown = new TreeSet<String>();
         for(java.lang.reflect.Type excType : mth.getExceptionTypes()) {
-            this.thrown.add(excType.toString().substring(6));  // TODO: toto by chtělo asi udělat nějak elegantnějš...            
+            this.thrown.add(getTypeName(excType));
         }
         this.parameters = new LinkedList<String>();
-        for(Class c : mth.getParameterTypes()) {
-            this.parameters.add(c.getName());
+        for(Type t : mth.getGenericParameterTypes()) {
+            this.parameters.add(getTypeName(t));
         }        
-        this.returnType = mth.getReturnType().getSimpleName();
+        this.returnType = mth.getReturnType().getName();
         this.kind = Kind.METHOD;
     }
     

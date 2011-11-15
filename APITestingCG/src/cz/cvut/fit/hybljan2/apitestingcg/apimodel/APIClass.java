@@ -83,7 +83,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         }
         this.kind = getKind(cls);
         // Check, if class has some superclass (other than Object) 
-        if(cls.getSuperclass() != null && !cls.getSuperclass().getSimpleName().equals("Object")) this.extending = cls.getSuperclass().getName();
+        if(cls.getSuperclass() != null && !cls.getSuperclass().getSimpleName().equals("Object") && !cls.getSuperclass().getSimpleName().equals("Enum")) this.extending = cls.getSuperclass().getName();
         this.implementing = new LinkedList<String>();
         for(Class intfc : cls.getInterfaces()) {
             this.implementing.add(intfc.getSimpleName());

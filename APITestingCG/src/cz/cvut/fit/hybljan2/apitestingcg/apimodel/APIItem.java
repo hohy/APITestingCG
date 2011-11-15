@@ -1,6 +1,7 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
+import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -102,6 +103,12 @@ public abstract class APIItem {
         }
         return null;
     }    
+    
+    protected String getTypeName(Type t) {
+        String rawName = t.toString();
+        if(rawName.contains("class")) return rawName.substring(6);
+        return rawName;
+    }
     
     public enum Kind {
         CLASS, METHOD, INTERFACE, ANNOTATION, ENUM, VARIABLE, PACKAGE, CONSTRUCTOR
