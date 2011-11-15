@@ -43,29 +43,14 @@ public class InstantiatorGenerator extends Generator {
                         // class header
                         pw.println("public class " + cls.getName() + "Instantiator {\n");
                         
+                        pw.println("\t/*   CONSTRUCTORS   */\n");
+                        
                         // list of constructors. Every constructor in tested class 
                         // is used by constructor in new class.
                         for(APIMethod constructor : cls.getConstructors()) {
                             // only public constructors can be tested in instantiator
                             if(constructor.getModifiers().contains(Modifier.PUBLIC)) {
-                                
-                                // String builder for list of params for instantiator constructor
-                                StringBuilder paramDefListSb = new StringBuilder();
-                                // String builder for list of params for tested constructor
-                                StringBuilder paramListSb = new StringBuilder();
-                                char paramName = 'a';
-                                
-                                for(String className : constructor.getParameters()) {
-                                    paramDefListSb.append(className).append(" ").append(paramName).append(',');
-                                    paramListSb.append(paramName).append(',');
-                                    paramName++;
-                                }
-                                
-                                // remove last ',' if there is any
-                                if(paramDefListSb.length() > 0) {
-                                    paramDefListSb.deleteCharAt(paramDefListSb.length()-1);
-                                    paramListSb.deleteCharAt(paramListSb.length()-1);
-                                }
+
                                 // generate constructor
                                 pw.println("\tpublic " + cls.getName() + "Instantiator ("+ getMethodParamList(constructor) + ") {");
                                 pw.println("\t\t" + constructor.getName() + " instance = new " + constructor.getName() +'(' + getMethodParamNameList(constructor) + ");");
@@ -80,6 +65,8 @@ public class InstantiatorGenerator extends Generator {
                             }
                         }
                         
+                        pw.println("\t/*   METHODS   */\n");
+                        
                         // list of callers (methods that test method calling)
                         for(APIMethod method : cls.getMethods()) {
                             // instantiator can test only public methods
@@ -88,15 +75,20 @@ public class InstantiatorGenerator extends Generator {
                                 StringBuilder methodParams = new StringBuilder(getMethodParamList(method));
                                 
                                 // if method isn't static, add instance param
-                                if(method.getModifiers().contains(Modifier.STATIC)) {
+                                if(!method.getModifiers().contains(Modifier.STATIC)) {
                                     if(!method.getParameters().isEmpty()) methodParams.append(',');
                                     methodParams.append(cls.getFullName()).append(" instance");                                                                
                                 }                                
                                 
                                 // method header
                                 pw.println("\tpublic void " + method.getName() + "Call(" + methodParams + ") {");
-                                
-                                pw.println("\t}");
+                                    // if method returns void, do not check result, if return something, save it to variable result
+                                    String result = method.getReturnType().equals("void") ? "" : method.getReturnType() + " result = ";
+                                    // if method is static, call it on class, if not, call it on instance parameter
+                                    String instance = method.getModifiers().contains(Modifier.STATIC) ? cls.getFullName() : "instance";
+                                    
+                                    pw.println("\t\t" + result + instance + "." + method.getName() + "(" + getMethodParamNameList(method) + ");");
+                                pw.println("\t}\n");
                             }
                         }
                         
