@@ -1,13 +1,14 @@
 package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
+import com.sun.tools.doclets.internal.toolkit.builders.MethodBuilder;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIMethod;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIPackage;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.logging.Level;
@@ -21,123 +22,161 @@ public class InstantiatorGenerator extends Generator {
 
     @Override
     public void generate(API api) {
+        // get all packages in api
         for(APIPackage pkg : api.getPackages()) {
+            // get all classes from every package
             for(APIClass cls : pkg.getClasses()) {
+                // filter out all abstract classes
                 if(!cls.getModifiers().contains(Modifier.ABSTRACT)) {
-                    PrintWriter pw = null;
-                    try {
-                        
-                        File outputDir = new File("output" + File.separatorChar + getPathToPackage(pkg));
-                        outputDir.mkdirs(); 
-                        
-                        File file = new File(outputDir.getPath() + File.separatorChar + cls.getName() + "Instantiator.java");
-                        pw = new PrintWriter(file);
-                        
-                        // print package name. Test classes will be in same package as tested classes.
-                        pw.println("package " + pkg.getName() + ';');
-                        pw.println();
-                        
-                        // list of imports - only tested class
-                        pw.println("import " + cls.getFullName() + ";\n");
-                        
-                        // class header
-                        pw.println("public class " + cls.getName() + "Instantiator {\n");
-                        
-                        pw.println("\t/*   CONSTRUCTORS   */\n");
-                        
-                        // list of constructors. Every constructor in tested class 
-                        // is used by constructor in new class.
-                        for(APIMethod constructor : cls.getConstructors()) {
-                            // only public constructors can be tested in instantiator
-                            if(constructor.getModifiers().contains(Modifier.PUBLIC)) {
+                ClassGenerator cgen = new ClassGenerator();                                                                       
 
-                                // generate constructor
-                                pw.println("\tpublic " + cls.getName() + "Instantiator ("+ getMethodParamList(constructor) + ") {");
-                                pw.println("\t\t" + constructor.getName() + " instance = new " + constructor.getName() +'(' + getMethodParamNameList(constructor) + ");");
-                                
-                                // generate null constructor
-                                String nullConstructor = nullParamsConstructor(constructor, cls.getConstructors());
-                                if(nullConstructor != null) { // null constructor should not be null, lol. ;-D
-                                    pw.println("\t\t" + nullConstructor);
+                cgen.setPackageName(pkg.getName());
+
+                // Instantiator have to import tested class.
+                cgen.addImport(cls.getFullName());
+
+                // class header                        
+                cgen.setName(cls.getName() + "Instantiator");                        
+
+                // Constructor testing
+                // For every constructor in tested class, create method 
+                // createClassXIntance, that return ClassX instance
+                for(APIMethod constructor : cls.getConstructors()) {
+                    // only public constructors can be tested in instantiator
+                    if(constructor.getModifiers().contains(Modifier.PUBLIC)) {
+
+                        // generate constructor
+                        MethodGenerator method = new MethodGenerator();
+                        method.setModifiers("public");
+                        method.setName("create" + cls.getName() + "Instance");
+                        method.setReturnType(cls.getName());
+                        List<String[]> params = getMethodParamList(constructor);
+                        method.setParams(params);
+                        StringBuilder methodBody = new StringBuilder();
+                        methodBody.append("\t\t").append(cls.getName());
+                        methodBody.append(" instance = new ").append(cls.getName());
+                        methodBody.append('(').append(getMethodParamNameList(params)).append(");\n");
+                        methodBody.append("\t\treturn instance;");
+                        method.setBody(methodBody.toString());
+                        cgen.addConstructor(method);
+
+                        // generate null constructor                                                        
+                        try {
+                            // nonparam constructor can't be tested with null values.                        
+                            if(constructor.getParameters().isEmpty()) 
+                                throw new Exception("Nonparam constructor can't be tested with null values.");
+                            
+                            String cstr = getNullParamString(constructor.getParameters());
+
+                            // Check if there is no other same constructor
+                            for(APIMethod c : cls.getConstructors()) {
+                                if(!c.equals(constructor)) {
+                                    if(cstr.equals(getNullParamString(c.getParameters())))
+                                        throw new Exception("Cant do null constructor.");                                            
                                 }
-                                
-                                pw.println("\t}\n");
                             }
-                        }
-                        
-                        pw.println("\t/*   METHODS   */\n");
-                        
-                        // list of callers (methods that test method calling)
-                        for(APIMethod method : cls.getMethods()) {
-                            // instantiator can test only public methods
-                            if(method.getModifiers().contains(Modifier.PUBLIC)) {
-                                
-                                StringBuilder methodParams = new StringBuilder(getMethodParamList(method));
-                                
-                                // if method isn't static, add instance param
-                                if(!method.getModifiers().contains(Modifier.STATIC)) {
-                                    if(!method.getParameters().isEmpty()) methodParams.append(',');
-                                    methodParams.append(cls.getFullName()).append(" instance");                                                                
-                                }                                
-                                
-                                // method header
-                                pw.println("\tpublic void " + method.getName() + "Call(" + methodParams + ") {");
-                                    // if method returns void, do not check result, if return something, save it to variable result
-                                    String result = method.getReturnType().equals("void") ? "" : method.getReturnType() + " result = ";
-                                    // if method is static, call it on class, if not, call it on instance parameter
-                                    String instance = method.getModifiers().contains(Modifier.STATIC) ? cls.getFullName() : "instance";
-                                    
-                                    pw.println("\t\t" + result + instance + "." + method.getName() + "(" + getMethodParamNameList(method) + ");");
-                                pw.println("\t}\n");
-                            }
-                        }
-                        
-                        // end of Instantiator class
-                        pw.println("}");
-                        
-                    } catch (FileNotFoundException ex) {
-                        Logger.getLogger(InstantiatorGenerator.class.getName()).log(Level.SEVERE, null, ex);
-                    } finally {
-                        pw.close();
+
+                            MethodGenerator nconst = new MethodGenerator();
+                            // TODO: find better name
+                            nconst.setName("create" + cls.getName() + "NullInstance");
+                            nconst.setModifiers("public");
+                            nconst.setReturnType(cls.getName());
+
+                            StringBuilder sb = new StringBuilder();
+                            sb.append("\t\t").append(cls.getName()).append(" instance = new ").append(cls.getName()).append("(");
+                            sb.append(cstr);        
+                            sb.append(");\n");
+                            sb.append("\t\treturn instance;");
+                            nconst.setBody(sb.toString());
+                            // add constructor method to the class
+                            cgen.addConstructor(nconst);
+                        } catch (Exception ex) {}                                                            
                     }
+                }
+
+                // list of callers (methods that test method calling)
+                for(APIMethod method : cls.getMethods()) {
+                    // instantiator can test only public methods
+                    if(method.getModifiers().contains(Modifier.PUBLIC)) {
+                        MethodGenerator caller = new MethodGenerator();
+                            List<String[]> params = getMethodParamList(method);
+                            
+                            // if method isn't static, add instance param to param list
+                            if(!method.getModifiers().contains(Modifier.STATIC)) {
+                                params.add(new String[] {cls.getName(), "instance"});
+                            }
+                            caller.setParams(params);    
+                            caller.setModifiers("public");
+                            caller.setReturnType("void");
+                            caller.setName(method.getName() + "Call");                                                        
+                            // if method returns void, do not check result, if return something, save it to variable result
+                            String result = method.getReturnType().equals("void") ? "" : method.getReturnType() + " result = ";                            
+                            // if method is static, call it on class, if not, call it on instance parameter
+                            String instance = method.getModifiers().contains(Modifier.STATIC) ? cls.getName() : "instance";
+                            StringBuilder cbb = new StringBuilder();
+                            cbb.append("\t\t").append(result).append(instance).append(".").append(method.getName());
+                            cbb.append("(").append(getMethodParamNameList(getMethodParamList(method))).append(");");
+                            caller.setBody(cbb.toString());
+                            cgen.addMethod(caller);
+                            
+                            // Generate same method with null parameters
+                            try {
+                                if(method.getParameters().isEmpty())                                 
+                                    throw new Exception("Nonparam method can't be called with null params.");
+                                String cstr = getNullParamString(method.getParameters());
+
+                                // Check if there is no other same constructor
+                                for(APIMethod c : cls.getMethods()) {
+                                    if(!c.equals(method)) {
+                                        if(cstr.equals(getNullParamString(c.getParameters())))
+                                            throw new Exception("Cant do null method.");                                            
+                                    }
+                                }
+                                MethodGenerator ncaller = new MethodGenerator();
+                                ncaller.setModifiers("public");
+                                ncaller.setName(method.getName() + "NullCall");
+                                ncaller.setReturnType("void");
+                                StringBuilder ncbb = new StringBuilder();
+                                ncbb.append("\t\t").append(result).append(instance).append(".").append(method.getName());
+                                ncbb.append("(").append(cstr).append(");");                                
+                                ncaller.setBody(ncbb.toString());
+                                cgen.addMethod(ncaller);
+                            } catch (Exception ex) {
+                                //Logger.getLogger(InstantiatorGenerator.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                    }                    
+                }
+                cgen.generateClassFile();
                 }
             }
         }
     }
 
-    private String getPathToPackage(APIPackage pkg) {
-        return pkg.getName().replace('.', File.separatorChar);
-    }
-
-    private String getMethodParamList(APIMethod method) {
+    private List<String[]> getMethodParamList(APIMethod method) {
         // String builder for list of params for instantiator constructor
-        StringBuilder paramDefListSb = new StringBuilder();
+        List<String[]> result = new LinkedList<String[]>();
         char paramName = 'a';
 
         for(String className : method.getParameters()) {
-            paramDefListSb.append(className).append(" ").append(paramName).append(',');
+            String[] p = new String[2];
+            p[0] = className;
+            p[1] = Character.toString(paramName);
             paramName++;
+            result.add(p);
         }
-
-        // remove last ',' if there is any
-        if(paramDefListSb.length() > 0) {
-            paramDefListSb.deleteCharAt(paramDefListSb.length()-1);
-        }        
-        return paramDefListSb.toString();
+        return result;
     }
     
-    private String getMethodParamNameList(APIMethod method) {
+    private String getMethodParamNameList(List<String[]> params) {
         // String builder for list of params for tested constructor
         StringBuilder paramListSb = new StringBuilder();
-        char paramName = 'a';
 
-        for(String className : method.getParameters()) {
-            paramListSb.append(paramName).append(',');
-            paramName++;
+        for(String[] param : params) {
+            paramListSb.append(param[1]).append(',');
         }
 
         // remove last ',' if there is any
-        if(paramListSb.length() > 0) {
+        if(params.size() > 0) {
             paramListSb.deleteCharAt(paramListSb.length()-1);
         }        
         return paramListSb.toString();
