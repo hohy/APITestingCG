@@ -109,14 +109,8 @@ public class InstantiatorGenerator extends Generator {
                             caller.setModifiers("public");
                             caller.setReturnType("void");
                             caller.setName(method.getName() + "Call");                                                        
-                            // if method returns void, do not check result, if return something, save it to variable result
-                            String result = method.getReturnType().equals("void") ? "" : method.getReturnType() + " result = ";                            
-                            // if method is static, call it on class, if not, call it on instance parameter
-                            String instance = method.getModifiers().contains(Modifier.STATIC) ? cls.getName() : "instance";
-                            StringBuilder cbb = new StringBuilder();
-                            cbb.append("\t\t").append(result).append(instance).append(".").append(method.getName());
-                            cbb.append("(").append(getMethodParamNameList(getMethodParamList(method))).append(");");
-                            caller.setBody(cbb.toString());
+                            String body = generateCallerBody(method, cls);
+                            caller.setBody(body);
                             cgen.addMethod(caller);
                             
                             // Generate same method with null parameters
@@ -131,15 +125,14 @@ public class InstantiatorGenerator extends Generator {
                                         if(cstr.equals(getNullParamString(c.getParameters())))
                                             throw new Exception("Cant do null method.");                                            
                                     }
-                                }
+                                }                                
                                 MethodGenerator ncaller = new MethodGenerator();
                                 ncaller.setModifiers("public");
                                 ncaller.setName(method.getName() + "NullCall");
                                 ncaller.setReturnType("void");
-                                StringBuilder ncbb = new StringBuilder();
-                                ncbb.append("\t\t").append(result).append(instance).append(".").append(method.getName());
-                                ncbb.append("(").append(cstr).append(");");                                
-                                ncaller.setBody(ncbb.toString());
+                                ncaller.setParams(params);
+                                String nbody = generateCallerBody(method, cls, cstr);
+                                ncaller.setBody(nbody);
                                 cgen.addMethod(ncaller);
                             } catch (Exception ex) {
                                 //Logger.getLogger(InstantiatorGenerator.class.getName()).log(Level.SEVERE, null, ex);
@@ -150,6 +143,27 @@ public class InstantiatorGenerator extends Generator {
                 }
             }
         }
+    }
+
+    private String generateCallerBody(APIMethod method, APIClass cls, String cstr) {
+        // if method returns void, do not check result, if return something, save it to variable result
+        String result = method.getReturnType().equals("void") ? "" : method.getReturnType() + " result = ";
+        // if method is static, call it on class, if not, call it on instance parameter
+        String instance = method.getModifiers().contains(Modifier.STATIC) ? cls.getName() : "instance";
+        StringBuilder ncbb = new StringBuilder();
+        // if method throw something 
+        if(!method.getThrown().isEmpty()) ncbb.append("\t\ttry {\n\t");
+        ncbb.append("\t\t").append(result).append(instance).append(".").append(method.getName());
+        ncbb.append("(").append(cstr).append(");");
+        for(String exception : method.getThrown()) {
+            ncbb.append("\n\t\t} catch (").append(exception).append(" ex) {");
+        }
+        if(!method.getThrown().isEmpty()) ncbb.append("}");
+        return ncbb.toString();
+    }
+
+    private String generateCallerBody(APIMethod method, APIClass cls) {
+        return generateCallerBody(method, cls, getMethodParamNameList(getMethodParamList(method)));
     }
 
     private List<String[]> getMethodParamList(APIMethod method) {
