@@ -106,7 +106,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         List<Modifier> publicmodifier = new LinkedList<Modifier>();
         publicmodifier.add(Modifier.PUBLIC);
         LinkedList<String> params = new LinkedList<String>();
-        SortedSet<String> thrown = new TreeSet<String>();
+        List<String> thrown = new LinkedList<String>();
         APIMethod constr = new APIMethod(fullName, publicmodifier, params, null, thrown);
         constr.kind = Kind.CONSTRUCTOR;
         this.constructors.add(constr);
@@ -116,7 +116,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         List<Modifier> publicmodifier = new LinkedList<Modifier>();
         publicmodifier.add(Modifier.PUBLIC);
         LinkedList<String> params = new LinkedList<String>();
-        SortedSet<String> thrown = new TreeSet<String>();
+        List<String> thrown = new LinkedList<String>();
         APIMethod constr = new APIMethod(fullName, publicmodifier, params, null, thrown);
         constr.kind = Kind.CONSTRUCTOR;
         this.constructors.remove(constr);

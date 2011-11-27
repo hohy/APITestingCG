@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -20,6 +21,10 @@ public class ClassGenerator {
     private String name;    
     // name of package, where generated class will be stored
     private String packageName;
+    // name of super class.
+    private String extending;
+    // names of interfaces that class is implementing
+    private List<String> implementing;
     // List of imports used in class
     private Set<String> imports;
     // List of class constructors
@@ -31,6 +36,7 @@ public class ClassGenerator {
         imports = new HashSet<String>();
         constructors = new LinkedList<MethodGenerator>();
         methods = new LinkedList<MethodGenerator>();
+        implementing = new LinkedList<String>();
     }
     
     public void generateClassFile() {
@@ -53,8 +59,16 @@ public class ClassGenerator {
             }
             
             // print class header 
-            // TODO: add extends and import fields
-            pw.println("public class " + name + " {\n");
+            pw.append("public class " + name);
+            if(extending != null) pw.append(" extends " + extending);
+            if(implementing.size() > 0) pw.append(" implements ");
+            for (Iterator<String> it = implementing.iterator(); it.hasNext();) {
+                String string = it.next();
+                pw.append(string);
+                if(it.hasNext()) pw.append(", ");
+            }
+           
+            pw.println(" {\n");
             
             pw.println("\t// CONSTRUCTORS\n");
             
@@ -118,5 +132,13 @@ public class ClassGenerator {
     void addConstructor(MethodGenerator costructor) {
         this.constructors.add(costructor);
         this.imports.addAll(costructor.getImports());
+    }
+
+    void setExtending(String name) {
+        this.extending = name;
+    }
+
+    void addImplemening(String name) {
+        this.implementing.add(name);
     }
 }

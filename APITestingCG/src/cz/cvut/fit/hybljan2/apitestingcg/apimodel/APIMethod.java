@@ -24,9 +24,9 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
 
     private List<String> parameters;
     private String returnType;
-    private SortedSet<String> thrown;
+    private List<String> thrown;
     
-    public APIMethod(String name, List<Modifier> modifiers, List<String> params, String returnType, SortedSet<String> thrown) {
+    public APIMethod(String name, List<Modifier> modifiers, List<String> params, String returnType, List<String> thrown) {
         this.name = name;
         this.kind = Kind.METHOD;
         this.modifiers = modifiers;
@@ -41,7 +41,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         this.name = jcmd.name.toString();
         this.modifiers = APIModifier.getModifiersSet(jcmd.getModifiers().getFlags());
         
-        this.thrown = new TreeSet<String>();
+        this.thrown = new LinkedList<String>();
         if(jcmd.getThrows() != null) {
             for(JCExpression e : jcmd.getThrows()) 
                 this.thrown.add(findFullClassName(e.toString(), importsMap));
@@ -65,7 +65,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
     public APIMethod(Method mth) {
         this.name = mth.getName();
         this.modifiers = APIModifier.getModifiersSet(mth.getModifiers());
-        this.thrown = new TreeSet<String>();
+        this.thrown = new LinkedList<String>();
         for(java.lang.reflect.Type excType : mth.getExceptionTypes()) {
             this.thrown.add(getTypeName(excType));
         }
@@ -80,7 +80,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
     public APIMethod(Constructor c) {
         this.name = c.getName();
         this.modifiers = APIModifier.getModifiersSet(c.getModifiers());
-        this.thrown = new TreeSet<String>();
+        this.thrown = new LinkedList<String>();
         for(java.lang.reflect.Type excType : c.getExceptionTypes()) {
             this.thrown.add(excType.toString().substring(6));  // TODO: toto by chtělo asi udělat nějak elegantnějš...            
         }
@@ -134,7 +134,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         return returnType;
     }
 
-    public SortedSet<String> getThrown() {
+    public List<String> getThrown() {
         return thrown;
     }
 

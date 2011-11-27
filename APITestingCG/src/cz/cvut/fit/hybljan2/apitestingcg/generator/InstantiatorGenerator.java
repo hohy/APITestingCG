@@ -165,37 +165,7 @@ public class InstantiatorGenerator extends Generator {
     private String generateCallerBody(APIMethod method, APIClass cls) {
         return generateCallerBody(method, cls, getMethodParamNameList(getMethodParamList(method)));
     }
-
-    private List<String[]> getMethodParamList(APIMethod method) {
-        // String builder for list of params for instantiator constructor
-        List<String[]> result = new LinkedList<String[]>();
-        char paramName = 'a';
-
-        for(String className : method.getParameters()) {
-            String[] p = new String[2];
-            p[0] = className;
-            p[1] = Character.toString(paramName);
-            paramName++;
-            result.add(p);
-        }
-        return result;
-    }
-    
-    private String getMethodParamNameList(List<String[]> params) {
-        // String builder for list of params for tested constructor
-        StringBuilder paramListSb = new StringBuilder();
-
-        for(String[] param : params) {
-            paramListSb.append(param[1]).append(',');
-        }
-
-        // remove last ',' if there is any
-        if(params.size() > 0) {
-            paramListSb.deleteCharAt(paramListSb.length()-1);
-        }        
-        return paramListSb.toString();
-    }
-    
+ 
     private String nullParamsConstructor(APIMethod cnstr, SortedSet<APIMethod> constructors) {
         
         // default constructor can't be tested with null values.

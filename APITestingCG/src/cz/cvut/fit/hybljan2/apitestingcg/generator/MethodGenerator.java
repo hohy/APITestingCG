@@ -1,7 +1,10 @@
 package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
 import com.sun.org.apache.regexp.internal.REUtil;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -18,6 +21,7 @@ public class MethodGenerator {
     private List<String[]> params;
     private String returnType;
     private List<String> thrown;
+    private List<String> annotations = new LinkedList<String>();    
     // List for class generator. Contains classes used in method, 
     // that has to be imported in class with this method.
     private Set<String> imports = new HashSet<String>();
@@ -27,9 +31,15 @@ public class MethodGenerator {
     public String generateMethod() {
         StringBuilder sb = new StringBuilder();
         
+        // anotation
+        for(String annotation : annotations) {
+            sb.append("\t@").append(annotation).append('\n');
+        }
         // method header
-        sb.append('\t').append(modifiers).append(' ').append(returnType).append(' ').append(name).append('(');
-        if(params != null && params.size() > 0) {
+        sb.append('\t').append(modifiers).append(' ');
+        if(returnType != null && returnType.length() > 0) sb.append(returnType).append(' ');
+        sb.append(name).append('(');
+        if(params != null && params.size() > 0) {            
             for (String[] param : params) {
                 sb.append(param[0]).append(' ').append(param[1]).append(", ");
             }
@@ -38,6 +48,7 @@ public class MethodGenerator {
         }
         sb.append(") ");
         if(thrown != null && thrown.size() > 0) {
+            sb.append("throws ");
             for (String exc : thrown) {
                 sb.append(exc).append(", ");
             }
@@ -56,6 +67,14 @@ public class MethodGenerator {
         this.modifiers = modifiers;
     }
 
+    void setModifiers(List<Modifier> modifiers) {
+        StringBuilder sb = new StringBuilder();
+        for (Modifier modifier : modifiers) {
+            sb.append(modifier).append(" ");
+        }
+        this.modifiers = sb.toString();
+    }    
+    
     public void setName(String name) {
         this.name = name;
     }
@@ -105,4 +124,13 @@ public class MethodGenerator {
             return rawName.substring(rawName.lastIndexOf(".")+1);
         }
     }
+
+    public List<String[]> getParams() {
+        return params;
+    }
+
+    public void addAnotation(String anotation) {
+        this.annotations.add(anotation);
+    }
+    
 }

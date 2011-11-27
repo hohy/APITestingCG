@@ -6,6 +6,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.ByteCodeScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.ScannerConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.ApiViewConfiguration;
+import cz.cvut.fit.hybljan2.apitestingcg.generator.ExtenderGenerator;
 import cz.cvut.fit.hybljan2.apitestingcg.generator.Generator;
 import cz.cvut.fit.hybljan2.apitestingcg.generator.InstantiatorGenerator;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
@@ -59,8 +60,9 @@ public class APITestingCG {
             System.out.println("Creating new ApiViewForm: " + ac.getApiId());
             new APIViewForm(apiMap.get(ac.getApiId())).setVisible(true);
         }   
-        
         Generator g = new InstantiatorGenerator();
+        g.generate(apiMap.get("testlib src"));        
+        g = new ExtenderGenerator();
         g.generate(apiMap.get("testlib src"));
     }
 }
