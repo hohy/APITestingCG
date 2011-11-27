@@ -129,11 +129,25 @@ public class ClassGenerator {
         this.imports.addAll(method.getImports());
     }
     
+    void addMethods(List<MethodGenerator> methods) {
+        for (MethodGenerator method : methods) {
+            this.methods.add(method);
+            this.imports.addAll(method.getImports());            
+        }
+    }    
+    
     void addConstructor(MethodGenerator costructor) {
         this.constructors.add(costructor);
         this.imports.addAll(costructor.getImports());
     }
-
+    
+    void addConstructors(List<MethodGenerator> costructors) {
+        for (MethodGenerator costructor : costructors) {
+            this.constructors.add(costructor);
+            this.imports.addAll(costructor.getImports());            
+        }
+    }
+    
     void setExtending(String name) {
         this.extending = name;
     }

@@ -1,18 +1,12 @@
 package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
-import com.sun.tools.doclets.internal.toolkit.builders.MethodBuilder;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIMethod;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIPackage;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Generates instantiators for all nonabstract classes in API.
@@ -28,121 +22,136 @@ public class InstantiatorGenerator extends Generator {
             for(APIClass cls : pkg.getClasses()) {
                 // filter out all abstract classes
                 if(!cls.getModifiers().contains(Modifier.ABSTRACT)) {
-                ClassGenerator cgen = new ClassGenerator();                                                                       
+                    ClassGenerator cgen = new ClassGenerator();                                                                       
 
-                cgen.setPackageName(pkg.getName());
+                    cgen.setPackageName(pkg.getName());
 
-                // Instantiator have to import tested class.
-                cgen.addImport(cls.getFullName());
+                    // Instantiator have to import tested class.
+                    cgen.addImport(cls.getFullName());
 
-                // class header                        
-                cgen.setName(cls.getName() + "Instantiator");                        
+                    // class header                        
+                    cgen.setName(cls.getName() + "Instantiator");                        
+                    
+                    // generate constructors
+                    List<MethodGenerator> constructors = generateConstructors(cls);
+                    cgen.addConstructors(constructors);
 
-                // Constructor testing
-                // For every constructor in tested class, create method 
-                // createClassXIntance, that return ClassX instance
-                for(APIMethod constructor : cls.getConstructors()) {
-                    // only public constructors can be tested in instantiator
-                    if(constructor.getModifiers().contains(Modifier.PUBLIC)) {
+                    // generate method callers
+                    List<MethodGenerator> callers = generateMethodCallers(cls);                
+                    cgen.addMethods(callers);
 
-                        // generate constructor
-                        MethodGenerator method = new MethodGenerator();
-                        method.setModifiers("public");
-                        method.setName("create" + cls.getName() + "Instance");
-                        method.setReturnType(cls.getName());
-                        List<String[]> params = getMethodParamList(constructor);
-                        method.setParams(params);
-                        StringBuilder methodBody = new StringBuilder();
-                        methodBody.append("\t\t").append(cls.getName());
-                        methodBody.append(" instance = new ").append(cls.getName());
-                        methodBody.append('(').append(getMethodParamNameList(params)).append(");\n");
-                        methodBody.append("\t\treturn instance;");
-                        method.setBody(methodBody.toString());
-                        cgen.addConstructor(method);
-
-                        // generate null constructor                                                        
-                        try {
-                            // nonparam constructor can't be tested with null values.                        
-                            if(constructor.getParameters().isEmpty()) 
-                                throw new Exception("Nonparam constructor can't be tested with null values.");
-                            
-                            String cstr = getNullParamString(constructor.getParameters());
-
-                            // Check if there is no other same constructor
-                            for(APIMethod c : cls.getConstructors()) {
-                                if(!c.equals(constructor)) {
-                                    if(cstr.equals(getNullParamString(c.getParameters())))
-                                        throw new Exception("Cant do null constructor.");                                            
-                                }
-                            }
-
-                            MethodGenerator nconst = new MethodGenerator();
-                            // TODO: find better name
-                            nconst.setName("create" + cls.getName() + "NullInstance");
-                            nconst.setModifiers("public");
-                            nconst.setReturnType(cls.getName());
-
-                            StringBuilder sb = new StringBuilder();
-                            sb.append("\t\t").append(cls.getName()).append(" instance = new ").append(cls.getName()).append("(");
-                            sb.append(cstr);        
-                            sb.append(");\n");
-                            sb.append("\t\treturn instance;");
-                            nconst.setBody(sb.toString());
-                            // add constructor method to the class
-                            cgen.addConstructor(nconst);
-                        } catch (Exception ex) {}                                                            
-                    }
-                }
-
-                // list of callers (methods that test method calling)
-                for(APIMethod method : cls.getMethods()) {
-                    // instantiator can test only public methods
-                    if(method.getModifiers().contains(Modifier.PUBLIC)) {
-                        MethodGenerator caller = new MethodGenerator();
-                            List<String[]> params = getMethodParamList(method);
-                            
-                            // if method isn't static, add instance param to param list
-                            if(!method.getModifiers().contains(Modifier.STATIC)) {
-                                params.add(new String[] {cls.getName(), "instance"});
-                            }
-                            caller.setParams(params);    
-                            caller.setModifiers("public");
-                            caller.setReturnType("void");
-                            caller.setName(method.getName() + "Call");                                                        
-                            String body = generateCallerBody(method, cls);
-                            caller.setBody(body);
-                            cgen.addMethod(caller);
-                            
-                            // Generate same method with null parameters
-                            try {
-                                if(method.getParameters().isEmpty())                                 
-                                    throw new Exception("Nonparam method can't be called with null params.");
-                                String cstr = getNullParamString(method.getParameters());
-
-                                // Check if there is no other same constructor
-                                for(APIMethod c : cls.getMethods()) {
-                                    if(!c.equals(method)) {
-                                        if(cstr.equals(getNullParamString(c.getParameters())))
-                                            throw new Exception("Cant do null method.");                                            
-                                    }
-                                }                                
-                                MethodGenerator ncaller = new MethodGenerator();
-                                ncaller.setModifiers("public");
-                                ncaller.setName(method.getName() + "NullCall");
-                                ncaller.setReturnType("void");
-                                ncaller.setParams(params);
-                                String nbody = generateCallerBody(method, cls, cstr);
-                                ncaller.setBody(nbody);
-                                cgen.addMethod(ncaller);
-                            } catch (Exception ex) {
-                                //Logger.getLogger(InstantiatorGenerator.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                    }                    
-                }
-                cgen.generateClassFile();
+                    cgen.generateClassFile();
                 }
             }
         }
+    }
+
+    private List<MethodGenerator> generateConstructors(APIClass cls) {        
+        // Constructor testing
+        List<MethodGenerator> result = new LinkedList<MethodGenerator>();
+        // For every constructor in tested class, create method 
+        // createClassXIntance, that return ClassX instance
+        for(APIMethod constructor : cls.getConstructors()) {
+            // only public constructors can be tested in instantiator
+            if(constructor.getModifiers().contains(Modifier.PUBLIC)) {
+
+                // generate constructor
+                MethodGenerator method = new MethodGenerator();
+                method.setModifiers("public");
+                method.setName("create" + cls.getName() + "Instance");
+                method.setReturnType(cls.getName());
+                List<String[]> params = getMethodParamList(constructor);
+                method.setParams(params);
+                method.setBody(generateConstructorBody(cls, getMethodParamNameList(params)));
+                result.add(method);
+
+                // generate null constructor                                                        
+                try {
+                    // nonparam constructor can't be tested with null values.                        
+                    if(constructor.getParameters().isEmpty()) 
+                        throw new Exception("Nonparam constructor can't be tested with null values.");
+                    
+                    String cstr = getNullParamString(constructor.getParameters());
+
+                    // Check if there is no other same constructor
+                    for(APIMethod c : cls.getConstructors()) {
+                        if(!c.equals(constructor)) {
+                            if(cstr.equals(getNullParamString(c.getParameters())))
+                                throw new Exception("Can't do null constructor.");                                            
+                        }
+                    }
+
+                    MethodGenerator nconst = new MethodGenerator();
+                    // TODO: find better name
+                    nconst.setName("create" + cls.getName() + "NullInstance");
+                    nconst.setModifiers("public");
+                    nconst.setReturnType(cls.getName());
+                    nconst.setBody(generateConstructorBody(cls, cstr));                             
+                    // add constructor method to the class
+                    result.add(nconst);
+                } catch (Exception ex) {}                                                            
+            }
+        }
+        return result;
+    }
+
+    private List<MethodGenerator> generateMethodCallers(APIClass cls) {
+        List<MethodGenerator> result = new LinkedList<MethodGenerator>();
+        // list of callers (methods that test method calling)
+        for(APIMethod method : cls.getMethods()) {
+            // instantiator can test only public methods
+            if(method.getModifiers().contains(Modifier.PUBLIC)) {
+                MethodGenerator caller = new MethodGenerator();
+                    List<String[]> params = getMethodParamList(method);
+                    
+                    // if method isn't static, add instance param to param list
+                    if(!method.getModifiers().contains(Modifier.STATIC)) {
+                        params.add(new String[] {cls.getName(), "instance"});
+                    }
+                    caller.setParams(params);    
+                    caller.setModifiers("public");
+                    caller.setReturnType("void");
+                    caller.setName(method.getName() + "Call");                                                        
+                    String body = generateCallerBody(method, cls);
+                    caller.setBody(body);
+                    result.add(caller);
+                    
+                    // Generate same method with null parameters
+                    try {
+                        if(method.getParameters().isEmpty())                                 
+                            throw new Exception("Nonparam method can't be called with null params.");
+                        String cstr = getNullParamString(method.getParameters());
+
+                        // Check if there is no other same constructor
+                        for(APIMethod c : cls.getMethods()) {
+                            if(!c.equals(method)) {
+                                if(cstr.equals(getNullParamString(c.getParameters())))
+                                    throw new Exception("Cant do null method.");                                            
+                            }
+                        }                                
+                        MethodGenerator ncaller = new MethodGenerator();
+                        ncaller.setModifiers("public");
+                        ncaller.setName(method.getName() + "NullCall");
+                        ncaller.setReturnType("void");
+                        ncaller.setParams(params);
+                        String nbody = generateCallerBody(method, cls, cstr);
+                        ncaller.setBody(nbody);
+                        result.add(ncaller);
+                    } catch (Exception ex) {
+                        //Logger.getLogger(InstantiatorGenerator.class.getName()).log(Level.SEVERE, null, ex);
+                    }                    
+            }                    
+        }
+        return result;
+    }
+
+    private String generateConstructorBody(APIClass cls, String cstr) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\t\t").append(cls.getName()).append(" instance = new ").append(cls.getName()).append("(");
+        sb.append(cstr);
+        sb.append(");\n");
+        sb.append("\t\treturn instance;");
+        return sb.toString();
     }
 
     private String generateCallerBody(APIMethod method, APIClass cls, String cstr) {
@@ -164,29 +173,6 @@ public class InstantiatorGenerator extends Generator {
 
     private String generateCallerBody(APIMethod method, APIClass cls) {
         return generateCallerBody(method, cls, getMethodParamNameList(getMethodParamList(method)));
-    }
- 
-    private String nullParamsConstructor(APIMethod cnstr, SortedSet<APIMethod> constructors) {
-        
-        // default constructor can't be tested with null values.
-        if(cnstr.getParameters().isEmpty()) return null;
-        
-        String cstr = getNullParamString(cnstr.getParameters());
-        
-        // Check if there is no other same constructo
-        // if exists, return null
-        for(APIMethod c : constructors) {
-            if(!c.equals(cnstr)) {
-                if(cstr.equals(getNullParamString(c.getParameters()))) return null;
-            }
-        }
-        
-        // generate constructor
-        StringBuilder sb = new StringBuilder();
-        sb.append(cnstr.getName()).append(" nullinstance = new ").append(cnstr.getName()).append("(");
-        sb.append(cstr);        
-        sb.append(");");
-        return sb.toString();
     }
     
     private String getNullParamString(List<String> parameters) {        
