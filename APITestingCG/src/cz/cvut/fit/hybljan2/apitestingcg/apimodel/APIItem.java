@@ -97,7 +97,7 @@ public abstract class APIItem {
             case CLASS: return Kind.CLASS;
             case METHOD: return Kind.METHOD;
             case INTERFACE: return Kind.INTERFACE;
-            case ANNOTATION: return Kind.ANNOTATION;
+            case ANNOTATION_TYPE: return Kind.ANNOTATION;
             case ENUM: return Kind.ENUM;
             case VARIABLE: return Kind.VARIABLE;
         }

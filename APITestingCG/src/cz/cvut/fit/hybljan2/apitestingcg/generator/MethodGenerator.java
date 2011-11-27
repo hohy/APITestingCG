@@ -65,15 +65,7 @@ public class MethodGenerator {
 
     public void setModifiers(String modifiers) {
         this.modifiers = modifiers;
-    }
-
-    void setModifiers(List<Modifier> modifiers) {
-        StringBuilder sb = new StringBuilder();
-        for (Modifier modifier : modifiers) {
-            sb.append(modifier).append(" ");
-        }
-        this.modifiers = sb.toString();
-    }    
+    }   
     
     public void setName(String name) {
         this.name = name;

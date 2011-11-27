@@ -18,7 +18,7 @@ public class ExtenderGenerator extends Generator {
         for(APIPackage pkg : api.getPackages()) {
             for(APIClass cls : pkg.getClasses()) {
                 // filter out final classes
-                if(!cls.getModifiers().contains(Modifier.FINAL)) {
+                if(!cls.getModifiers().contains(Modifier.FINAL) && !cls.getType().equals(Kind.ANNOTATION)) {
                     ClassGenerator cgen = new ClassGenerator();
                     cgen.addImport(cls.getFullName());                    
                     cgen.setPackageName(pkg.getName());
@@ -39,6 +39,8 @@ public class ExtenderGenerator extends Generator {
                         MethodGenerator cnstr = new MethodGenerator();
                         cnstr.setModifiers("public");
                         cnstr.setName(cgen.getName());
+                        
+                        
                         cnstr.setParams(getMethodParamList(constructor));
                         
                         StringBuilder sb = new StringBuilder();
@@ -51,16 +53,26 @@ public class ExtenderGenerator extends Generator {
                     
                     // method overriding tests
                     for(APIMethod method : cls.getMethods()) {
-                        MethodGenerator mgen = new MethodGenerator();
-                        mgen.setModifiers("public");
-                        mgen.setName(method.getName());
-                        mgen.setReturnType(method.getReturnType());
-                        mgen.setModifiers(method.getModifiers());
-                        mgen.setThrown(method.getThrown());
-                        mgen.addAnotation("Override");
-                        mgen.setParams(getMethodParamList(method));
-                        mgen.setBody("\t\tthrow new UnsupportedOperationException();");
-                        cgen.addMethod(mgen);
+                        // filter out static methods - they can't be overriden
+                        if(! method.getModifiers().contains(Modifier.STATIC)){
+                            MethodGenerator mgen = new MethodGenerator();
+                            mgen.setModifiers("public");
+                            mgen.setName(method.getName());
+                            mgen.setReturnType(method.getReturnType());
+
+                            StringBuilder sb = new StringBuilder();
+                            for (Modifier m : method.getModifiers()) {
+                                if(!m.equals(Modifier.ABSTRACT)) {
+                                    sb.append(m.toString().toLowerCase()).append(" ");
+                                }
+                            }                        
+                            mgen.setModifiers(sb.toString().trim());
+                            mgen.setThrown(method.getThrown());
+                            mgen.addAnotation("Override");
+                            mgen.setParams(getMethodParamList(method));
+                            mgen.setBody("\t\tthrow new UnsupportedOperationException();");
+                            cgen.addMethod(mgen);
+                        }
                     }
                
                     cgen.generateClassFile();
