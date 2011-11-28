@@ -102,12 +102,24 @@ public class InstantiatorGenerator extends Generator {
         if(cls.getExtending() != null && cls.getConstructors().size() > 0) {
             MethodGenerator scnstr = new MethodGenerator();
             scnstr.setModifiers("public");
-            scnstr.setName("create" + cls.getExtending() + "SuperInstance");
             scnstr.setReturnType(cls.getExtending());
+            scnstr.setName("create" + scnstr.getReturnType() + "SuperInstance");            
             List<String[]> params = getMethodParamList(cls.getConstructors().first());
             scnstr.setParams(params);
             scnstr.setBody(generateConstructorBody(cls, getMethodParamNameList(params)));
             result.add(scnstr);                    
+        }
+        
+        // if class implements some constructor, generate instance of interface
+        for(String intName : cls.getImplementing()) {
+            MethodGenerator icnstr = new MethodGenerator();
+            icnstr.setModifiers("public");
+            icnstr.setReturnType(intName);
+            icnstr.setName("create" + icnstr.getReturnType() + "InterfaceInstance");
+            List<String[]> params = getMethodParamList(cls.getConstructors().first());
+            icnstr.setParams(params);
+            icnstr.setBody(generateConstructorBody(cls, getMethodParamNameList(params)));
+            result.add(icnstr);                                       
         }
         return result;
     }

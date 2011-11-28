@@ -55,7 +55,7 @@ public class ClassGenerator {
             
             // print imports
             for (String imprt : imports) {
-                pw.println("import " + imprt + ";\n");
+                pw.println("import " + imprt + ";");
             }
             
             // print class header 
