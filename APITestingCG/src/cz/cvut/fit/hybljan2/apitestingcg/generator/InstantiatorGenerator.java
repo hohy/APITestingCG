@@ -69,7 +69,7 @@ public class InstantiatorGenerator extends Generator {
                 method.setParams(params);
                 method.setBody(generateConstructorBody(cls, getMethodParamNameList(params)));
                 result.add(method);
-
+                
                 // generate null constructor                                                        
                 try {
                     // nonparam constructor can't be tested with null values.                        
@@ -96,6 +96,18 @@ public class InstantiatorGenerator extends Generator {
                     result.add(nconst);
                 } catch (Exception ex) {}                                                            
             }
+        }
+        
+        // if class extends other class, generate superconstructor
+        if(cls.getExtending() != null && cls.getConstructors().size() > 0) {
+            MethodGenerator scnstr = new MethodGenerator();
+            scnstr.setModifiers("public");
+            scnstr.setName("create" + cls.getExtending() + "SuperInstance");
+            scnstr.setReturnType(cls.getExtending());
+            List<String[]> params = getMethodParamList(cls.getConstructors().first());
+            scnstr.setParams(params);
+            scnstr.setBody(generateConstructorBody(cls, getMethodParamNameList(params)));
+            result.add(scnstr);                    
         }
         return result;
     }
@@ -184,10 +196,9 @@ public class InstantiatorGenerator extends Generator {
     
     private String generateConstructorBody(APIClass cls, String cstr) {
         StringBuilder sb = new StringBuilder();
-        sb.append("\t\t").append(cls.getName()).append(" instance = new ").append(cls.getName()).append("(");
+        sb.append("\t\treturn new ").append(cls.getName()).append("(");
         sb.append(cstr);
-        sb.append(");\n");
-        sb.append("\t\treturn instance;");
+        sb.append(");\n");       
         return sb.toString();
     }
 
