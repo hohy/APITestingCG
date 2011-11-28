@@ -2,6 +2,7 @@ package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIField;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIMethod;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIPackage;
@@ -39,6 +40,10 @@ public class InstantiatorGenerator extends Generator {
                     // generate method callers
                     List<MethodGenerator> callers = generateMethodCallers(cls);                
                     cgen.addMethods(callers);
+                    
+                    // generate fields test methods
+                    List<MethodGenerator> fieldTest = generateFieldTests(cls);
+                    cgen.addMethods(fieldTest);
 
                     cgen.generateClassFile();
                 }
@@ -145,6 +150,38 @@ public class InstantiatorGenerator extends Generator {
         return result;
     }
 
+    private List<MethodGenerator> generateFieldTests(APIClass cls) {
+        List<MethodGenerator> result = new LinkedList<MethodGenerator>();
+        
+        for (APIField field : cls.getFields()) {
+            // only public fields can be tested in instantiator
+            if(field.getModifiers().contains(Modifier.PUBLIC)) {
+                MethodGenerator fmg = new MethodGenerator();
+                fmg.setModifiers("public");
+                fmg.setName(field.getName() + "Field");
+                fmg.setReturnType("void");
+                // if method is not static, instance is param.
+                if(!field.getModifiers().contains(Modifier.STATIC)) {
+                    List<String[]> params = new LinkedList<String[]>();
+                    params.add(new String[] {cls.getName(), "instance"});
+                    fmg.setParams(params);
+                }
+                StringBuilder sb = new StringBuilder();                
+                String var = getInstance(field.getModifiers(), cls) + '.' + field.getName();
+                // if field is final, print it, if not, write something into it.
+                if(field.getModifiers().contains(Modifier.FINAL)) {
+                    sb.append("\t\tSystem.out.println(").append(var).append(");");
+                } else {
+                    sb.append("\t\t").append(var).append(" = ").append(getDefaultPrimitiveValue(field.getVarType())).append(';');
+                }               
+                fmg.setBody(sb.toString());
+                result.add(fmg);
+            }
+        }
+        
+        return result;
+    }    
+    
     private String generateConstructorBody(APIClass cls, String cstr) {
         StringBuilder sb = new StringBuilder();
         sb.append("\t\t").append(cls.getName()).append(" instance = new ").append(cls.getName()).append("(");
@@ -157,8 +194,7 @@ public class InstantiatorGenerator extends Generator {
     private String generateCallerBody(APIMethod method, APIClass cls, String cstr) {
         // if method returns void, do not check result, if return something, save it to variable result
         String result = method.getReturnType().equals("void") ? "" : method.getReturnType() + " result = ";
-        // if method is static, call it on class, if not, call it on instance parameter
-        String instance = method.getModifiers().contains(Modifier.STATIC) ? cls.getName() : "instance";
+        String instance = getInstance(method.getModifiers(), cls);
         StringBuilder ncbb = new StringBuilder();
         // if method throw something 
         if(!method.getThrown().isEmpty()) ncbb.append("\t\ttry {\n\t");
@@ -169,6 +205,12 @@ public class InstantiatorGenerator extends Generator {
         }
         if(!method.getThrown().isEmpty()) ncbb.append("}");
         return ncbb.toString();
+    }
+    
+    private String getInstance(List<Modifier> modifiers, APIClass cls) {
+        // if method is static, call it on class, if not, call it on instance parameter
+        String instance = modifiers.contains(Modifier.STATIC) ? cls.getName() : "instance";
+        return instance;
     }
 
     private String generateCallerBody(APIMethod method, APIClass cls) {

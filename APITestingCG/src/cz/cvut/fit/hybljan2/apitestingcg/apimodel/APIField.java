@@ -50,6 +50,14 @@ public class APIField extends APIItem implements Comparable<APIField> {
         return sb.toString();
     }
 
+    public String getVarType() {
+        return varType;
+    }
+
+    public void setVarType(String varType) {
+        this.varType = varType;
+    }
+    
     /**
      * APIField are compared by names, 
      * so in SortedSet will be sorted in alphabetic order.
