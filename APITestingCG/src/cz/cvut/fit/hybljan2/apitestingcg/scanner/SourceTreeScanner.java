@@ -4,6 +4,7 @@ import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.model.JavacTypes;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.tree.JCTree.JCImport;
@@ -31,7 +32,12 @@ public class SourceTreeScanner extends TreeScanner{
     private APIPackage currentPackage;
     private APIClass currentClass;
     private Stack<APIClass> classes = new Stack<APIClass>();    
-    private Map<String, APIPackage> pkgs = new HashMap<String, APIPackage>();    
+    private Map<String, APIPackage> pkgs = new HashMap<String, APIPackage>();
+    private JavacTypes types;
+
+    SourceTreeScanner(JavacTypes types) {
+        this.types = types;
+    }
     
     public API getAPI() {
         api = new API("");
@@ -71,7 +77,8 @@ public class SourceTreeScanner extends TreeScanner{
         if ((ms.flags() & (Flags.PUBLIC | Flags.PROTECTED)) != 0) {
             // if default constructor should not be part of api, uncomment this.
             //if ((ms.flags() & Flags.GENERATEDCONSTR) == 0) {
-                APIMethod mth = new APIMethod(jcmd, currentClassImports);
+            
+                APIMethod mth = new APIMethod(jcmd, currentClassImports, types);
                 if(mth.getType() == Kind.CONSTRUCTOR){ 
                     mth.setName(currentClass.getFullName());
                     currentClass.addConstructor(mth);                    

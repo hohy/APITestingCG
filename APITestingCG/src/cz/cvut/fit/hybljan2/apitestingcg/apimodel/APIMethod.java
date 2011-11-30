@@ -1,6 +1,6 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
-import com.sun.source.tree.Tree.Kind;
+import com.sun.tools.javac.model.JavacTypes;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
@@ -10,10 +10,8 @@ import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.lang.reflect.Type;
+import java.util.Iterator;
 
 
 /**
@@ -25,6 +23,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
     private List<String> parameters;
     private String returnType;
     private List<String> thrown;
+    private LinkedList<com.sun.tools.javac.code.Type> thrownTypes;
     
     public APIMethod(String name, List<Modifier> modifiers, List<String> params, String returnType, List<String> thrown) {
         this.name = name;
@@ -35,16 +34,30 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         this.thrown = thrown;
     }
 
-    public APIMethod(JCMethodDecl jcmd, Map<String, String> importsMap) {        
+    public APIMethod(JCMethodDecl jcmd, Map<String, String> importsMap, JavacTypes types) {        
         boolean constructor = false;
         if(jcmd.name.toString().equals("<init>")) constructor = true;
         this.name = jcmd.name.toString();
         this.modifiers = APIModifier.getModifiersSet(jcmd.getModifiers().getFlags());
         
-        this.thrown = new LinkedList<String>();
+        thrown = new LinkedList<String>();
+        thrownTypes = new LinkedList<com.sun.tools.javac.code.Type>();        
         if(jcmd.getThrows() != null) {
-            for(JCExpression e : jcmd.getThrows()) 
-                this.thrown.add(findFullClassName(e.toString(), importsMap));
+            for(JCExpression e : jcmd.getThrows()) { 
+                boolean alredyThrown = false;
+                for (Iterator<com.sun.tools.javac.code.Type> it = thrownTypes.iterator(); it.hasNext();) {
+                    com.sun.tools.javac.code.Type type = it.next();
+                    if(types.isSubtype(e.type, type)) {                        
+                        alredyThrown = true;
+                    } else if(types.isSubtype(type, e.type)) {
+                        it.remove();
+                    }
+                }
+                if(!alredyThrown) thrownTypes.add(e.type);
+            }
+            for(com.sun.tools.javac.code.Type t : thrownTypes) {
+                thrown.add(t.getModelType().toString());
+            }
         }
         
         // Constructor should hava return type null. Void method raturns "void" 

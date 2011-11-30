@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+ 
+  <api source="bytecode">
+    <id>testlib bc</id>
+    <name>Test Library</name>
+    <version>0.1</version>
+    <path>/home/hohy/NetBeansProjects/APITestingCG/testlibs/Lib1/TestLib1/dist/TestLib1.jar</path>
+    <classpath> </classpath>
+    <sourceVersion>1.7</sourceVersion>
+  </api>
+
+  <apiview>
+    <apiid>testlib bc</apiid>
+  </apiview> 
+  
+  <api source="sourcecode">
+    <id>testlib src</id>
+    <name>Test Library</name>
+    <version>0.1</version>
+    <path>/home/hohy/NetBeansProjects/APITestingCG/testlibs/Lib1/TestLib1/src</path>
+    <classpath> </classpath>
+    <sourceVersion>1.7</sourceVersion>
+  </api>
+
+  <apiview>
+    <apiid>testlib src</apiid>
+  </apiview> 
+  
+</configuration>
+

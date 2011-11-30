@@ -1,9 +1,11 @@
 package cz.cvut.fit.hybljan2.apitestingcg.scanner;
 
+import com.sun.tools.javac.model.JavacTypes;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.ScannerConfiguration;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.tools.javac.api.JavacTaskImpl;
 import com.sun.tools.javac.api.JavacTool;
+import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.main.JavaCompiler;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
@@ -55,7 +57,6 @@ public class SourceScanner implements APIScanner {
     public API scan() {
         try {
             Context ctx = new Context();        
-            
             Options opt = Options.instance(ctx); 
             opt.put("-source", sourceVersion);
             JavaCompiler compiler = JavaCompiler.instance(ctx);
@@ -74,13 +75,12 @@ public class SourceScanner implements APIScanner {
             List<String> options = Arrays.asList("-cp", classPath);
             JavacTaskImpl javacTaskImpl = (JavacTaskImpl) tool.getTask(null, fileManager, null, options, null, fileObjects);
             javacTaskImpl.updateContext(ctx);        
-            
             Iterable<? extends CompilationUnitTree> units = javacTaskImpl.parse();
             javacTaskImpl.analyze();
-            
-            SourceTreeScanner sc = new SourceTreeScanner();
+            JavacTypes types = javacTaskImpl.getTypes();
+            SourceTreeScanner sc = new SourceTreeScanner(types);
             for (CompilationUnitTree cut : units) {                
-                sc.visitTopLevel((JCCompilationUnit) cut);                
+                sc.visitTopLevel((JCCompilationUnit) cut);  
             }
             
             API api = sc.getAPI();
@@ -92,7 +92,7 @@ public class SourceScanner implements APIScanner {
             return null;
         }
     }    
-
+    
     /**
      * Gets list of java files in directory with given path.
      * @param path
