@@ -15,6 +15,13 @@ import java.util.List;
  */
 public class InstantiatorGenerator extends Generator {
 
+    // name of object used to call non-static methods
+    public static final String INSTANCE_OBJECT_NAME = "p";
+    // identifier of "Caller" - Method that call some method from tested library.
+    public static final String METHOD_CALL_IDENTIFIER = "";
+    // identifier of Instantiator classes. Example: instantiator for class File is File[INSTANTIATOR_CLASS_IDENTIFIER]
+    public static final String INSTANTIATOR_CLASS_IDENTIFIER = "Instantiator";
+
     @Override
     public void generate(API api) {
         // get all packages in api
@@ -30,8 +37,8 @@ public class InstantiatorGenerator extends Generator {
                     // Instantiator have to import tested class.
                     cgen.addImport(cls.getFullName());
 
-                    // class header                        
-                    cgen.setName(cls.getName() + "Instantiator");                        
+                    // class header
+                    cgen.setName(cls.getName() + INSTANTIATOR_CLASS_IDENTIFIER);
                     
                     // generate constructors
                     List<MethodGenerator> constructors = generateConstructors(cls);
@@ -116,10 +123,12 @@ public class InstantiatorGenerator extends Generator {
             icnstr.setModifiers("public");
             icnstr.setReturnType(intName);
             icnstr.setName("create" + icnstr.getReturnType() + "InterfaceInstance");
-            List<String[]> params = getMethodParamList(cls.getConstructors().first());
-            icnstr.setParams(params);
-            icnstr.setBody(generateConstructorBody(cls, getMethodParamNameList(params)));
-            result.add(icnstr);                                       
+            if(cls.getConstructors().size() > 0) { // TODO: Toto zkontrolovat, otestovat, jestli to tak muze byt...
+                List<String[]> params = getMethodParamList(cls.getConstructors().first());
+                icnstr.setParams(params);
+                icnstr.setBody(generateConstructorBody(cls, getMethodParamNameList(params)));
+                result.add(icnstr);
+            }                                       
         }
         return result;
     }
@@ -130,20 +139,21 @@ public class InstantiatorGenerator extends Generator {
         for(APIMethod method : cls.getMethods()) {
             // instantiator can test only public methods
             if(method.getModifiers().contains(Modifier.PUBLIC)) {
-                MethodGenerator caller = new MethodGenerator();
-                    List<String[]> params = getMethodParamList(method);
-                    
-                    // if method isn't static, add instance param to param list
-                    if(!method.getModifiers().contains(Modifier.STATIC)) {
-                        params.add(new String[] {cls.getName(), "instance"});
-                    }
-                    caller.setParams(params);    
-                    caller.setModifiers("public");
-                    caller.setReturnType("void");
-                    caller.setName(method.getName() + "Call");                                                        
-                    String body = generateCallerBody(method, cls);
-                    caller.setBody(body);
-                    result.add(caller);
+                MethodGenerator callerMethod = new MethodGenerator();
+                List<String[]> params = getMethodParamList(method);
+
+                // if method isn't static, add instance param to param list
+                if(!method.getModifiers().contains(Modifier.STATIC)) {
+                    params.add(new String[] {cls.getName(), INSTANCE_OBJECT_NAME});
+                }
+                callerMethod.setParams(params);
+                callerMethod.setModifiers("public");
+                // generated method return result of test method, so it has to have same return type
+                callerMethod.setReturnType(method.getReturnType());
+                callerMethod.setName(method.getName() + METHOD_CALL_IDENTIFIER);
+                String body = generateCallerBody(method, cls);
+                callerMethod.setBody(body);
+                result.add(callerMethod);
                     
                     // Generate same method with null parameters
                     try {
@@ -214,26 +224,36 @@ public class InstantiatorGenerator extends Generator {
         return sb.toString();
     }
 
-    private String generateCallerBody(APIMethod method, APIClass cls, String cstr) {
-        // if method returns void, do not check result, if return something, save it to variable result
-        String result = method.getReturnType().equals("void") ? "" : method.getReturnType() + " result = ";
-        String instance = getInstance(method.getModifiers(), cls);
-        StringBuilder ncbb = new StringBuilder();
-        // if method throw something 
-        if(!method.getThrown().isEmpty()) ncbb.append("\t\ttry {\n\t");
-        ncbb.append("\t\t").append(result).append(instance).append(".").append(method.getName());
-        ncbb.append("(").append(cstr).append(");");
-        for(String exception : method.getThrown()) {
-            ncbb.append("\n\t\t} catch (").append(exception).append(" ex) {");
+    private String generateCallerBody(APIMethod method, APIClass cls, String paramsString) {
+        
+        // String builder for creating command line with following structure: ("return ")? instance.method(params);
+        StringBuilder cmdSB = new StringBuilder("\t\t");
+        
+        // if method return something, command starts with return.
+        if(!method.getReturnType().equals("void")) cmdSB.append("return ");
+        // instance of tested class that will be used to call method.
+        cmdSB.append(getInstance(method.getModifiers(), cls));
+        cmdSB.append('.');
+        // name of tested method
+        cmdSB.append(method.getName());
+        cmdSB.append('(');
+        cmdSB.append(paramsString);
+        cmdSB.append(");");
+
+        // if method throws any exception, surround command with try-catch command.
+        if(!method.getThrown().isEmpty()) {
+            cmdSB.insert(0, "\t\ttry {\n\t");
+            for(String exception : method.getThrown()) {
+                cmdSB.append("\n\t\t} catch (").append(exception).append(" ex) {");
+            }
+            cmdSB.append('}');
         }
-        if(!method.getThrown().isEmpty()) ncbb.append("}");
-        return ncbb.toString();
+        return cmdSB.toString();
     }
     
     private String getInstance(List<Modifier> modifiers, APIClass cls) {
         // if method is static, call it on class, if not, call it on instance parameter
-        String instance = modifiers.contains(Modifier.STATIC) ? cls.getName() : "instance";
-        return instance;
+        return modifiers.contains(Modifier.STATIC) ? cls.getName() : INSTANCE_OBJECT_NAME;
     }
 
     private String generateCallerBody(APIMethod method, APIClass cls) {
@@ -261,5 +281,5 @@ public class InstantiatorGenerator extends Generator {
         if(name.equals("char")) return "'a'";
         return "null";
     }
-    
+
 }
