@@ -16,11 +16,12 @@ import java.util.List;
 public class InstantiatorGenerator extends Generator {
 
     // name of object used to call non-static methods
-    public static final String INSTANCE_OBJECT_NAME = "p";
+    public static final String INSTANCE_OBJECT_NAME = "instance";
     // identifier of "Caller" - Method that call some method from tested library.
     public static final String METHOD_CALL_IDENTIFIER = "";
     // identifier of Instantiator classes. Example: instantiator for class File is File[INSTANTIATOR_CLASS_IDENTIFIER]
     public static final String INSTANTIATOR_CLASS_IDENTIFIER = "Instantiator";
+    public static final String METHOD_NULL_CALL_IDENTIFIER = "NullCall";
 
     @Override
     public void generate(API api) {
@@ -70,7 +71,7 @@ public class InstantiatorGenerator extends Generator {
                 // generate constructor
                 MethodGenerator method = new MethodGenerator();
                 method.setModifiers("public");
-                method.setName("create" + cls.getName() + "Instance");
+                method.setName("create" + cls.getName());
                 method.setReturnType(cls.getName());
                 List<String[]> params = getMethodParamList(constructor);
                 method.setParams(params);
@@ -117,7 +118,7 @@ public class InstantiatorGenerator extends Generator {
             result.add(scnstr);                    
         }
         
-        // if class implements some constructor, generate instance of interface
+        // if class implements some interface, create instance of the interface
         for(String intName : cls.getImplementing()) {
             MethodGenerator icnstr = new MethodGenerator();
             icnstr.setModifiers("public");
@@ -155,31 +156,35 @@ public class InstantiatorGenerator extends Generator {
                 callerMethod.setBody(body);
                 result.add(callerMethod);
                     
-                    // Generate same method with null parameters
-                    try {
-                        if(method.getParameters().isEmpty())                                 
-                            throw new Exception("Nonparam method can't be called with null params.");
-                        String cstr = getNullParamString(method.getParameters());
+                // Generate same method with null parameters
+                try {
+                    if(method.getParameters().isEmpty())
+                        throw new Exception("method with no parameters can't be called with null params.");
+                    String nullParamString = getNullParamString(method.getParameters());
 
-                        // Check if there is no other same constructor
-                        for(APIMethod c : cls.getMethods()) {
-                            if(!c.equals(method)) {
-                                if(cstr.equals(getNullParamString(c.getParameters())))
-                                    throw new Exception("Cant do null method.");                                            
-                            }
-                        }                                
-                        MethodGenerator ncaller = new MethodGenerator();
-                        ncaller.setModifiers("public");
-                        ncaller.setName(method.getName() + "NullCall");
-                        ncaller.setReturnType("void");
-                        ncaller.setParams(params);
-                        String nbody = generateCallerBody(method, cls, cstr);
-                        ncaller.setBody(nbody);
-                        result.add(ncaller);
-                    } catch (Exception ex) {
-                        //Logger.getLogger(InstantiatorGenerator.class.getName()).log(Level.SEVERE, null, ex);
-                    }                    
-            }                    
+                    // Check if there is no other same method (with same name and parameters)
+                    for(APIMethod mthd : cls.getMethods()) {
+                        if(!mthd.equals(method)) {
+                            if(nullParamString.equals(getNullParamString(mthd.getParameters())))
+                                throw new Exception("Cant generate null method.");
+                        }
+                    }
+
+                    // Create clone of original test method.
+                    MethodGenerator nullCallerMethod = callerMethod.clone();
+                    // Set name of clone to nullCaller
+                    nullCallerMethod.setName(method.getName() + METHOD_NULL_CALL_IDENTIFIER);
+                    nullCallerMethod.setBody(generateCallerBody(method, cls, nullParamString));
+                    // add nullCaller to generated class.
+                    result.add(nullCallerMethod);
+                } catch (Exception ex) {
+                    /*
+                    In some cases, nullCaller can't be generated. First case is if tested method has no parameters.
+                    Second case is if in tested class is other method with same name and same parameters.
+                    If one of these cases come, exception is thrown and generating of this nullCaller is skipped.
+                    */
+                }
+            }
         }
         return result;
     }
@@ -197,7 +202,7 @@ public class InstantiatorGenerator extends Generator {
                 // if method is not static, instance is param.
                 if(!field.getModifiers().contains(Modifier.STATIC)) {
                     List<String[]> params = new LinkedList<String[]>();
-                    params.add(new String[] {cls.getName(), "instance"});
+                    params.add(new String[] {cls.getName(), INSTANCE_OBJECT_NAME});
                     fmg.setParams(params);
                 }
                 StringBuilder sb = new StringBuilder();                
@@ -246,7 +251,10 @@ public class InstantiatorGenerator extends Generator {
             for(String exception : method.getThrown()) {
                 cmdSB.append("\n\t\t} catch (").append(exception).append(" ex) {");
             }
-            cmdSB.append('}');
+            cmdSB.append("}\n");
+            // Because return statement is surrounded by try-catch block, there have to be another return statement
+            // returning default value at the end of generated method. (But only if method isn't void.)
+            if(!method.getReturnType().equals("void")) cmdSB.append("\t\t").append("return ").append(getDefaultPrimitiveValue(method.getReturnType())).append(';');
         }
         return cmdSB.toString();
     }

@@ -1,9 +1,6 @@
 package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
-import com.sun.org.apache.regexp.internal.REUtil;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -12,7 +9,7 @@ import java.util.Set;
  *
  * @author hohy
  */
-public class MethodGenerator {
+public class MethodGenerator implements Cloneable {
     // method name
     private String name;    
     // method modifiers
@@ -106,7 +103,8 @@ public class MethodGenerator {
     /**
      * Convert full name of class to simple name and add it to imports.
      * Example: java.io.File -> File
-     * @param rawName 
+     * @param rawName    Full name of class.
+     * @return  Simple name of class.
      */
     private String getClassName(String rawName) {
         if(!rawName.contains(".")) { // it's simple name, return it.
@@ -124,5 +122,16 @@ public class MethodGenerator {
     public void addAnotation(String anotation) {
         this.annotations.add(anotation);
     }
-    
+
+    @Override
+    protected MethodGenerator clone() {
+        MethodGenerator clone = new MethodGenerator();
+        clone.setBody(this.body);
+        clone.setName(this.name);
+        clone.setModifiers(this.modifiers);
+        clone.setParams(this.params);
+        clone.setReturnType(this.returnType);
+        clone.setThrown(this.thrown);
+        return clone;
+    }
 }
