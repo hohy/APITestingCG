@@ -2,10 +2,10 @@ package cz.cvut.fit.hybljan2.apitestingcg;
 
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.ConfigurationReader;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ApiViewConfiguration;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ScannerConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.ByteCodeScanner;
-import cz.cvut.fit.hybljan2.apitestingcg.configuration.ScannerConfiguration;
-import cz.cvut.fit.hybljan2.apitestingcg.configuration.ApiViewConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.generator.ExtenderGenerator;
 import cz.cvut.fit.hybljan2.apitestingcg.generator.Generator;
 import cz.cvut.fit.hybljan2.apitestingcg.generator.InstantiatorGenerator;

@@ -1,17 +1,17 @@
 package cz.cvut.fit.hybljan2.apitestingcg.scanner;
 
 import com.sun.tools.javac.model.JavacTypes;
-import cz.cvut.fit.hybljan2.apitestingcg.configuration.ScannerConfiguration;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ScannerConfiguration;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.tools.javac.api.JavacTaskImpl;
 import com.sun.tools.javac.api.JavacTool;
-import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.main.JavaCompiler;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Options;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;

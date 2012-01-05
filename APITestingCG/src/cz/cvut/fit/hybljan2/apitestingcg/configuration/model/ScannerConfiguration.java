@@ -1,13 +1,22 @@
-package cz.cvut.fit.hybljan2.apitestingcg.configuration;
+package cz.cvut.fit.hybljan2.apitestingcg.configuration.model;
+
+import javax.xml.bind.annotation.*;
 
 /**
  * Class stores information how to scan API and other information about API for
  * scanner
  * @author Jan Hybl
  */
+@XmlRootElement(name = "api")
 public class ScannerConfiguration {
 
-    public enum APISource {SOURCECODE, BYTECODE}
+    @XmlEnum
+    public enum APISource {
+        @XmlEnumValue("sourcecode")
+        SOURCECODE,
+        @XmlEnumValue("bytecode")
+        BYTECODE
+    }
     
     private APISource source;
     private String apiName = "";
@@ -17,6 +26,7 @@ public class ScannerConfiguration {
     private String sourceVersion = "";
     private String id = "";
 
+    @XmlElement(name = "id", required = true)
     public String getId() {
         if(id != null) return id;
         else return apiName + " " + apiVersion + " " + source;
@@ -25,6 +35,8 @@ public class ScannerConfiguration {
     public void setId(String id) {
         this.id = id;
     }
+
+    @XmlAttribute(required = true)
     public APISource getSource() {
         return source;
     }
@@ -33,6 +45,7 @@ public class ScannerConfiguration {
         this.source = source;
     }
 
+    @XmlElement(name = "name")
     public String getApiName() {
         return apiName;
     }
@@ -41,6 +54,7 @@ public class ScannerConfiguration {
         this.apiName = apiName;
     }
 
+    @XmlElement(name = "version")
     public String getApiVersion() {
         return apiVersion;
     }
@@ -49,6 +63,7 @@ public class ScannerConfiguration {
         this.apiVersion = apiVersion;
     }
 
+    @XmlElement
     public String getPath() {
         return path;
     }
@@ -57,6 +72,7 @@ public class ScannerConfiguration {
         this.path = path;
     }
 
+    @XmlElement
     public String getClasspath() {
         return classpath;
     }
@@ -65,6 +81,7 @@ public class ScannerConfiguration {
         this.classpath = classpath;
     }
 
+    @XmlElement
     public String getSourceVersion() {
         return sourceVersion;
     }

@@ -33,7 +33,8 @@ public class APIViewForm extends javax.swing.JFrame {
     public APIViewForm(API apiModel) {
         this.apiModel = apiModel;
         apiTreeModel = new DefaultTreeModel(generateAPITree());
-        initComponents();        
+        initComponents();
+        setTitle(apiModel.getName() + " " + apiModel.getVersion());
     }
 
     /** This method is called from within the constructor to

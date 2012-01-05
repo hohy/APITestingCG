@@ -1,9 +1,10 @@
 package cz.cvut.fit.hybljan2.apitestingcg.scanner;
 
-import cz.cvut.fit.hybljan2.apitestingcg.configuration.ScannerConfiguration;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ScannerConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIPackage;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

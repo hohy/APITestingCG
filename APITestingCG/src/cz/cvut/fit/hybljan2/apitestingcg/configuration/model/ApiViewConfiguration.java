@@ -1,9 +1,13 @@
-package cz.cvut.fit.hybljan2.apitestingcg.configuration;
+package cz.cvut.fit.hybljan2.apitestingcg.configuration.model;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Class store configuration for ApiView window.
  * @author Jan Hybl
  */
+@XmlRootElement(name = "apiview")
 public class ApiViewConfiguration {
     private String apiId = "";
     private int widht;
@@ -11,6 +15,7 @@ public class ApiViewConfiguration {
     private int x;
     private int y;
 
+    @XmlElement(name = "apiid", required = true)
     public String getApiId() {
         return apiId;
     }
@@ -19,6 +24,7 @@ public class ApiViewConfiguration {
         this.apiId = apiId;
     }
 
+    @XmlElement
     public int getHeight() {
         return height;
     }
@@ -27,6 +33,7 @@ public class ApiViewConfiguration {
         this.height = height;
     }
 
+    @XmlElement
     public int getWidht() {
         return widht;
     }
@@ -35,6 +42,7 @@ public class ApiViewConfiguration {
         this.widht = widht;
     }
 
+    @XmlElement
     public int getX() {
         return x;
     }
@@ -43,6 +51,7 @@ public class ApiViewConfiguration {
         this.x = x;
     }
 
+    @XmlElement
     public int getY() {
         return y;
     }
