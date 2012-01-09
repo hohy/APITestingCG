@@ -24,15 +24,15 @@ public class Configuration {
     @XmlElement(name = "generate")
     List<GeneratorConfiguration> generatorConfigurations = new LinkedList<GeneratorConfiguration>();
 
+    public List<GeneratorConfiguration> getGeneratorConfigurations() {
+        return generatorConfigurations;
+    }
+
     public List<ApiViewConfiguration> getViewConfigurations() {
         return viewConfigurations;
     }
 
     public List<ScannerConfiguration> getApiConfigurations() {
         return apiConfigurations;
-    }
-
-    public List<GeneratorConfiguration> getGeneratorConfigurations() {
-        return generatorConfigurations;
     }
 }

@@ -37,27 +37,18 @@ public class ConfigurationReader {
         NAME, VERSION, SOURCE
     }
     
-    public void parseConfiguration(String filePath) {
+    public Configuration parseConfiguration(String filePath) {
         try {
             JAXBContext context = JAXBContext.newInstance(Configuration.class);
             Unmarshaller unmarshaller = context.createUnmarshaller();
             // skip validation
             unmarshaller.setSchema(null);
             configuration = (Configuration) unmarshaller.unmarshal(new File(filePath));
+            return configuration;
         } catch (JAXBException e) {
             System.out.println("Configuration read error.");
             e.printStackTrace();
         }
-
+        return null;
     }
-    
-    public List<ScannerConfiguration> getApiConfigurations() {
-        return configuration.getApiConfigurations();
-    }
-
-    public List<ApiViewConfiguration> getApiViewConfigurations() {
-        return configuration.getViewConfigurations();
-    }
-
-
 }
