@@ -180,10 +180,6 @@ public class InstantiatorGenerator extends Generator {
         return result;
     }
 
-    private String generateName(String pattern, String originalName) {
-        return pattern.replaceAll("%s", originalName);
-    }
-
     private List<MethodGenerator> generateFieldTests(APIClass cls) {
         List<MethodGenerator> result = new LinkedList<MethodGenerator>();
         

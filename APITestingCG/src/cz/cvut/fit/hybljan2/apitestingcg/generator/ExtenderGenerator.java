@@ -23,16 +23,17 @@ public class ExtenderGenerator extends Generator {
                     cgen.addImport(cls.getFullName());                    
                     cgen.setPackageName(pkg.getName());
                     
-                    String subname = null;
+                    String pattern = null;
+                    // if tested item is interface, create Implementator, otherwise Extender
                     if(cls.getType() == Kind.INTERFACE) {
-                        subname = "Implementator";
+                        pattern = configuration.getImplementerClassIdentifier();
                         cgen.addImplemening(cls.getName());
                     } else {
-                        subname = "Extender";
+                        pattern = configuration.getExtenderClassIdentifier();
                         cgen.setExtending(cls.getName());
                     }
                     
-                    cgen.setName(cls.getName() + subname);
+                    cgen.setName(generateName(pattern, cls.getName()));
                     
                     // constructors tests
                     for(APIMethod constructor : cls.getConstructors()) {

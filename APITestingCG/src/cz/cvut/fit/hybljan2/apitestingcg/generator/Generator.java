@@ -54,4 +54,14 @@ public abstract class Generator {
     public void setConfiguration(GeneratorConfiguration configuration) {
         this.configuration = configuration;
     }
+
+    /**
+     * Can be used for generating names of methods and classes. Replace "%s" sequence with originalName
+     * @param pattern         All "%s" sequences will be replaced with originalName
+     * @param originalName    Original name of class/method.
+     * @return                new name
+     */
+    protected String generateName(String pattern, String originalName) {
+        return pattern.replaceAll("%s", originalName);
+    }
 }
