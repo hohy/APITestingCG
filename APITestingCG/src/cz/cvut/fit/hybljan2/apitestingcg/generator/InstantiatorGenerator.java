@@ -1,11 +1,8 @@
 package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIField;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIMethod;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIPackage;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -186,32 +183,14 @@ public class InstantiatorGenerator extends Generator {
         for (APIField field : cls.getFields()) {
             // only public fields can be tested in instantiator
             if(field.getModifiers().contains(Modifier.PUBLIC)) {
-                MethodGenerator fmg = new MethodGenerator();
-                fmg.setModifiers("public");
-                fmg.setName(field.getName() + "Field");
-                fmg.setReturnType("void");
-                // if method is not static, instance is param.
-                if(!field.getModifiers().contains(Modifier.STATIC)) {
-                    List<String[]> params = new LinkedList<String[]>();
-                    params.add(new String[] {cls.getName(), configuration.getInstanceIdentifier()});
-                    fmg.setParams(params);
-                }
-                StringBuilder sb = new StringBuilder();                
-                String var = getInstance(field.getModifiers(), cls) + '.' + field.getName();
-                // if field is final, print it, if not, write something into it.
-                if(field.getModifiers().contains(Modifier.FINAL)) {
-                    sb.append("\t\tSystem.out.println(").append(var).append(");");
-                } else {
-                    sb.append("\t\t").append(var).append(" = ").append(getDefaultPrimitiveValue(field.getVarType())).append(';');
-                }               
-                fmg.setBody(sb.toString());
+                MethodGenerator fmg = new FieldTestMehtodGenerator(cls, field, getInstance(field.getModifiers(), cls) + '.' + field.getName());
                 result.add(fmg);
             }
         }
         
         return result;
-    }    
-    
+    }
+
     private String generateConstructorBody(APIClass cls, String cstr) {
         StringBuilder sb = new StringBuilder();
         sb.append("\t\treturn new ").append(cls.getName()).append("(");
@@ -267,18 +246,6 @@ public class InstantiatorGenerator extends Generator {
         }
         if(sb.length() > 0) sb.deleteCharAt(sb.length()-1);
         return sb.toString();
-    }
-    
-    private String getDefaultPrimitiveValue(String name) {
-        if(name.equals("byte")) return "0";
-        if(name.equals("short")) return "0";
-        if(name.equals("int")) return "0";
-        if(name.equals("long")) return "0";
-        if(name.equals("float")) return "0.0";
-        if(name.equals("double")) return "0.0";
-        if(name.equals("boolean")) return "false";
-        if(name.equals("char")) return "'a'";
-        return "null";
     }
 
 }

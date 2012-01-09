@@ -28,6 +28,8 @@ public class GeneratorConfiguration {
     private String createSuperInstanceIdentifier = "create%s";
     // same as createInstanceIdentifier, but method test creating of implemented interface instance.
     private String createInterfaceInstanceIdentifier = "create%s";
+    // name of method which test fields in class.
+    private String fieldTestIdentifier = "%s";
 
 
     @XmlElement(name = "instance-identifier")
@@ -118,5 +120,10 @@ public class GeneratorConfiguration {
 
     public void setCreateInterfaceInstanceIdentifier(String createInterfaceInstanceIdentifier) {
         this.createInterfaceInstanceIdentifier = createInterfaceInstanceIdentifier;
+    }
+
+    @XmlElement(name = "field-test-identifier")
+    public String getFieldTestIdentifier() {
+        return fieldTestIdentifier;
     }
 }

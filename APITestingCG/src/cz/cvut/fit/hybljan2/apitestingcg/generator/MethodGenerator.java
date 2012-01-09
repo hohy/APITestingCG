@@ -1,5 +1,7 @@
 package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
+
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,7 +11,7 @@ import java.util.Set;
  *
  * @author hohy
  */
-public class MethodGenerator implements Cloneable {
+public class MethodGenerator extends Generator implements Cloneable {
     // method name
     private String name;    
     // method modifiers
@@ -133,5 +135,10 @@ public class MethodGenerator implements Cloneable {
         clone.setReturnType(this.returnType);
         clone.setThrown(this.thrown);
         return clone;
+    }
+
+    @Override
+    public void generate(API api, GeneratorDirector director) {
+        // Method generator does't generates any files (only Strings), so this method will be empty.
     }
 }
