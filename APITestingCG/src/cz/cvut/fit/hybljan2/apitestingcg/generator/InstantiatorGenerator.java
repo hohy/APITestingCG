@@ -15,14 +15,6 @@ import java.util.List;
  */
 public class InstantiatorGenerator extends Generator {
 
-    // name of object used to call non-static methods
-    //public static final String INSTANCE_OBJECT_NAME = "instance";
-    // identifier of "Caller" - Method that call some method from tested library.
-    public static final String METHOD_CALL_IDENTIFIER = "";
-    // identifier of Instantiator classes. Example: instantiator for class File is File[INSTANTIATOR_CLASS_IDENTIFIER]
-    public static final String INSTANTIATOR_CLASS_IDENTIFIER = "Instantiator";
-    public static final String METHOD_NULL_CALL_IDENTIFIER = "NullCall";
-
     @Override
     public void generate(API api, GeneratorDirector director) {
         // get all packages in api
@@ -39,7 +31,7 @@ public class InstantiatorGenerator extends Generator {
                     cgen.addImport(cls.getFullName());
 
                     // class header
-                    cgen.setName(cls.getName() + INSTANTIATOR_CLASS_IDENTIFIER);
+                    cgen.setName(generateName(configuration.getInstantiatorClassIdentifier(), cls.getName()));
                     
                     // generate constructors
                     List<MethodGenerator> constructors = generateConstructors(cls);
@@ -71,7 +63,7 @@ public class InstantiatorGenerator extends Generator {
                 // generate constructor
                 MethodGenerator method = new MethodGenerator();
                 method.setModifiers("public");
-                method.setName("create" + cls.getName());
+                method.setName(generateName(configuration.getCreateInstanceIdentifier(), cls.getName()));
                 method.setReturnType(cls.getName());
                 List<String[]> params = getMethodParamList(constructor);
                 method.setParams(params);
@@ -95,8 +87,7 @@ public class InstantiatorGenerator extends Generator {
                     }
 
                     MethodGenerator nconst = new MethodGenerator();
-                    // TODO: find better name
-                    nconst.setName("create" + cls.getName() + "NullInstance");
+                    nconst.setName(generateName(configuration.getCreateNullInstanceIdentifier(),cls.getName()));
                     nconst.setModifiers("public");
                     nconst.setReturnType(cls.getName());
                     nconst.setBody(generateConstructorBody(cls, cstr));                             
@@ -111,7 +102,7 @@ public class InstantiatorGenerator extends Generator {
             MethodGenerator scnstr = new MethodGenerator();
             scnstr.setModifiers("public");
             scnstr.setReturnType(cls.getExtending());
-            scnstr.setName("create" + scnstr.getReturnType() + "SuperInstance");            
+            scnstr.setName(generateName(configuration.getCreateSuperInstanceIdentifier(), scnstr.getReturnType()));
             List<String[]> params = getMethodParamList(cls.getConstructors().first());
             scnstr.setParams(params);
             scnstr.setBody(generateConstructorBody(cls, getMethodParamNameList(params)));
@@ -123,7 +114,7 @@ public class InstantiatorGenerator extends Generator {
             MethodGenerator icnstr = new MethodGenerator();
             icnstr.setModifiers("public");
             icnstr.setReturnType(intName);
-            icnstr.setName("create" + icnstr.getReturnType() + "InterfaceInstance");
+            icnstr.setName(generateName(configuration.getCreateInterfaceInstanceIdentifier(), icnstr.getReturnType()));
             if(cls.getConstructors().size() > 0) { // TODO: Toto zkontrolovat, otestovat, jestli to tak muze byt...
                 List<String[]> params = getMethodParamList(cls.getConstructors().first());
                 icnstr.setParams(params);
@@ -151,7 +142,7 @@ public class InstantiatorGenerator extends Generator {
                 callerMethod.setModifiers("public");
                 // generated method return result of test method, so it has to have same return type
                 callerMethod.setReturnType(method.getReturnType());
-                callerMethod.setName(method.getName() + METHOD_CALL_IDENTIFIER);
+                callerMethod.setName(generateName(configuration.getMethodCallIdentifier(), method.getName()));
                 String body = generateCallerBody(method, cls);
                 callerMethod.setBody(body);
                 result.add(callerMethod);
@@ -173,7 +164,7 @@ public class InstantiatorGenerator extends Generator {
                     // Create clone of original test method.
                     MethodGenerator nullCallerMethod = callerMethod.clone();
                     // Set name of clone to nullCaller
-                    nullCallerMethod.setName(method.getName() + METHOD_NULL_CALL_IDENTIFIER);
+                    nullCallerMethod.setName(generateName(configuration.getMethodNullCallIdentifier(), method.getName()));
                     nullCallerMethod.setBody(generateCallerBody(method, cls, nullParamString));
                     // add nullCaller to generated class.
                     result.add(nullCallerMethod);
@@ -187,6 +178,10 @@ public class InstantiatorGenerator extends Generator {
             }
         }
         return result;
+    }
+
+    private String generateName(String pattern, String originalName) {
+        return pattern.replaceAll("%s", originalName);
     }
 
     private List<MethodGenerator> generateFieldTests(APIClass cls) {
