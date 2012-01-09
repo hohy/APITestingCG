@@ -1,6 +1,8 @@
 package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorJobConfiguration;
 
 /**
  * Class directs a process of generating of test code.
@@ -10,11 +12,20 @@ import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
  */
 public class GeneratorDirector {
 
+    // configuration
+    private GeneratorConfiguration configuration;
+
+    // generators
     private InstantiatorGenerator instGen = new InstantiatorGenerator();
     private ExtenderGenerator extGen = new ExtenderGenerator();
 
-    public void generate(API api) {
-        instGen.generate(api);
-        extGen.generate(api);
+    public GeneratorDirector(GeneratorConfiguration generatorConfiguration) {
+        instGen.setConfiguration(generatorConfiguration);
+        extGen.setConfiguration(generatorConfiguration);
+    }
+
+    public void generate(API api, GeneratorJobConfiguration jobConfiguration) {
+        instGen.generate(api, this);
+        extGen.generate(api, this);
     }
 }

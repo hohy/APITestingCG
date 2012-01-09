@@ -14,7 +14,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIPackage;
 public class ExtenderGenerator extends Generator {
 
     @Override
-    public void generate(API api) {
+    public void generate(API api, GeneratorDirector director) {
         for(APIPackage pkg : api.getPackages()) {
             for(APIClass cls : pkg.getClasses()) {
                 // filter out final classes

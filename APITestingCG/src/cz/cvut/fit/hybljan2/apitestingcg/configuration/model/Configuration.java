@@ -22,10 +22,13 @@ public class Configuration {
     List<ScannerConfiguration> apiConfigurations = new LinkedList<ScannerConfiguration>();
     
     @XmlElement(name = "generate")
-    List<GeneratorConfiguration> generatorConfigurations = new LinkedList<GeneratorConfiguration>();
+    List<GeneratorJobConfiguration> generatorJobConfigurations = new LinkedList<GeneratorJobConfiguration>();
 
-    public List<GeneratorConfiguration> getGeneratorConfigurations() {
-        return generatorConfigurations;
+    @XmlElement(name = "generator")
+    GeneratorConfiguration generatorConfiguration = new GeneratorConfiguration();
+
+    public List<GeneratorJobConfiguration> getGeneratorJobConfigurations() {
+        return generatorJobConfigurations;
     }
 
     public List<ApiViewConfiguration> getViewConfigurations() {
@@ -34,5 +37,9 @@ public class Configuration {
 
     public List<ScannerConfiguration> getApiConfigurations() {
         return apiConfigurations;
+    }
+
+    public GeneratorConfiguration getGeneratorConfiguration() {
+        return generatorConfiguration;
     }
 }

@@ -2,6 +2,8 @@ package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIMethod;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,7 +12,10 @@ import java.util.List;
  * @author Jan Hybl
  */
 public abstract class Generator {
-    public abstract void generate(API api);
+
+    protected GeneratorConfiguration configuration;
+
+    public abstract void generate(API api, GeneratorDirector director);
     
     protected List<String[]> getMethodParamList(APIMethod method) {
         // String builder for list of params for instantiator constructor
@@ -40,5 +45,13 @@ public abstract class Generator {
             paramListSb.deleteCharAt(paramListSb.length()-1);
         }        
         return paramListSb.toString();
-    }    
+    }
+
+    public GeneratorConfiguration getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(GeneratorConfiguration configuration) {
+        this.configuration = configuration;
+    }
 }

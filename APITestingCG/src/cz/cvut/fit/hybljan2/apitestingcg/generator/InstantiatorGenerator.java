@@ -16,7 +16,7 @@ import java.util.List;
 public class InstantiatorGenerator extends Generator {
 
     // name of object used to call non-static methods
-    public static final String INSTANCE_OBJECT_NAME = "instance";
+    //public static final String INSTANCE_OBJECT_NAME = "instance";
     // identifier of "Caller" - Method that call some method from tested library.
     public static final String METHOD_CALL_IDENTIFIER = "";
     // identifier of Instantiator classes. Example: instantiator for class File is File[INSTANTIATOR_CLASS_IDENTIFIER]
@@ -24,7 +24,7 @@ public class InstantiatorGenerator extends Generator {
     public static final String METHOD_NULL_CALL_IDENTIFIER = "NullCall";
 
     @Override
-    public void generate(API api) {
+    public void generate(API api, GeneratorDirector director) {
         // get all packages in api
         for(APIPackage pkg : api.getPackages()) {
             // get all classes from every package
@@ -145,7 +145,7 @@ public class InstantiatorGenerator extends Generator {
 
                 // if method isn't static, add instance param to param list
                 if(!method.getModifiers().contains(Modifier.STATIC)) {
-                    params.add(new String[] {cls.getName(), INSTANCE_OBJECT_NAME});
+                    params.add(new String[] {cls.getName(), configuration.getInstanceIdentifier()});
                 }
                 callerMethod.setParams(params);
                 callerMethod.setModifiers("public");
@@ -202,7 +202,7 @@ public class InstantiatorGenerator extends Generator {
                 // if method is not static, instance is param.
                 if(!field.getModifiers().contains(Modifier.STATIC)) {
                     List<String[]> params = new LinkedList<String[]>();
-                    params.add(new String[] {cls.getName(), INSTANCE_OBJECT_NAME});
+                    params.add(new String[] {cls.getName(), configuration.getInstanceIdentifier()});
                     fmg.setParams(params);
                 }
                 StringBuilder sb = new StringBuilder();                
@@ -261,7 +261,7 @@ public class InstantiatorGenerator extends Generator {
     
     private String getInstance(List<Modifier> modifiers, APIClass cls) {
         // if method is static, call it on class, if not, call it on instance parameter
-        return modifiers.contains(Modifier.STATIC) ? cls.getName() : INSTANCE_OBJECT_NAME;
+        return modifiers.contains(Modifier.STATIC) ? cls.getName() : configuration.getInstanceIdentifier();
     }
 
     private String generateCallerBody(APIMethod method, APIClass cls) {

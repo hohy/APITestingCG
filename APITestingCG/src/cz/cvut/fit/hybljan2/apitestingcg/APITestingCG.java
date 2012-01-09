@@ -4,14 +4,11 @@ import cz.cvut.fit.hybljan2.apitestingcg.configuration.ConfigurationReader;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ApiViewConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.Configuration;
-import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorJobConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ScannerConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.generator.GeneratorDirector;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.ByteCodeScanner;
-import cz.cvut.fit.hybljan2.apitestingcg.generator.ExtenderGenerator;
-import cz.cvut.fit.hybljan2.apitestingcg.generator.Generator;
-import cz.cvut.fit.hybljan2.apitestingcg.generator.InstantiatorGenerator;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.view.APIViewForm;
 import java.util.HashMap;
@@ -64,11 +61,11 @@ public class APITestingCG {
             new APIViewForm(apiMap.get(ac.getApiId())).setVisible(true);
         }
 
-        GeneratorDirector gd = new GeneratorDirector();
+        GeneratorDirector gd = new GeneratorDirector(configuration.getGeneratorConfiguration());
 
-        for(GeneratorConfiguration gc : configuration.getGeneratorConfigurations()) {
+        for(GeneratorJobConfiguration gc : configuration.getGeneratorJobConfigurations()) {
             System.out.println("Generating code for api " + gc.getApiId());
-            gd.generate(apiMap.get(gc.getApiId()));
+            gd.generate(apiMap.get(gc.getApiId()), gc);
         }
     }
 }
