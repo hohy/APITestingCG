@@ -3,6 +3,7 @@ package cz.cvut.fit.hybljan2.apitestingcg.generator;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIField;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -20,16 +21,15 @@ public class FieldTestMehtodGenerator extends MethodGenerator {
      * @param field
      * @param varName    name of object that is used in method
      */
-    FieldTestMehtodGenerator(APIClass cls, APIField field, String varName) {
-        MethodGenerator fmg = new MethodGenerator();
-        fmg.setModifiers("public");
-        fmg.setName(generateName(configuration.getFieldTestIdentifier(), field.getName()));
-        fmg.setReturnType("void");
+    FieldTestMehtodGenerator(APIClass cls, APIField field, String varName, GeneratorConfiguration cfg) {
+        setModifiers("public");
+        setName(generateName(cfg.getFieldTestIdentifier(), field.getName()));
+        setReturnType("void");
         // if method is not static, instance is param.
         if(!field.getModifiers().contains(APIModifier.Modifier.STATIC)) {
             List<String[]> params = new LinkedList<String[]>();
-            params.add(new String[] {cls.getName(), configuration.getInstanceIdentifier()});
-            fmg.setParams(params);
+            params.add(new String[] {cls.getName(), cfg.getInstanceIdentifier()});
+            setParams(params);
         }
         StringBuilder sb = new StringBuilder();
         // if field is final, print it, if not, write something into it.
@@ -38,7 +38,7 @@ public class FieldTestMehtodGenerator extends MethodGenerator {
         } else {
             sb.append("\t\t").append(varName).append(" = ").append(getDefaultPrimitiveValue(field.getVarType())).append(';');
         }
-        fmg.setBody(sb.toString());
+        setBody(sb.toString());
     }
 
 }

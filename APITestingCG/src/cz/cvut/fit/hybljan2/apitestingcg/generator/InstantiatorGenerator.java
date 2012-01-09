@@ -183,7 +183,7 @@ public class InstantiatorGenerator extends Generator {
         for (APIField field : cls.getFields()) {
             // only public fields can be tested in instantiator
             if(field.getModifiers().contains(Modifier.PUBLIC)) {
-                MethodGenerator fmg = new FieldTestMehtodGenerator(cls, field, getInstance(field.getModifiers(), cls) + '.' + field.getName());
+                MethodGenerator fmg = new FieldTestMehtodGenerator(cls, field, getInstance(field.getModifiers(), cls) + '.' + field.getName(), configuration);
                 result.add(fmg);
             }
         }
@@ -227,11 +227,6 @@ public class InstantiatorGenerator extends Generator {
             if(!method.getReturnType().equals("void")) cmdSB.append("\t\t").append("return ").append(getDefaultPrimitiveValue(method.getReturnType())).append(';');
         }
         return cmdSB.toString();
-    }
-    
-    private String getInstance(List<Modifier> modifiers, APIClass cls) {
-        // if method is static, call it on class, if not, call it on instance parameter
-        return modifiers.contains(Modifier.STATIC) ? cls.getName() : configuration.getInstanceIdentifier();
     }
 
     private String generateCallerBody(APIMethod method, APIClass cls) {

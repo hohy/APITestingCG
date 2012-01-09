@@ -1,11 +1,8 @@
 package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIItem.Kind;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIMethod;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIPackage;
 
 /**
  *
@@ -75,7 +72,14 @@ public class ExtenderGenerator extends Generator {
                             cgen.addMethod(mgen);
                         }
                     }
-               
+
+                    // protected field tests
+                    for(APIField field : cls.getFields()) {
+                        if(!field.getModifiers().contains(Modifier.PROTECTED)) {
+                            MethodGenerator ftmg = new FieldTestMehtodGenerator(cls, field, getInstance(field.getModifiers(), cls) + '.' + field.getName(), configuration);
+                            cgen.addMethod(ftmg);
+                        }
+                    }
                     cgen.generateClassFile();
                 }
             }

@@ -131,8 +131,9 @@ public class ClassGenerator {
     
     void addMethods(List<MethodGenerator> methods) {
         for (MethodGenerator method : methods) {
-            this.methods.add(method);
-            this.imports.addAll(method.getImports());            
+            addMethod(method);
+            //this.methods.add(method);
+            //this.imports.addAll(method.getImports());
         }
     }    
     

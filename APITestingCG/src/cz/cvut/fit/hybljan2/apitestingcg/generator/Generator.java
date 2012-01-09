@@ -1,7 +1,9 @@
 package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIMethod;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 
 import java.util.LinkedList;
@@ -75,5 +77,10 @@ public abstract class Generator {
         if(name.equals("boolean")) return "false";
         if(name.equals("char")) return "'a'";
         return "null";
+    }
+
+    protected String getInstance(List<APIModifier.Modifier> modifiers, APIClass cls) {
+        // if method is static, call it on class, if not, call it on instance parameter
+        return modifiers.contains(APIModifier.Modifier.STATIC) ? cls.getName() : configuration.getInstanceIdentifier();
     }
 }
