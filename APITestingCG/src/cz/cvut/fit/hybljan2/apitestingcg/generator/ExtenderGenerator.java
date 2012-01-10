@@ -77,7 +77,7 @@ public class ExtenderGenerator extends Generator {
                     // protected field tests
                     for(APIField field : cls.getFields()) {
 //                        if(field.getModifiers().contains(Modifier.PROTECTED)) {
-                            MethodGenerator ftmg = new FieldTestMehtodGenerator(cls, field, getInstance(field.getModifiers(), cls) + '.' + field.getName(), configuration);
+                            MethodGenerator ftmg = new FieldTestMehtodGenerator(cls, field, field.getName(), configuration);
                             cgen.addMethod(ftmg);
 //                        }
                     }
