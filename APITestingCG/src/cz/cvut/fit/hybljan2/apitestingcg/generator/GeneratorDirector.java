@@ -25,7 +25,7 @@ public class GeneratorDirector {
     }
 
     public void generate(API api, GeneratorJobConfiguration jobConfiguration) {
-        instGen.generate(api, this);
-        extGen.generate(api, this);
+        instGen.generate(api, jobConfiguration);
+        extGen.generate(api, jobConfiguration);
     }
 }

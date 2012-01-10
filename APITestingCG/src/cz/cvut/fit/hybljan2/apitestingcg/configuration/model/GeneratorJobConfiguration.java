@@ -12,14 +12,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "generate")
 public class GeneratorJobConfiguration {
     private String apiId;
-    private String outputDir;
+    private String outputDir = "output";
+    private String outputPackage = "test.%s";
 
     @XmlElement(name = "id", required = true)
     public String getApiId() {
         return apiId;
     }
 
-    @XmlElement(name = "output")
+    @XmlElement(name = "output-directory")
     public String getOutputDir() {
         return outputDir;
     }
@@ -30,5 +31,14 @@ public class GeneratorJobConfiguration {
 
     public void setOutputDir(String outputDir) {
         this.outputDir = outputDir;
+    }
+
+    @XmlElement(name = "output-package")
+    public String getOutputPackage() {
+        return outputPackage;
+    }
+
+    public void setOutputPackage(String outputPackage) {
+        this.outputPackage = outputPackage;
     }
 }

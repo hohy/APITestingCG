@@ -2,6 +2,7 @@ package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorJobConfiguration;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.List;
 public class InstantiatorGenerator extends Generator {
 
     @Override
-    public void generate(API api, GeneratorDirector director) {
+    public void generate(API api, GeneratorJobConfiguration jobConfiguration) {
         // get all packages in api
         for(APIPackage pkg : api.getPackages()) {
             // get all classes from every package
@@ -22,7 +23,7 @@ public class InstantiatorGenerator extends Generator {
                 if(!cls.getModifiers().contains(Modifier.ABSTRACT)) {
                     ClassGenerator cgen = new ClassGenerator();                                                                       
 
-                    cgen.setPackageName(pkg.getName());
+                    cgen.setPackageName(generateName(jobConfiguration.getOutputPackage(), pkg.getName()));
 
                     // Instantiator have to import tested class.
                     cgen.addImport(cls.getFullName());

@@ -5,6 +5,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIMethod;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorJobConfiguration;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -17,7 +18,7 @@ public abstract class Generator {
 
     protected GeneratorConfiguration configuration;
 
-    public abstract void generate(API api, GeneratorDirector director);
+    public abstract void generate(API api, GeneratorJobConfiguration jobConfiguration);
     
     protected List<String[]> getMethodParamList(APIMethod method) {
         // String builder for list of params for instantiator constructor
