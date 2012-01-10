@@ -52,8 +52,8 @@ public class ExtenderGenerator extends Generator {
                     
                     // method overriding tests
                     for(APIMethod method : cls.getMethods()) {
-                        // filter out static methods - they can't be overriden
-                        if(! method.getModifiers().contains(Modifier.STATIC)){
+                        // filter out static and final methods - they can't be overriden
+                        if(! (method.getModifiers().contains(Modifier.STATIC) || method.getModifiers().contains(Modifier.FINAL))) {
                             MethodGenerator mgen = new MethodGenerator();
                             mgen.setModifiers("public");
                             mgen.setName(method.getName());
@@ -76,10 +76,10 @@ public class ExtenderGenerator extends Generator {
 
                     // protected field tests
                     for(APIField field : cls.getFields()) {
-                        if(!field.getModifiers().contains(Modifier.PROTECTED)) {
+//                        if(field.getModifiers().contains(Modifier.PROTECTED)) {
                             MethodGenerator ftmg = new FieldTestMehtodGenerator(cls, field, getInstance(field.getModifiers(), cls) + '.' + field.getName(), configuration);
                             cgen.addMethod(ftmg);
-                        }
+//                        }
                     }
                     cgen.generateClassFile();
                 }
