@@ -25,7 +25,7 @@ public class InstantiatorGenerator extends Generator {
 
                     cgen.setPackageName(generateName(jobConfiguration.getOutputPackage(), pkg.getName()));
 
-                    // Instantiator have to import tested class.
+                    // Instantiator has to import tested class.
                     cgen.addImport(cls.getFullName());
 
                     // class header
@@ -113,7 +113,7 @@ public class InstantiatorGenerator extends Generator {
             icnstr.setModifiers("public");
             icnstr.setReturnType(intName);
             icnstr.setName(generateName(configuration.getCreateInterfaceInstanceIdentifier(), icnstr.getReturnType()));
-            if(cls.getConstructors().size() > 0) { // TODO: Toto zkontrolovat, otestovat, jestli to tak muze byt...
+            if(!cls.getConstructors().isEmpty()) { // TODO: Toto zkontrolovat, otestovat, jestli to tak muze byt...
                 List<String[]> params = getMethodParamList(cls.getConstructors().first());
                 icnstr.setParams(params);
                 icnstr.setBody(generateConstructorBody(cls, getMethodParamNameList(params)));
@@ -130,12 +130,16 @@ public class InstantiatorGenerator extends Generator {
             // instantiator can test only public methods
             if(method.getModifiers().contains(Modifier.PUBLIC)) {
                 MethodGenerator callerMethod = new MethodGenerator();
-                List<String[]> params = getMethodParamList(method);
+                List<String[]> params = new LinkedList<String[]>();
 
                 // if method isn't static, add instance param to param list
                 if(!method.getModifiers().contains(Modifier.STATIC)) {
                     params.add(new String[] {cls.getName(), configuration.getInstanceIdentifier()});
                 }
+
+                // add params of tested method
+                params.addAll(getMethodParamList(method));
+
                 callerMethod.setParams(params);
                 callerMethod.setModifiers("public");
                 // generated method return result of test method, so it has to have same return type

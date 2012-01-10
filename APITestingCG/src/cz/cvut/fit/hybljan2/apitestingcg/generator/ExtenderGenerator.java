@@ -15,7 +15,7 @@ public class ExtenderGenerator extends Generator {
     public void generate(API api, GeneratorJobConfiguration jobConfiguration) {
         for(APIPackage pkg : api.getPackages()) {
             for(APIClass cls : pkg.getClasses()) {
-                // filter out final classes
+                // filter out final classes and annotations
                 if(!cls.getModifiers().contains(Modifier.FINAL) && !cls.getType().equals(Kind.ANNOTATION)) {
                     ClassGenerator cgen = new ClassGenerator();
                     cgen.addImport(cls.getFullName());                    
