@@ -167,6 +167,10 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         return extending;
     }
 
+    public void setExtending(String extending) {
+        this.extending = extending;
+    }
+
     /**
      * Return list of names of interfaces, that class is implmenting. Return empty list,
      * if class implements no interface.

@@ -3,6 +3,7 @@ package cz.cvut.fit.hybljan2.apitestingcg.generator;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorJobConfiguration;
+import org.omg.CosNaming.NamingContextExtPackage.StringNameHelper;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -27,7 +28,13 @@ public class InstantiatorGenerator extends Generator {
 
                     // Instantiator has to import tested class.
                     cgen.addImport(cls.getFullName());
-
+                    
+                    // Also import classes and interfaces that class is extending resp. implementing.
+                    if(cls.getExtending() != null) cgen.addImport(getFullClassName(cls, cls.getExtending()));//cgen.addImport(cls.getExtending());
+                    for(String iname : cls.getImplementing()) {
+                        cgen.addImport(getFullClassName(cls, iname));////cgen.addImport(iname);
+                    }
+                    
                     // class header
                     cgen.setName(generateName(configuration.getInstantiatorClassIdentifier(), cls.getName()));
                     
@@ -49,6 +56,14 @@ public class InstantiatorGenerator extends Generator {
         }
     }
 
+    private String getFullClassName(APIClass cls, String simpleName) {
+        if(simpleName.contains(".")) {
+            return simpleName;
+        } else {
+            return cls.getFullName().substring(0, cls.getFullName().lastIndexOf(".")) + "." + simpleName;
+        }
+    }
+    
     private List<MethodGenerator> generateConstructors(APIClass cls) {        
         // Constructor testing
         List<MethodGenerator> result = new LinkedList<MethodGenerator>();
@@ -104,7 +119,7 @@ public class InstantiatorGenerator extends Generator {
             List<String[]> params = getMethodParamList(cls.getConstructors().first());
             scnstr.setParams(params);
             scnstr.setBody(generateConstructorBody(cls, getMethodParamNameList(params)));
-            result.add(scnstr);                    
+            result.add(scnstr);
         }
         
         // if class implements some interface, create instance of the interface
