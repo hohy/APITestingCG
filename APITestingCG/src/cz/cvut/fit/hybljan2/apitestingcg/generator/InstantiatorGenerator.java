@@ -135,24 +135,8 @@ public class InstantiatorGenerator extends Generator {
         for(APIMethod method : cls.getMethods()) {
             // instantiator can test only public methods
             if(method.getModifiers().contains(Modifier.PUBLIC)) {
-                MethodGenerator callerMethod = new MethodGenerator();
-                List<String[]> params = new LinkedList<String[]>();
 
-                // if method isn't static, add instance param to param list
-                if(!method.getModifiers().contains(Modifier.STATIC)) {
-                    params.add(new String[] {cls.getName(), configuration.getInstanceIdentifier()});
-                }
-
-                // add params of tested method
-                params.addAll(getMethodParamList(method));
-
-                callerMethod.setParams(params);
-                callerMethod.setModifiers("public");
-                // generated method return result of test method, so it has to have same return type
-                callerMethod.setReturnType(method.getReturnType());
-                callerMethod.setName(generateName(configuration.getMethodCallIdentifier(), method.getName()));
-                String body = generateCallerBody(method, cls);
-                callerMethod.setBody(body);
+                MethodGenerator callerMethod = new MethodCallerMethodGenerator(method, cls, configuration);
                 result.add(callerMethod);
                     
                 // Generate same method with null parameters
@@ -169,12 +153,7 @@ public class InstantiatorGenerator extends Generator {
                         }
                     }
 
-                    // Create clone of original test method.
-                    MethodGenerator nullCallerMethod = callerMethod.clone();
-                    // Set name of clone to nullCaller
-                    nullCallerMethod.setName(generateName(configuration.getMethodNullCallIdentifier(), method.getName()));
-                    nullCallerMethod.setBody(generateCallerBody(method, cls, nullParamString));
-                    // add nullCaller to generated class.
+                    MethodGenerator nullCallerMethod = new MethodCallerMethodGenerator(method, cls, nullParamString, configuration);
                     result.add(nullCallerMethod);
                 } catch (Exception ex) {
                     /*
@@ -208,40 +187,6 @@ public class InstantiatorGenerator extends Generator {
         sb.append(cstr);
         sb.append(");\n");       
         return sb.toString();
-    }
-
-    private String generateCallerBody(APIMethod method, APIClass cls, String paramsString) {
-        
-        // String builder for creating command line with following structure: ("return ")? instance.method(params);
-        StringBuilder cmdSB = new StringBuilder("\t\t");
-        
-        // if method return something, command starts with return.
-        if(!method.getReturnType().equals("void")) cmdSB.append("return ");
-        // instance of tested class that will be used to call method.
-        cmdSB.append(getInstance(method.getModifiers(), cls));
-        cmdSB.append('.');
-        // name of tested method
-        cmdSB.append(method.getName());
-        cmdSB.append('(');
-        cmdSB.append(paramsString);
-        cmdSB.append(");");
-
-        // if method throws any exception, surround command with try-catch command.
-        if(!method.getThrown().isEmpty()) {
-            cmdSB.insert(0, "\t\ttry {\n\t");
-            for(String exception : method.getThrown()) {
-                cmdSB.append("\n\t\t} catch (").append(exception).append(" ex) {");
-            }
-            cmdSB.append("}\n");
-            // Because return statement is surrounded by try-catch block, there have to be another return statement
-            // returning default value at the end of generated method. (But only if method isn't void.)
-            if(!method.getReturnType().equals("void")) cmdSB.append("\t\t").append("return ").append(getDefaultPrimitiveValue(method.getReturnType())).append(';');
-        }
-        return cmdSB.toString();
-    }
-
-    private String generateCallerBody(APIMethod method, APIClass cls) {
-        return generateCallerBody(method, cls, getMethodParamNameList(getMethodParamList(method)));
     }
     
     private String getNullParamString(List<String> parameters) {        

@@ -19,7 +19,7 @@ public class FieldTestMehtodGenerator extends MethodGenerator {
      * TODO: write docs
      * @param cls
      * @param field
-     * @param varName    name of object that is used in method
+     * @param varName    name of object that is tested in method
      */
     FieldTestMehtodGenerator(APIClass cls, APIField field, String varName, GeneratorConfiguration cfg) {
         setModifiers("public");
