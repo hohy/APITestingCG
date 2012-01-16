@@ -315,6 +315,14 @@ public class APIClassTest {
         boolean expResult = true;
         assertEquals(result, expResult);
     }
-    
-    
+
+    @Test
+    public void testGetPackageName() {
+        APIClass instance = new APIClass("java.io.File");
+        String result = instance.getPackageName();
+        String expResult = "java.io";
+        
+        assertEquals(expResult, result);
+        
+    }
 }

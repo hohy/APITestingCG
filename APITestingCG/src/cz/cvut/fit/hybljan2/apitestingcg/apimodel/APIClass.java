@@ -189,6 +189,19 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         return fullName;
     }
 
+    /**
+     * Parse name of package from full name of class.
+     * @return name of package
+     */
+    public String getPackageName() {
+        int lastDotPosition = fullName.lastIndexOf('.');
+        if(lastDotPosition != -1) {
+            return fullName.substring(0, lastDotPosition);
+        } else { // full name doesn't contain dot character. Class isn't in any package.
+            return "";
+        }
+    }
+
     private Kind getKind(Class cls) {
         if(cls.isAnnotation()) return Kind.ANNOTATION;
         if(cls.isInterface()) return Kind.INTERFACE;
