@@ -15,45 +15,36 @@ import java.util.List;
 public class InstantiatorGenerator extends Generator {
 
     @Override
-    public void generate(API api, GeneratorJobConfiguration jobConfiguration) {
-        // get all packages in api
-        for(APIPackage pkg : api.getPackages()) {
-            // get all classes from every package
-            for(APIClass cls : pkg.getClasses()) {
-                // filter out all abstract classes
-                if(!cls.getModifiers().contains(Modifier.ABSTRACT)) {
-                    ClassGenerator cgen = new ClassGenerator();                                                                       
+    public void generate(APIClass cls, GeneratorJobConfiguration jobConfiguration) {
+        ClassGenerator cgen = new ClassGenerator();
 
-                    cgen.setPackageName(generateName(jobConfiguration.getOutputPackage(), pkg.getName()));
+        cgen.setPackageName(generateName(jobConfiguration.getOutputPackage(), cls.getPackageName()));
 
-                    // Instantiator has to import tested class.
-                    cgen.addImport(cls.getFullName());
-                    
-                    // Also import classes and interfaces that class is extending resp. implementing.
-                    if(cls.getExtending() != null) cgen.addImport(getFullClassName(cls, cls.getExtending()));//cgen.addImport(cls.getExtending());
-                    for(String iname : cls.getImplementing()) {
-                        cgen.addImport(getFullClassName(cls, iname));////cgen.addImport(iname);
-                    }
-                    
-                    // class header
-                    cgen.setName(generateName(configuration.getInstantiatorClassIdentifier(), cls.getName()));
-                    
-                    // generate constructors
-                    List<MethodGenerator> constructors = generateConstructors(cls);
-                    cgen.addConstructors(constructors);
+        // Instantiator has to import tested class.
+        cgen.addImport(cls.getFullName());
 
-                    // generate method callers
-                    List<MethodGenerator> callers = generateMethodCallers(cls);                
-                    cgen.addMethods(callers);
-                    
-                    // generate fields test methods
-                    List<MethodGenerator> fieldTest = generateFieldTests(cls);
-                    cgen.addMethods(fieldTest);
-
-                    cgen.generateClassFile();
-                }
-            }
+        // Also import classes and interfaces that class is extending resp. implementing.
+        if(cls.getExtending() != null) cgen.addImport(getFullClassName(cls, cls.getExtending()));//cgen.addImport(cls.getExtending());
+        for(String iname : cls.getImplementing()) {
+            cgen.addImport(getFullClassName(cls, iname));////cgen.addImport(iname);
         }
+
+        // class header
+        cgen.setName(generateName(configuration.getInstantiatorClassIdentifier(), cls.getName()));
+
+        // generate constructors
+        List<MethodGenerator> constructors = generateConstructors(cls);
+        cgen.addConstructors(constructors);
+
+        // generate method callers
+        List<MethodGenerator> callers = generateMethodCallers(cls);
+        cgen.addMethods(callers);
+
+        // generate fields test methods
+        List<MethodGenerator> fieldTest = generateFieldTests(cls);
+        cgen.addMethods(fieldTest);
+
+        cgen.generateClassFile();
     }
 
     private String getFullClassName(APIClass cls, String simpleName) {
@@ -63,7 +54,7 @@ public class InstantiatorGenerator extends Generator {
             return cls.getFullName().substring(0, cls.getFullName().lastIndexOf(".")) + "." + simpleName;
         }
     }
-    
+
     private List<MethodGenerator> generateConstructors(APIClass cls) {        
         // Constructor testing
         List<MethodGenerator> result = new LinkedList<MethodGenerator>();

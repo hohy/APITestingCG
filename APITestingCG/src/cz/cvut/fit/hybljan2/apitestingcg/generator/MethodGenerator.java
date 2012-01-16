@@ -1,6 +1,7 @@
 package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorJobConfiguration;
 
 import java.util.HashSet;
@@ -139,7 +140,7 @@ public class MethodGenerator extends Generator implements Cloneable {
     }
 
     @Override
-    public void generate(API api, GeneratorJobConfiguration cfg) {
+    public void generate(APIClass cls, GeneratorJobConfiguration cfg) {
         // Method generator does't generates any files (only Strings), so this method will be empty.
     }
 }
