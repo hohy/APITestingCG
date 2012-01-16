@@ -7,7 +7,7 @@ package cz.cvut.fit.hybljan2.apitestingcg.scanner;
 import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
 import java.io.File;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
-import cz.cvut.fit.hybljan2.apitestingcg.configuration.ScannerConfiguration;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ScannerConfiguration;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

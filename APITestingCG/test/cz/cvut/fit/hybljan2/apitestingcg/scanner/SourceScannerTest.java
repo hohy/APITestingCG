@@ -11,7 +11,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIField;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIPackage;
-import cz.cvut.fit.hybljan2.apitestingcg.configuration.ScannerConfiguration;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ScannerConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
 import java.io.File;
 import java.util.LinkedList;

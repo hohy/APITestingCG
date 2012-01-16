@@ -56,7 +56,7 @@ public class APIClassTest {
         List<String> params = new LinkedList<String>();  
         List<Modifier> modifiers = new LinkedList<Modifier>();
         modifiers.add(Modifier.PUBLIC);
-        SortedSet<String> thrown = new TreeSet<String>();
+        List<String> thrown = new LinkedList<String>();
         APIMethod method1 = new APIMethod("run", modifiers, params, "void", thrown); 
         
         SourceScanner sc = new SourceScanner("testres/testAPIClassRes/", "", "1.7");
@@ -144,7 +144,7 @@ public class APIClassTest {
         List<String> params = new LinkedList<String>();  
         List<Modifier> modifiers = new LinkedList<Modifier>();
         modifiers.add(Modifier.PUBLIC);
-        SortedSet<String> thrown = new TreeSet<String>();
+        List<String> thrown = new LinkedList<String>();
         APIMethod method1 = new APIMethod("run", modifiers, params, "void", thrown);        
         expResult.add(method1);
         
@@ -153,7 +153,7 @@ public class APIClassTest {
         params2.add("int");
         List<Modifier> modifiers2 = new LinkedList<Modifier>();
         modifiers2.add(Modifier.PROTECTED);
-        SortedSet<String> thrown2 = new TreeSet<String>();
+        List<String> thrown2 = new LinkedList<String>();
         thrown2.add("java.io.IOException");       
         APIMethod method2 = new APIMethod("getList", modifiers2, params2, "java.util.List<Integer>", thrown2);
         expResult.add(method2);
@@ -197,7 +197,7 @@ public class APIClassTest {
     public void testGetConstructors() {
         APIClass instance =  testInstances[0];
         SortedSet<APIMethod> expResult = new TreeSet<APIMethod>();
-        SortedSet<String> thrown = new TreeSet<String>();
+        List<String> thrown = new LinkedList<String>();
         List<Modifier> pubmod = new LinkedList<Modifier>();
         pubmod.add(Modifier.PUBLIC);
         APIMethod defcon = new APIMethod("testAPIClassRes.TestAPIClass", pubmod, new LinkedList<String>(), null, thrown);
@@ -210,7 +210,7 @@ public class APIClassTest {
     public void testGetConstructors2() {
         APIClass instance =  testInstances[1];
         SortedSet<APIMethod> expResult = new TreeSet<APIMethod>();
-        SortedSet<String> thrown = new TreeSet<String>();
+        List<String> thrown = new LinkedList<String>();
         List<Modifier> pubmod = new LinkedList<Modifier>();
         pubmod.add(Modifier.PUBLIC);
         APIMethod defcon = new APIMethod("testAPIClassRes.TestAPIClass", pubmod, new LinkedList<String>(), null, thrown);
@@ -300,14 +300,14 @@ public class APIClassTest {
         promod.add(Modifier.PROTECTED);
         APIField source = new APIField("java.io.File", "source", promod);
         obj.addField(source);
-        SortedSet<String> thrown = new TreeSet<String>();
+        List<String> thrown = new LinkedList<String>();
         APIMethod run = new APIMethod("run", pubmod, new LinkedList<String>(), "void", thrown);
         obj.addMethod(run);
         
         List<String> params = new LinkedList<String>();
         params.add("String");
         params.add("int");
-        SortedSet<String> thrown2 = new TreeSet<String>();
+        List<String> thrown2 = new LinkedList<String>();
         thrown2.add("java.io.IOException");
         APIMethod getList = new APIMethod("getList", promod, params, "java.util.List<Integer>", thrown2);
         obj.addMethod(getList);

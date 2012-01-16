@@ -109,7 +109,7 @@ public class APIMethodTest {
         Set expResult = new TreeSet();
         expResult.add("java.lang.Exception");
         expResult.add("java.io.IOException");
-        Set result = instance.getThrown();
+        List result = instance.getThrown();
         assertEquals(expResult, result);
     }
     
@@ -119,7 +119,7 @@ public class APIMethodTest {
         APIMethod instance = testInstaces[0];
         List<Modifier> pubmod = new LinkedList<Modifier>();
         pubmod.add(Modifier.PUBLIC);
-        SortedSet<String> thrown = new TreeSet<String>();
+        List<String> thrown = new LinkedList<String>();
         APIMethod obj = new APIMethod("methodA", pubmod, new LinkedList<String>(), "void", thrown);
         boolean result = instance.equals(obj);
         boolean expResults = true;
