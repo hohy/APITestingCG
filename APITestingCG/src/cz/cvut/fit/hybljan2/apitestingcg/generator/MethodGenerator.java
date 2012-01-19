@@ -104,6 +104,10 @@ public class MethodGenerator extends Generator implements Cloneable {
         return imports;
     }
     
+    public void addImport(String imprt) {
+        imports.add(imprt);
+    }
+    
     /**
      * Convert full name of class to simple name and add it to imports.
      * Example: java.io.File -> File
@@ -139,8 +143,4 @@ public class MethodGenerator extends Generator implements Cloneable {
         return clone;
     }
 
-    @Override
-    public void generate(APIClass cls, GeneratorJobConfiguration cfg) {
-        // Method generator does't generates any files (only Strings), so this method will be empty.
-    }
 }

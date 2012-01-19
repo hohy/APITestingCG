@@ -17,8 +17,6 @@ import java.util.List;
 public abstract class Generator {
 
     protected GeneratorConfiguration configuration;
-
-    public abstract void generate(APIClass cls, GeneratorJobConfiguration jobConfiguration);
     
     protected List<String[]> getMethodParamList(APIMethod method) {
         // String builder for list of params for instantiator constructor

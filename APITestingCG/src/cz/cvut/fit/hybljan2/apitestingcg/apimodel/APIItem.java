@@ -14,11 +14,7 @@ import java.util.Set;
 public abstract class APIItem {
     protected String name;
     protected List<Modifier> modifiers;
-    /**
-     * TODO: Poutřebuju vůbec kind? bych řekl že skoro ne... by se to dalo 
-     * udelat jako normalni tridy... už to tak v podstate mam jen chybí intefacy
-     * enumy, anotace... ale to by byly jen potomci APIClass.
-     */ 
+
     protected Kind kind;
     
     public String getName() {

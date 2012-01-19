@@ -9,33 +9,36 @@ import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorJobConfigu
  *
  * @author Jan Hybl
  */
-public class ExtenderGenerator extends Generator {
+public class ExtenderGenerator extends ClassGenerator {
 
     @Override
     public void generate(APIClass cls, GeneratorJobConfiguration jobConfiguration) {
-        ClassGenerator cgen = new ClassGenerator();
-        cgen.addImport(cls.getFullName());
-        
+
+        addImport(cls.getFullName());
+
+        // import all package of class...   TODO: remove this
+        addImport(cls.getPackageName() + ".*");
+
         // set package name
-        cgen.setPackageName(generateName(jobConfiguration.getOutputPackage(), cls.getPackageName()));
+        setPackageName(generateName(jobConfiguration.getOutputPackage(), cls.getPackageName()));
 
         String pattern = null;
         // if tested item is interface, create Implementator, otherwise Extender
         if(cls.getType() == Kind.INTERFACE) {
             pattern = configuration.getImplementerClassIdentifier();
-            cgen.addImplemening(cls.getName());
+            addImplemening(cls.getName());
         } else {
             pattern = configuration.getExtenderClassIdentifier();
-            cgen.setExtending(cls.getName());
+            setExtending(cls.getName());
         }
 
-        cgen.setName(generateName(pattern, cls.getName()));
+        setName(generateName(pattern, cls.getName()));
 
         // constructors tests
         for(APIMethod constructor : cls.getConstructors()) {
             MethodGenerator cnstr = new MethodGenerator();
             cnstr.setModifiers("public");
-            cnstr.setName(cgen.getName());
+            cnstr.setName(getName());
 
 
             cnstr.setParams(getMethodParamList(constructor));
@@ -45,7 +48,7 @@ public class ExtenderGenerator extends Generator {
             sb.append("\t\tsuper(").append(getMethodParamNameList(cnstr.getParams())).append(");");
 
             cnstr.setBody(sb.toString());
-            cgen.addConstructor(cnstr);
+            addConstructor(cnstr);
         }
 
         // method overriding tests
@@ -68,7 +71,7 @@ public class ExtenderGenerator extends Generator {
                 mgen.addAnotation("Override");
                 mgen.setParams(getMethodParamList(method));
                 mgen.setBody("\t\tthrow new UnsupportedOperationException();");
-                cgen.addMethod(mgen);
+                addMethod(mgen);
             }
         }
 
@@ -76,10 +79,10 @@ public class ExtenderGenerator extends Generator {
         for(APIField field : cls.getFields()) {
 //                        if(field.getModifiers().contains(Modifier.PROTECTED)) {
             MethodGenerator ftmg = new FieldTestMehtodGenerator(cls, field, field.getName(), configuration);
-            cgen.addMethod(ftmg);
+            addMethod(ftmg);
 //                        }
         }
-        cgen.generateClassFile();
+        generateClassFile();
     }
 
 }

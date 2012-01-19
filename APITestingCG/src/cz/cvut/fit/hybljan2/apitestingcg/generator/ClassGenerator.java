@@ -1,5 +1,8 @@
 package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorJobConfiguration;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -15,7 +18,9 @@ import java.util.logging.Logger;
  * This class help with generating java class files
  * @author Jan Hybl
  */
-public class ClassGenerator {
+public abstract class ClassGenerator extends Generator {
+
+    public abstract void generate(APIClass cls, GeneratorJobConfiguration jobConfiguration);
 
     // class name (without package name)
     private String name;    

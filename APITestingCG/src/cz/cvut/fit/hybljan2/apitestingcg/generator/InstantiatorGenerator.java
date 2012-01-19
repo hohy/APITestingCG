@@ -12,39 +12,41 @@ import java.util.List;
  * Generates instantiators for all nonabstract classes in API.
  * @author Jan Hybl
  */
-public class InstantiatorGenerator extends Generator {
+public class InstantiatorGenerator extends ClassGenerator {
 
     @Override
     public void generate(APIClass cls, GeneratorJobConfiguration jobConfiguration) {
-        ClassGenerator cgen = new ClassGenerator();
 
-        cgen.setPackageName(generateName(jobConfiguration.getOutputPackage(), cls.getPackageName()));
+        setPackageName(generateName(jobConfiguration.getOutputPackage(), cls.getPackageName()));
 
         // Instantiator has to import tested class.
-        cgen.addImport(cls.getFullName());
+        addImport(cls.getFullName());
+
+        // import all package of class... TODO: remove this
+        addImport(cls.getPackageName() + ".*");
 
         // Also import classes and interfaces that class is extending resp. implementing.
-        if(cls.getExtending() != null) cgen.addImport(getFullClassName(cls, cls.getExtending()));//cgen.addImport(cls.getExtending());
+        if(cls.getExtending() != null) addImport(getFullClassName(cls, cls.getExtending()));//cgen.addImport(cls.getExtending());
         for(String iname : cls.getImplementing()) {
-            cgen.addImport(getFullClassName(cls, iname));////cgen.addImport(iname);
+            addImport(getFullClassName(cls, iname));////cgen.addImport(iname);
         }
 
         // class header
-        cgen.setName(generateName(configuration.getInstantiatorClassIdentifier(), cls.getName()));
+        setName(generateName(configuration.getInstantiatorClassIdentifier(), cls.getName()));
 
         // generate constructors
         List<MethodGenerator> constructors = generateConstructors(cls);
-        cgen.addConstructors(constructors);
+        addConstructors(constructors);
 
         // generate method callers
         List<MethodGenerator> callers = generateMethodCallers(cls);
-        cgen.addMethods(callers);
+        addMethods(callers);
 
         // generate fields test methods
         List<MethodGenerator> fieldTest = generateFieldTests(cls);
-        cgen.addMethods(fieldTest);
+        addMethods(fieldTest);
 
-        cgen.generateClassFile();
+        generateClassFile();
     }
 
     private String getFullClassName(APIClass cls, String simpleName) {
@@ -145,10 +147,10 @@ public class InstantiatorGenerator extends Generator {
                         throw new Exception("method with no parameters can't be called with null params.");
                     String nullParamString = getNullParamString(method.getParameters());
 
-                    // Check if there is no other same method (with same name and parameters)
+                    // Check if there is no other same method (with equal name and parameters)
                     for(APIMethod mthd : cls.getMethods()) {
                         if(!mthd.equals(method)) {
-                            if(nullParamString.equals(getNullParamString(mthd.getParameters())))
+                            if(mthd.getName().equals(method.getName()) && nullParamString.equals(getNullParamString(mthd.getParameters())))
                                 throw new Exception("Cant generate null method.");
                         }
                     }
