@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- *
+ * Class contains some helpful methods for concrete generators.
  * @author Jan Hybl
  */
 public abstract class Generator {

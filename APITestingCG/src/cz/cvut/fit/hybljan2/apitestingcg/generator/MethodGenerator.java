@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- *
+ * This abstract class is basic element of all concrete MethodGenerators used in ClassGenerators.
+ * It's fields can represent all parts of any method. Also defines method genereteMethod which takes all this fields
+ * and generate complete source code of new method.
  * @author hohy
  */
 public abstract class MethodGenerator extends Generator {
@@ -28,7 +30,11 @@ public abstract class MethodGenerator extends Generator {
     private Set<String> imports = new HashSet<String>();
     // body
     private String body;
-    
+
+    /**
+     * Takes all fields of class and build string with java source code of method.
+     * @return  method's source code.
+     */
     public String generateMethod() {
         StringBuilder sb = new StringBuilder();
         

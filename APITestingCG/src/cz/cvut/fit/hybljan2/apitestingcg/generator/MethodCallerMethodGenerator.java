@@ -9,7 +9,23 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Created by IntelliJ IDEA.
+ * Generates methods for Instantiator and EnumTest. Generated method calls tested method from original class.
+ * Generated method returns same result as tested method and has same parameters (+ If method isn't static,
+ * new method has one more parameter. It's instance of tested class, on which is method called.).
+ *
+ * Examples of generated methods: (for method: ClassA.mthd(Integer, Integer))
+ *
+ * public int mthdCall(ClassA obj, Integer a, Integer b) {
+ *      return obj.mthd(a,b);
+ * }
+ *
+ * Null-param version of previous method:
+ * public int mthdNullCall(ClassA obj, Integer a, Integer b) {
+ *      return obj.mthd(null,null);
+ * }
+ *
+ * If tested method throws any exception, method call is surrounded by try-catch block which catches the exceptions.
+ *
  * User: Jan Hýbl
  * Date: 16.1.12
  * Time: 21:12

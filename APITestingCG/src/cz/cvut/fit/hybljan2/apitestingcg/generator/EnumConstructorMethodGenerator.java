@@ -4,7 +4,14 @@ import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIField;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 
 /**
- * Created by IntelliJ IDEA.
+ * Generates method to test Enum fields.
+ *
+ * Example: (for Enum Planet)
+ *
+ * public Planet createEARTH() {
+ *      return Planet.EARTH;
+ * }
+ *
  * User: Jan Hýbl
  * Date: 19.1.12
  * Time: 12:09
