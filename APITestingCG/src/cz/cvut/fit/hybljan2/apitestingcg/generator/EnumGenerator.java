@@ -33,13 +33,7 @@ public class EnumGenerator extends ClassGenerator {
                  *     return EnumClass.FIELD();
                  * }
                  */
-                MethodGenerator mthGen = new MethodGenerator();
-                mthGen.setName(generateName(configuration.getCreateInstanceIdentifier(), fld.getName()));  // TODO: add own identifier item into configuration
-                mthGen.setReturnType(cls.getName());
-                mthGen.setModifiers("public");
-                StringBuilder mthBody = new StringBuilder("\t\t");
-                mthBody.append("return ").append(cls.getName()).append('.').append(fld.getName()).append(";");
-                mthGen.setBody(mthBody.toString());
+                MethodGenerator mthGen = new EnumConstructorMethodGenerator(cls.getName(), fld, configuration);
                 addConstructor(mthGen);
 
             } else {  // it's not a enum field but constant or variable. Test it in same way as in Instantiator or Extender.

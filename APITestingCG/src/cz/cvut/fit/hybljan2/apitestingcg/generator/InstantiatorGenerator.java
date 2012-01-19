@@ -67,13 +67,7 @@ public class InstantiatorGenerator extends ClassGenerator {
             if(constructor.getModifiers().contains(Modifier.PUBLIC)) {
 
                 // generate constructor
-                MethodGenerator method = new MethodGenerator();
-                method.setModifiers("public");
-                method.setName(generateName(configuration.getCreateInstanceIdentifier(), cls.getName()));
-                method.setReturnType(cls.getName());
-                List<String[]> params = getMethodParamList(constructor);
-                method.setParams(params);
-                method.setBody(generateConstructorBody(cls, getMethodParamNameList(params)));
+                MethodGenerator method = new InstantiatorConstructorGenerator(cls.getName(), constructor, configuration);
                 result.add(method);
                 
                 // generate null constructor                                                        
@@ -92,11 +86,7 @@ public class InstantiatorGenerator extends ClassGenerator {
                         }
                     }
 
-                    MethodGenerator nconst = new MethodGenerator();
-                    nconst.setName(generateName(configuration.getCreateNullInstanceIdentifier(),cls.getName()));
-                    nconst.setModifiers("public");
-                    nconst.setReturnType(cls.getName());
-                    nconst.setBody(generateConstructorBody(cls, cstr));                             
+                    MethodGenerator nconst = new InstantiatorConstructorGenerator(cls.getName(), constructor, cstr, configuration);
                     // add constructor method to the class
                     result.add(nconst);
                 } catch (Exception ex) {}                                                            
@@ -105,28 +95,16 @@ public class InstantiatorGenerator extends ClassGenerator {
         
         // if class extends other class, generate superconstructor
         if(cls.getExtending() != null && cls.getConstructors().size() > 0) {
-            MethodGenerator scnstr = new MethodGenerator();
-            scnstr.setModifiers("public");
-            scnstr.setReturnType(cls.getExtending());
-            scnstr.setName(generateName(configuration.getCreateSuperInstanceIdentifier(), scnstr.getReturnType()));
-            List<String[]> params = getMethodParamList(cls.getConstructors().first());
-            scnstr.setParams(params);
-            scnstr.setBody(generateConstructorBody(cls, getMethodParamNameList(params)));
+            MethodGenerator scnstr = new InstantiatorConstructorGenerator(cls.getExtending(), cls.getConstructors().first(), configuration);
             result.add(scnstr);
         }
         
         // if class implements some interface, create instance of the interface
         for(String intName : cls.getImplementing()) {
-            MethodGenerator icnstr = new MethodGenerator();
-            icnstr.setModifiers("public");
-            icnstr.setReturnType(intName);
-            icnstr.setName(generateName(configuration.getCreateInterfaceInstanceIdentifier(), icnstr.getReturnType()));
-            if(!cls.getConstructors().isEmpty()) { // TODO: Toto zkontrolovat, otestovat, jestli to tak muze byt...
-                List<String[]> params = getMethodParamList(cls.getConstructors().first());
-                icnstr.setParams(params);
-                icnstr.setBody(generateConstructorBody(cls, getMethodParamNameList(params)));
+            if(!cls.getConstructors().isEmpty()) {
+                MethodGenerator icnstr = new InstantiatorConstructorGenerator(intName, cls.getConstructors().first(), configuration);
                 result.add(icnstr);
-            }                                       
+            }
         }
         return result;
     }

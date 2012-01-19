@@ -13,7 +13,7 @@ import java.util.Set;
  *
  * @author hohy
  */
-public class MethodGenerator extends Generator implements Cloneable {
+public abstract class MethodGenerator extends Generator {
     // method name
     private String name;    
     // method modifiers
@@ -129,18 +129,6 @@ public class MethodGenerator extends Generator implements Cloneable {
 
     public void addAnotation(String anotation) {
         this.annotations.add(anotation);
-    }
-
-    @Override
-    protected MethodGenerator clone() {
-        MethodGenerator clone = new MethodGenerator();
-        clone.setBody(this.body);
-        clone.setName(this.name);
-        clone.setModifiers(this.modifiers);
-        clone.setParams(this.params);
-        clone.setReturnType(this.returnType);
-        clone.setThrown(this.thrown);
-        return clone;
     }
 
 }
