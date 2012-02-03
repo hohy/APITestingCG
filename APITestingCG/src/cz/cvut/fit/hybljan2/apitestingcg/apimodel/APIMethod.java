@@ -152,6 +152,11 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
     }
 
     @Override
+    public void accept(IAPIVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj == null) {
             return false;

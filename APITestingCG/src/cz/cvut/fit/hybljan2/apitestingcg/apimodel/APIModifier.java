@@ -44,7 +44,7 @@ public class APIModifier {
 
     /**
      * Method that translate javax.lang.model.element.Modifier to our APIModifier.
-     * @param modifiers
+     * @param flags Set of modifiers
      * @return 
      */
     public static List<Modifier> getModifiersSet(Set<javax.lang.model.element.Modifier> flags) {        

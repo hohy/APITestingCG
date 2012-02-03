@@ -42,7 +42,12 @@ public class API extends APIItem{
     public SortedSet<APIPackage> getPackages() {
         return packages;
     }
-    
+
+    @Override
+    public void accept(IAPIVisitor visitor) {
+        visitor.visit(this);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

@@ -212,7 +212,12 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     public SortedSet<APIMethod> getConstructors() {
         return constructors;
     }
-    
+
+    @Override
+    public void accept(IAPIVisitor visitor) {
+        visitor.visit(this);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

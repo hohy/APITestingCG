@@ -38,6 +38,11 @@ public class APIPackage extends APIItem implements Comparable<APIPackage> {
     }
 
     @Override
+    public void accept(IAPIVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj == null) {
             return false;

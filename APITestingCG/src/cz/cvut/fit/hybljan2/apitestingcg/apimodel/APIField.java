@@ -70,6 +70,11 @@ public class APIField extends APIItem implements Comparable<APIField> {
     }
 
     @Override
+    public void accept(IAPIVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj == null) {
             return false;

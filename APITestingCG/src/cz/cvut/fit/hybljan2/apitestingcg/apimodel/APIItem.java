@@ -16,7 +16,13 @@ public abstract class APIItem {
     protected List<Modifier> modifiers;
 
     protected Kind kind;
-    
+
+    /**
+     * Method used in visitor design pattern.
+     * @param visitor
+     */
+    public abstract void accept(IAPIVisitor visitor);
+
     public String getName() {
         return name;
     }
