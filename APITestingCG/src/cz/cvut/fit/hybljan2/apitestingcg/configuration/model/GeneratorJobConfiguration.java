@@ -2,6 +2,8 @@ package cz.cvut.fit.hybljan2.apitestingcg.configuration.model;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -14,6 +16,7 @@ public class GeneratorJobConfiguration {
     private String apiId;
     private String outputDir = "output";
     private String outputPackage = "test.%s";
+    private List<WhitelistRule> whitelistRules = new LinkedList<WhitelistRule>();
 
     @XmlElement(name = "id", required = true)
     public String getApiId() {
@@ -40,5 +43,14 @@ public class GeneratorJobConfiguration {
 
     public void setOutputPackage(String outputPackage) {
         this.outputPackage = outputPackage;
+    }
+
+    @XmlElement(name = "whitelist")
+    public List<WhitelistRule> getWhitelistRules() {
+        return whitelistRules;
+    }
+
+    public void setWhitelistRules(List<WhitelistRule> whitelistRules) {
+        this.whitelistRules = whitelistRules;
     }
 }
