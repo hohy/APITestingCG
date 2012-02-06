@@ -1,7 +1,8 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
 /**
- * Created by IntelliJ IDEA.
+ * Interface for visitors of APIModel classes.
+ *
  * User: Jan Hýbl
  * Date: 3.2.12
  * Time: 16:13
