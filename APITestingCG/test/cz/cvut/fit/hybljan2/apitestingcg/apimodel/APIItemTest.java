@@ -121,6 +121,10 @@ public class APIItemTest {
             modifiers.add(Modifier.FINAL);            
             kind = Kind.CLASS;            
         }
-        
+
+        @Override
+        public void accept(IAPIVisitor visitor) {
+
+        }
     }
 }

@@ -111,7 +111,7 @@ public abstract class APIItem {
         if(rawName.contains("class")) return rawName.substring(6);
         return rawName;
     }
-    
+
     public enum Kind {
         CLASS, METHOD, INTERFACE, ANNOTATION, ENUM, VARIABLE, PACKAGE, CONSTRUCTOR
     }

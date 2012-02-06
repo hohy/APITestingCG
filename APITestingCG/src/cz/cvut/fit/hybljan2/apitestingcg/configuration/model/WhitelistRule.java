@@ -13,17 +13,19 @@ import javax.xml.bind.annotation.*;
 public class WhitelistRule {
 
     @XmlEnum
-    public enum RuleTarget {
+    public enum RuleItem {
         @XmlEnumValue("extender")
         EXTENDER,
         @XmlEnumValue("implementer")
         IMPLEMENTER,
         @XmlEnumValue("instantiator")
-        INSTANTIATOR
+        INSTANTIATOR,
+        @XmlEnumValue("all")
+        ALL
     }
 
     @XmlAttribute
-    protected RuleTarget target;
+    protected RuleItem item = RuleItem.ALL;
 
     @XmlValue
     protected String rule;
@@ -36,11 +38,39 @@ public class WhitelistRule {
         this.rule = rule;
     }
 
-    public RuleTarget getTarget() {
-        return target;
+    public RuleItem getItem() {
+        return item;
     }
 
-    public void setTarget(RuleTarget target) {
-        this.target = target;
+    public void setItem(RuleItem item) {
+        this.item = item;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        WhitelistRule that = (WhitelistRule) o;
+
+        if (item != that.item) return false;
+        if (rule != null ? !rule.equals(that.rule) : that.rule != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = item != null ? item.hashCode() : 0;
+        result = 31 * result + (rule != null ? rule.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "WhitelistRule{" +
+                "item=" + item +
+                ", rule='" + rule + '\'' +
+                '}';
     }
 }

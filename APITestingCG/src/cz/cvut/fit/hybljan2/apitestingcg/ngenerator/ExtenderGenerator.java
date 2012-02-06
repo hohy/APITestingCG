@@ -8,6 +8,7 @@ import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.UnsharedNameTable;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -25,6 +26,10 @@ public class ExtenderGenerator extends Generator {
 
     private ListBuffer<JCTree> methodsBuffer;
     private Name clsName;
+
+    public ExtenderGenerator(GeneratorConfiguration configuration) {
+        super(configuration);
+    }
 
     @Override
     public void visit(APIClass apiClass) {
@@ -56,14 +61,16 @@ public class ExtenderGenerator extends Generator {
             method.accept(this);
         }
 
-        JCTree.JCClassDecl clsBDecl = maker.ClassDef(modifiers, clsName, typeParameters, extending, implementing, methodsBuffer.toList());
-        //File file = new File(outputDir.getPath() + File.separatorChar + clsName + ".java");
+        currentClass = maker.ClassDef(modifiers, clsName, typeParameters, extending, implementing, methodsBuffer.toList());
 
     }
 
     private void visitConstructor(APIMethod constructor) {
         JCTree.JCModifiers modifiers = maker.Modifiers(Flags.PUBLIC);
-        ListBuffer<JCTree.JCVariableDecl> params = new ListBuffer<JCTree.JCVariableDecl>();        
+        ListBuffer<JCTree.JCVariableDecl> params = new ListBuffer<JCTree.JCVariableDecl>();   
+        Name methodName = names.names.init;
+        JCTree.JCExpression methodType = maker.Type(symtab.voidType);
+
         char paramName = 'a';
         for(String param : constructor.getParameters()) {
             params.append(makeParameter(String.valueOf(paramName), param));
@@ -74,7 +81,10 @@ public class ExtenderGenerator extends Generator {
         JCTree.JCExpressionStatement stmt = maker.Exec(makeSuperCall(params.toList()));
         stmts.add(stmt);
         JCTree.JCBlock body = maker.Block(0, stmts.toList());
-        maker.MethodDef(modifiers, clsName, null,List.<JCTypeParameter> nil(), params.toList(),List.<JCExpression> nil(), body, null);
+
+        JCTree.JCMethodDecl cdecl = maker.MethodDef(modifiers, methodName, methodType, List.<JCTypeParameter>nil(), params.toList(), List.<JCExpression>nil(), body, null);
+        methodsBuffer.add(cdecl);
+
     }
 
     /**
@@ -96,11 +106,6 @@ public class ExtenderGenerator extends Generator {
     public void visit(APIField apiField) {
         //To change body of implemented methods use File | Settings | File Templates.
         
-    }
-
-    @Override
-    public void visit(APIPackage apiPackage) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override

@@ -53,4 +53,8 @@ public class GeneratorJobConfiguration {
     public void setWhitelistRules(List<WhitelistRule> whitelistRules) {
         this.whitelistRules = whitelistRules;
     }
+    
+    public void addWhitelistRule(WhitelistRule rule) {
+        getWhitelistRules().add(rule);
+    }
 }
