@@ -31,7 +31,8 @@ public abstract class Generator implements IAPIVisitor {
     protected Name.Table names;
     protected Symtab symtab;
 
-    protected JCTree.JCClassDecl currentClass;
+    protected JCTree.JCCompilationUnit currentPackage;
+    ListBuffer<JCTree> packageBuffer;
 
     public Generator(GeneratorConfiguration configuration) {
         Context ctx = new Context();
@@ -66,32 +67,16 @@ public abstract class Generator implements IAPIVisitor {
         List<JCTree.JCAnnotation> packageAnnotations = List.nil();
         String packageName = generateName(jobConfiguration.getOutputPackage(), apiPackage.getName());
         JCTree.JCExpression packageNameExpression = maker.Ident(names.fromString(packageName));
-        ListBuffer<JCTree> packageBuffer = new ListBuffer<JCTree>();
+        packageBuffer = new ListBuffer<JCTree>();
+
+        currentPackage = maker.TopLevel(packageAnnotations, packageNameExpression, packageBuffer.toList());
 
         // create directory for package
         File outputDir = new File(jobConfiguration.getOutputDir() + File.separatorChar + getPathToPackage(packageName));
         if(!outputDir.exists()) outputDir.mkdirs();
 
-        for(APIClass cls : apiPackage.getClasses()) {            
+        for(APIClass cls : apiPackage.getClasses()) {
             cls.accept(this);
-            packageBuffer.add(currentClass);
-            JCTree.JCCompilationUnit currentPackage = maker.TopLevel(packageAnnotations, packageNameExpression, packageBuffer.toList());
-
-            String clsFileName = outputDir.getPath() + File.separator + currentClass.getSimpleName() + ".java";
-            FileWriter fw = null;
-            try {
-                fw = new FileWriter(clsFileName);
-                Pretty pretty = new Pretty(fw, true);
-                pretty.printUnit(currentPackage, currentClass);
-            } catch (IOException e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            } finally {
-                if(fw != null) try {
-                    fw.close();
-                } catch (IOException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
-            }
         }
 
 
@@ -108,7 +93,7 @@ public abstract class Generator implements IAPIVisitor {
         return pattern.replaceAll("%s", originalName);
     }
 
-    private String getPathToPackage(String pkgName) {
+    protected String getPathToPackage(String pkgName) {
         return pkgName.replace('.', File.separatorChar);
     }
 
@@ -156,5 +141,22 @@ public abstract class Generator implements IAPIVisitor {
         } else enabled = true;  // if there is no rules for whitelist, enable all items.
 
         return enabled;
+    }
+
+    protected void generateSourceFile(JCTree.JCCompilationUnit pkg, JCTree.JCClassDecl cls, String fileName) {
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter(fileName);
+            Pretty pretty = new Pretty(fw, true);
+            pretty.printUnit(pkg, cls);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(fw != null) try {
+                fw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

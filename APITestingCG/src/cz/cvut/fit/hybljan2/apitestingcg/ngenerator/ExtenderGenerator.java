@@ -9,6 +9,7 @@ import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.UnsharedNameTable;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -33,7 +34,6 @@ public class ExtenderGenerator extends Generator {
 
     @Override
     public void visit(APIClass apiClass) {
-        
         JCTree.JCModifiers modifiers = maker.Modifiers(Flags.PUBLIC);
 
         String pattern = null;
@@ -61,8 +61,10 @@ public class ExtenderGenerator extends Generator {
             method.accept(this);
         }
 
-        currentClass = maker.ClassDef(modifiers, clsName, typeParameters, extending, implementing, methodsBuffer.toList());
-
+        JCTree.JCClassDecl currentClass = maker.ClassDef(modifiers, clsName, typeParameters, extending, implementing, methodsBuffer.toList());
+        currentPackage.defs = packageBuffer.toList();
+        String classFilePath = jobConfiguration.getOutputDir() + File.separatorChar + getPathToPackage(currentPackage.getPackageName().toString()) + File.separator + currentClass.getSimpleName() + ".java";
+        generateSourceFile(currentPackage, currentClass, classFilePath);
     }
 
     private void visitConstructor(APIMethod constructor) {

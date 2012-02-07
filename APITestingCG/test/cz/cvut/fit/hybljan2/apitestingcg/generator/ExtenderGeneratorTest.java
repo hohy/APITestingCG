@@ -6,11 +6,13 @@ import cz.cvut.fit.hybljan2.apitestingcg.ngenerator.Generator;
 import cz.cvut.fit.hybljan2.apitestingcg.ngenerator.ExtenderGenerator;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
+import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
 import junitx.framework.FileAssert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -26,7 +28,7 @@ public class ExtenderGeneratorTest {
     private static API api;
 
     @BeforeClass
-    public static void Setup() {
+    public static void Setup() throws IOException {
         ScannerConfiguration scannerConfiguration = new ScannerConfiguration();
         scannerConfiguration.setApiName("Extender test");
         scannerConfiguration.setPath("testres/extender");
@@ -38,6 +40,9 @@ public class ExtenderGeneratorTest {
         scanner.setConfiguration(scannerConfiguration);
 
         api = scanner.scan();
+
+        // delete output files from previous run of whiteListTest2
+        TestUtils.delete(new File("output/tests/extender"));
     }
 
     /**

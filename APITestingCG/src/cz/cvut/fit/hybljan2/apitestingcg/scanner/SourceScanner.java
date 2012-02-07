@@ -14,6 +14,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,9 +99,10 @@ public class SourceScanner implements APIScanner {
      * @param path
      * @return 
      */
-    private List<String> listFiles(String path) {
+    private List<String> listFiles(String path) throws FileNotFoundException {
         List<String> p = new ArrayList<String>();
         File dir = new File(path);
+        if(!dir.exists()) throw new FileNotFoundException("Can't file/dir " + dir.getAbsolutePath());
         FileFilter filter = new FileFilter() {
 
             @Override

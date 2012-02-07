@@ -1,9 +1,8 @@
 package cz.cvut.fit.hybljan2.apitestingcg.test;
 
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClassTest;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+
+import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,5 +30,14 @@ public class TestUtils {
             }
         }
         return sb.toString().substring(1);
-    }    
+    }
+
+    public static void delete(File f) throws IOException {
+        if (f.isDirectory()) {
+            for (File c : f.listFiles())
+                delete(c);
+        }
+        if (!f.delete())
+            throw new FileNotFoundException("Failed to delete file: " + f);
+    }
 }
