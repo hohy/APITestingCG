@@ -9,7 +9,9 @@ import cz.cvut.fit.hybljan2.apitestingcg.ngenerator.Generator;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
+import junitx.framework.FileAssert;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -37,11 +39,13 @@ public class GeneratorJobConfigurationTest {
         reader = new ConfigurationReader();
         // delete output files from previous run of whiteListTest2
         TestUtils.delete(new File("output/tests/configuration"));
+        TestUtils.delete(new File("output/tests/configuration2"));
     }
-    
+
+
     @Test
     public void whiteListTest() {
-        
+
         Configuration c = reader.parseConfiguration("testres/configuration/whitelist.xml");
         WhitelistRule rule1 = new WhitelistRule();
         rule1.setItem(WhitelistRule.RuleItem.ALL);
@@ -78,6 +82,26 @@ public class GeneratorJobConfigurationTest {
         File fb = new File("output/tests/configuration/lib/ClassBExtender.java");
         assertTrue(fa.exists());
         assertFalse(fb.exists());
+    }
+
+    @Test
+    public void whiteListTest3() {
+
+        Configuration configuration = reader.parseConfiguration("testres/configuration/whitelist_lib2.xml");
+        APIScanner scanner = new SourceScanner();
+        scanner.setConfiguration(configuration.getApiConfigurations().get(0));
+        API api = scanner.scan();
+
+        Generator generator = new ExtenderGenerator(configuration.getGeneratorConfiguration());
+        generator.generate(api, configuration.getGeneratorJobConfigurations().get(0));
+
+        File fa = new File("output/tests/configuration2/lib/ClassAExtender.java");
+        File fb = new File("output/tests/configuration2/lib/ClassBExtender.java");
+        assertFalse(fa.exists());
+        assertTrue(fb.exists());
+        
+        File expected = new File("testres/configuration/expected/ClassBExtender.java");
+        FileAssert.assertEquals(expected, fb);
     }
 
 }

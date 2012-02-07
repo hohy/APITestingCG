@@ -133,7 +133,7 @@ public abstract class Generator implements IAPIVisitor {
         boolean enabled = false;
         if(jobConfiguration.getWhitelistRules().size() > 0) {
             for(WhitelistRule rule : jobConfiguration.getWhitelistRules()) {
-                if(rule.getRule().contains(itemSignature) && rule.getItem().equals(target)) {
+                if(rule.getRule().contains(itemSignature) && (rule.getItem().equals(target) || rule.getItem().equals(WhitelistRule.RuleItem.ALL))) {
                     enabled = true;
                     break;
                 }

@@ -12,6 +12,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfigurat
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 
 import java.io.File;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import static com.sun.tools.javac.tree.JCTree.JCExpression;
@@ -34,15 +35,20 @@ public class ExtenderGenerator extends Generator {
 
     @Override
     public void visit(APIClass apiClass) {
+
+        // check if extender for this class is enabled in jobConfiguration.
+        if(!isEnabled(apiClass.getFullName(), WhitelistRule.RuleItem.EXTENDER)) return;
+
+        // Extender class will be public
         JCTree.JCModifiers modifiers = maker.Modifiers(Flags.PUBLIC);
 
-        String pattern = null;
         List<JCTree.JCExpression> implementing = List.nil();
         JCTree.JCExpression extending = null;
         List<JCTree.JCTypeParameter> typeParameters = List.nil();
         methodsBuffer = new ListBuffer<JCTree>();
 
         // if tested item is interface, create Implementator, otherwise Extender
+        String pattern = null;
         if(apiClass.getType() == APIItem.Kind.INTERFACE) {
             pattern = configuration.getImplementerClassIdentifier();
             implementing.add(maker.Ident(names.fromString(apiClass.getName())));
@@ -68,6 +74,7 @@ public class ExtenderGenerator extends Generator {
     }
 
     private void visitConstructor(APIMethod constructor) {
+        if(!isEnabled(methodSignature(constructor), WhitelistRule.RuleItem.EXTENDER)) return;
         JCTree.JCModifiers modifiers = maker.Modifiers(Flags.PUBLIC);
         ListBuffer<JCTree.JCVariableDecl> params = new ListBuffer<JCTree.JCVariableDecl>();   
         Name methodName = names.names.init;
@@ -87,6 +94,25 @@ public class ExtenderGenerator extends Generator {
         JCTree.JCMethodDecl cdecl = maker.MethodDef(modifiers, methodName, methodType, List.<JCTypeParameter>nil(), params.toList(), List.<JCExpression>nil(), body, null);
         methodsBuffer.add(cdecl);
 
+    }
+
+    private String methodSignature(APIMethod constructor) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(constructor.getName());
+        sb.append(constructor.getName().substring(constructor.getName().lastIndexOf(".")));
+        sb.append('(');
+        // list of Params
+        Iterator iter = constructor.getParameters().iterator();
+        if (iter.hasNext()) {
+            sb.append(iter.next());
+            while (iter.hasNext()) {
+                sb.append(", ");
+                sb.append(iter.next());
+            }
+        }
+        sb.append(')');
+        String result = sb.toString();
+        return sb.toString();
     }
 
     /**
