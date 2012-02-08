@@ -2,18 +2,15 @@ package cz.cvut.fit.hybljan2.apitestingcg.ngenerator;
 
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
 import com.sun.tools.javac.util.Name;
-import com.sun.tools.javac.util.UnsharedNameTable;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 
 import java.io.File;
 import java.util.Iterator;
-import java.util.LinkedList;
 
 import static com.sun.tools.javac.tree.JCTree.JCExpression;
 import static com.sun.tools.javac.tree.JCTree.JCTypeParameter;
@@ -24,7 +21,7 @@ import static com.sun.tools.javac.tree.JCTree.JCTypeParameter;
  * Date: 3.2.12
  * Time: 17:07
  */
-public class ExtenderGenerator extends Generator {
+public class ExtenderGenerator extends ClassGenerator {
 
     private ListBuffer<JCTree> methodsBuffer;
     private Name clsName;
@@ -38,6 +35,8 @@ public class ExtenderGenerator extends Generator {
 
         // check if extender for this class is enabled in jobConfiguration.
         if(!isEnabled(apiClass.getFullName(), WhitelistRule.RuleItem.EXTENDER)) return;
+
+        initCompilationUnit();
 
         // Extender class will be public
         JCTree.JCModifiers modifiers = maker.Modifiers(Flags.PUBLIC);
@@ -54,7 +53,7 @@ public class ExtenderGenerator extends Generator {
             implementing.add(maker.Ident(names.fromString(apiClass.getName())));
         } else {
             pattern = configuration.getExtenderClassIdentifier();
-            extending = maker.Ident(names.fromString(apiClass.getName()));
+            extending = maker.Ident(names.fromString(simplifyName(apiClass.getName())));
         }
 
         clsName = names.fromString(generateName(pattern, apiClass.getName()));
@@ -68,9 +67,9 @@ public class ExtenderGenerator extends Generator {
         }
 
         JCTree.JCClassDecl currentClass = maker.ClassDef(modifiers, clsName, typeParameters, extending, implementing, methodsBuffer.toList());
-        currentPackage.defs = packageBuffer.toList();
-        String classFilePath = jobConfiguration.getOutputDir() + File.separatorChar + getPathToPackage(currentPackage.getPackageName().toString()) + File.separator + currentClass.getSimpleName() + ".java";
-        generateSourceFile(currentPackage, currentClass, classFilePath);
+        cuBuffer.add(currentClass);
+        String classFilePath = jobConfiguration.getOutputDir() + File.separatorChar + getPathToPackage(currentPackageName) + File.separator + currentClass.getSimpleName() + ".java";
+        generateSourceFile(classFilePath, currentClass);
     }
 
     private void visitConstructor(APIMethod constructor) {
@@ -82,7 +81,7 @@ public class ExtenderGenerator extends Generator {
 
         char paramName = 'a';
         for(String param : constructor.getParameters()) {
-            params.append(makeParameter(String.valueOf(paramName), param));
+            params.append(makeParameter(String.valueOf(paramName), simplifyName(param)));
             paramName++;
         }
 
@@ -96,23 +95,16 @@ public class ExtenderGenerator extends Generator {
 
     }
 
-    private String methodSignature(APIMethod constructor) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(constructor.getName());
-        sb.append(constructor.getName().substring(constructor.getName().lastIndexOf(".")));
-        sb.append('(');
-        // list of Params
-        Iterator iter = constructor.getParameters().iterator();
-        if (iter.hasNext()) {
-            sb.append(iter.next());
-            while (iter.hasNext()) {
-                sb.append(", ");
-                sb.append(iter.next());
-            }
-        }
-        sb.append(')');
-        String result = sb.toString();
-        return sb.toString();
+    @Override
+    public void visit(APIField apiField) {
+        //To change body of implemented methods use File | Settings | File Templates.
+
+    }
+
+
+    @Override
+    public void visit(APIMethod method) {
+
     }
 
     /**
@@ -128,16 +120,5 @@ public class ExtenderGenerator extends Generator {
             args.add(maker.Ident(param.getName()));
         }
         return maker.Apply(List.<JCExpression> nil(), exp, args.toList());
-    }
-
-    @Override
-    public void visit(APIField apiField) {
-        //To change body of implemented methods use File | Settings | File Templates.
-        
-    }
-
-    @Override
-    public void visit(APIMethod method) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 }

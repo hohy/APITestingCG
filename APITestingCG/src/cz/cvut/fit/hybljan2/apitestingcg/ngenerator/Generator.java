@@ -4,7 +4,6 @@ import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.main.JavaCompiler;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.Pretty;
 import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.*;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
@@ -13,8 +12,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorJobConfigu
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.util.Iterator;
 
 /**
  * Abstract class defining Generator for API
@@ -31,8 +29,8 @@ public abstract class Generator implements IAPIVisitor {
     protected Name.Table names;
     protected Symtab symtab;
 
-    protected JCTree.JCCompilationUnit currentPackage;
-    ListBuffer<JCTree> packageBuffer;
+    // defines package name for currently generated package content
+    protected String currentPackageName;
 
     public Generator(GeneratorConfiguration configuration) {
         Context ctx = new Context();
@@ -58,21 +56,14 @@ public abstract class Generator implements IAPIVisitor {
     /**
      * For every original package from API creates new test package where test classes will be placed.
      * New packages are named by original name of package and configuration string from jobConfiguration field.
-     * After visiting all classes in the package, directory for the package is created and classes from packageBuffer are generated.
+     * After visiting all classes in the package, directory for the package is created and classes from cuBuffer are generated.
      * @param apiPackage
      */
     @Override
     public void visit(APIPackage apiPackage) {
-
-        List<JCTree.JCAnnotation> packageAnnotations = List.nil();
-        String packageName = generateName(jobConfiguration.getOutputPackage(), apiPackage.getName());
-        JCTree.JCExpression packageNameExpression = maker.Ident(names.fromString(packageName));
-        packageBuffer = new ListBuffer<JCTree>();
-
-        currentPackage = maker.TopLevel(packageAnnotations, packageNameExpression, packageBuffer.toList());
-
+        currentPackageName = generateName(jobConfiguration.getOutputPackage(), apiPackage.getName());
         // create directory for package
-        File outputDir = new File(jobConfiguration.getOutputDir() + File.separatorChar + getPathToPackage(packageName));
+        File outputDir = new File(jobConfiguration.getOutputDir() + File.separatorChar + getPathToPackage(currentPackageName));
         if(!outputDir.exists()) outputDir.mkdirs();
 
         for(APIClass cls : apiPackage.getClasses()) {
@@ -143,20 +134,27 @@ public abstract class Generator implements IAPIVisitor {
         return enabled;
     }
 
-    protected void generateSourceFile(JCTree.JCCompilationUnit pkg, JCTree.JCClassDecl cls, String fileName) {
-        FileWriter fw = null;
-        try {
-            fw = new FileWriter(fileName);
-            Pretty pretty = new Pretty(fw, true);
-            pretty.printUnit(pkg, cls);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if(fw != null) try {
-                fw.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+    /**
+     * Generates unique identification string for method. Used for identification in blacklist and whitelist in configuration.
+     * @param method
+     * @return
+     */
+    protected String methodSignature(APIMethod method) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(method.getName());
+        sb.append(method.getName().substring(method.getName().lastIndexOf(".")));
+        sb.append('(');
+        // list of Params
+        Iterator iter = method.getParameters().iterator();
+        if (iter.hasNext()) {
+            sb.append(iter.next());
+            while (iter.hasNext()) {
+                sb.append(", ");
+                sb.append(iter.next());
             }
         }
+        sb.append(')');
+        String result = sb.toString();
+        return sb.toString();
     }
 }
