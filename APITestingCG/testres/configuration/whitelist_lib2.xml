@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+ 
+  <api source="sourcecode">
+    <id>testlib src</id>
+    <name>Test Library</name>
+    <version>0.1</version>
+    <path>testres/configuration/lib</path>
+    <classpath> </classpath>
+    <sourceVersion>1.7</sourceVersion>
+  </api>
+  
+  <generate>
+    <id>testlib src</id>
+    <output-directory>output/tests/configuration2</output-directory>
+    <output-package>%s</output-package>           
+
+    <whitelist>lib.ClassB.ClassB(int, int, java.io.File)</whitelist>
+        
+  </generate>
+  
+</configuration>
+

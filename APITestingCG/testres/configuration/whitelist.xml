@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+ 
+  <api source="sourcecode">
+    <id>testlib src</id>
+    <name>Test Library</name>
+    <version>0.1</version>
+    <path>/home/hohy/NetBeansProjects/APITestingCG/testlibs/Lib1/TestLib1/src</path>
+    <classpath> </classpath>
+    <sourceVersion>1.7</sourceVersion>
+  </api>
+  
+  <generate>
+    <id>testlib src</id>
+    <output-directory>output</output-directory>
+    <output-package>generated2.%s</output-package>           
+    <!-- Test only classes from package org.xml.sax.ext -->
+    <whitelist>org.xml.sax.ext</whitelist>
+    
+    <!-- Generate extender test for method addAttribute from class Attributes2Impl from package org.xml.sax.ext -->
+    <whitelist item="extender">Attributes2Impl.addAttribute</whitelist>
+    
+    <whitelist item="implementer">Attributes2Impl.Attributes2Impl</whitelist>
+    
+  </generate>
+  
+</configuration>
+
