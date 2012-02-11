@@ -142,7 +142,9 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         if(parameters.size() > 0) return sb.substring(0, sb.length()-1);
         else return "";
     }
-    
+
+    // Constructor should hava return type null. Void method raturns "void"
+    // and other methods retrun full name of class.
     public String getReturnType() {
         return returnType;
     }

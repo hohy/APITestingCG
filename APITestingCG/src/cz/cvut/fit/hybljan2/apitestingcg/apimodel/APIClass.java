@@ -41,7 +41,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     }
 
     public APIClass(JCClassDecl jccd, String packageName, Map<String, String> importsMap) {
-        this.name = jccd.name.toString();
+        this.name = jccd.type.toString();//jccd.name.toString();
         this.fullName = packageName + '.' + jccd.name.toString();
         this.methods = new TreeSet<APIMethod>(); 
         this.constructors = new TreeSet<APIMethod>();        

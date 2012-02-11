@@ -1,6 +1,8 @@
 package cz.cvut.fit.hybljan2.apitestingcg.ngenerator;
 
+import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Flags;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.ListBuffer;
@@ -25,6 +27,7 @@ public class ExtenderGenerator extends ClassGenerator {
 
     private ListBuffer<JCTree> methodsBuffer;
     private Name clsName;
+    private String visitingClassName;
 
     public ExtenderGenerator(GeneratorConfiguration configuration) {
         super(configuration);
@@ -56,6 +59,7 @@ public class ExtenderGenerator extends ClassGenerator {
             extending = maker.Ident(names.fromString(simplifyName(apiClass.getName())));
         }
 
+        visitingClassName = apiClass.getFullName();
         clsName = names.fromString(generateName(pattern, apiClass.getName()));
 
         for(APIMethod constructor : apiClass.getConstructors()) {
@@ -73,7 +77,7 @@ public class ExtenderGenerator extends ClassGenerator {
     }
 
     private void visitConstructor(APIMethod constructor) {
-        if(!isEnabled(methodSignature(constructor), WhitelistRule.RuleItem.EXTENDER)) return;
+        if(!isEnabled(methodSignature(constructor,visitingClassName), WhitelistRule.RuleItem.EXTENDER)) return;
         JCTree.JCModifiers modifiers = maker.Modifiers(Flags.PUBLIC);
         ListBuffer<JCTree.JCVariableDecl> params = new ListBuffer<JCTree.JCVariableDecl>();   
         Name methodName = names.names.init;
@@ -97,14 +101,38 @@ public class ExtenderGenerator extends ClassGenerator {
 
     @Override
     public void visit(APIField apiField) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        //To hange body of implemented methods use File | Settings | File Templates.
 
     }
 
-
+    /**
+     * Generates AST of method overriding some method from original class.
+     * @param method
+     */
     @Override
     public void visit(APIMethod method) {
+        if(!isEnabled(methodSignature(method, visitingClassName), WhitelistRule.RuleItem.EXTENDER)) return;
 
+        ListBuffer<JCTree.JCAnnotation> annotations = new ListBuffer<JCTree.JCAnnotation>();
+        annotations.add(maker.Annotation(maker.Type(symtab.overrideType), List.<JCExpression>nil()));
+        JCTree.JCModifiers modifiers = maker.Modifiers(Flags.PUBLIC, annotations.toList());  // overriding method can have public modifier although original method can be protected.
+        ListBuffer<JCTree.JCVariableDecl> params = new ListBuffer<JCTree.JCVariableDecl>();
+        Name methodName = names.fromString(method.getName());
+        JCTree.JCExpression methodType = maker.Type(symtab.voidType);
+
+        char paramName = 'a';
+        for(String param : method.getParameters()) {
+            params.append(makeParameter(String.valueOf(paramName), simplifyName(param)));
+            paramName++;
+        }
+
+        ListBuffer<JCTree.JCStatement> stmts = new ListBuffer<JCTree.JCStatement>();
+        JCTree.JCExpressionStatement stmt = maker.Exec(makeSuperCall(params.toList()));
+        stmts.add(stmt);
+        JCTree.JCBlock body = maker.Block(0, stmts.toList());
+
+        JCTree.JCMethodDecl cdecl = maker.MethodDef(modifiers, methodName, methodType, List.<JCTypeParameter>nil(), params.toList(), List.<JCExpression>nil(), body, null);
+        methodsBuffer.add(cdecl);
     }
 
     /**

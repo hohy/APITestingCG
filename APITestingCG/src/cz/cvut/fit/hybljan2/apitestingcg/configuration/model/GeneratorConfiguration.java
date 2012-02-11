@@ -30,6 +30,8 @@ public class GeneratorConfiguration {
     private String createInterfaceInstanceIdentifier = "create%s";
     // name of method which test fields in class.
     private String fieldTestIdentifier = "%s";
+    // name of field used for fields tests.
+    private String fieldTestVariableIdentifier = "%sValue";
 
 
     @XmlElement(name = "instance-identifier")
@@ -125,5 +127,14 @@ public class GeneratorConfiguration {
     @XmlElement(name = "field-test-identifier")
     public String getFieldTestIdentifier() {
         return fieldTestIdentifier;
+    }
+
+    @XmlElement(name = "field-test-variable-identifier")
+    public String getFieldTestVariableIdentifier() {
+        return fieldTestVariableIdentifier;
+    }
+
+    public void setFieldTestVariableIdentifier(String fieldTestVariableIdentifier) {
+        this.fieldTestVariableIdentifier = fieldTestVariableIdentifier;
     }
 }

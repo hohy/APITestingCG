@@ -2,8 +2,8 @@ package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.*;
-import cz.cvut.fit.hybljan2.apitestingcg.ngenerator.Generator;
-import cz.cvut.fit.hybljan2.apitestingcg.ngenerator.ExtenderGenerator;
+import cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.Generator;
+import cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.ExtenderGenerator;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
@@ -68,6 +68,75 @@ public class ExtenderGeneratorTest {
         File expected = new File("testres/extender_exp/ClassAExtender.java");
 
         FileAssert.assertEquals(expected, resultFile);
+
+    }
+
+    @Test
+    public void TestMethods() {
+
+        Generator generator = new ExtenderGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("extender");
+        job.setOutputDir("output/tests/extender");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.EXTENDER);
+        r.setRule("lib.ClassB");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
+
+        File resultFile = new File("output/tests/extender/test/lib/ClassBExtender.java");
+        assertTrue(resultFile.exists());
+
+        //File expected = new File("testres/extender_exp/ClassBExtender.java");
+
+        //FileAssert.assertEquals(expected, resultFile);
+
+    }
+
+    @Test
+    public void TestGenerics() {
+
+        Generator generator = new ExtenderGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("extender");
+        job.setOutputDir("output/tests/extender");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.EXTENDER);
+        r.setRule("lib.Box");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
+
+        File resultFile = new File("output/tests/extender/test/lib/BoxExtender.java");
+        assertTrue(resultFile.exists());
+
+        //File expected = new File("testres/extender_exp/ClassBExtender.java");
+
+        //FileAssert.assertEquals(expected, resultFile);
+
+    }
+
+    @Test
+    public void TestFields() {
+
+        Generator generator = new ExtenderGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("extender");
+        job.setOutputDir("output/tests/extender");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.EXTENDER);
+        r.setRule("lib.Fields");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
+
+        File resultFile = new File("output/tests/extender/test/lib/FieldsExtender.java");
+        assertTrue(resultFile.exists());
+
+        //File expected = new File("testres/extender_exp/ClassBExtender.java");
+
+        //FileAssert.assertEquals(expected, resultFile);
 
     }
 }

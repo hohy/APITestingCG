@@ -1,45 +1,48 @@
-package cz.cvut.fit.hybljan2.apitestingcg.ngenerator;
+package cz.cvut.fit.hybljan2.apitestingcg.cmgenerator;
 
-import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.code.Symtab;
-import com.sun.tools.javac.main.JavaCompiler;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.TreeMaker;
-import com.sun.tools.javac.util.*;
+import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JExpr;
+import com.sun.codemodel.JExpression;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorJobConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 
 /**
- * Abstract class defining Generator for API
+ * Created by IntelliJ IDEA.
  * User: Jan Hýbl
- * Date: 3.2.12
- * Time: 17:05
+ * Date: 10.2.12
+ * Time: 13:59
  */
 public abstract class Generator implements IAPIVisitor {
 
-    protected GeneratorJobConfiguration jobConfiguration;
     protected GeneratorConfiguration configuration;
+    protected GeneratorJobConfiguration jobConfiguration;
 
-    protected TreeMaker maker;
-    protected Name.Table names;
-    protected Symtab symtab;
+    protected JCodeModel cm = new JCodeModel();
 
     // defines package name for currently generated package content
     protected String currentPackageName;
 
     public Generator(GeneratorConfiguration configuration) {
-        Context ctx = new Context();
-        Options opt = Options.instance(ctx);
-        JavaCompiler compiler = JavaCompiler.instance(ctx);
-        maker = TreeMaker.instance(ctx);
-        names = new SharedNameTable(new com.sun.tools.javac.util.Names(ctx));
-        symtab  = Symtab.instance(ctx);
         this.configuration = configuration;
+    }
+
+    public void generate(API api, GeneratorJobConfiguration job) {
+        jobConfiguration = job;
+        // create directory for package
+        File outputDir = new File(jobConfiguration.getOutputDir());
+        if(!outputDir.exists()) outputDir.mkdirs();
+        visit(api);
+        try {
+            cm.build(outputDir);
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
     }
 
     /**
@@ -62,9 +65,6 @@ public abstract class Generator implements IAPIVisitor {
     @Override
     public void visit(APIPackage apiPackage) {
         currentPackageName = generateName(jobConfiguration.getOutputPackage(), apiPackage.getName());
-        // create directory for package
-        File outputDir = new File(jobConfiguration.getOutputDir() + File.separatorChar + getPathToPackage(currentPackageName));
-        if(!outputDir.exists()) outputDir.mkdirs();
 
         for(APIClass cls : apiPackage.getClasses()) {
             cls.accept(this);
@@ -76,40 +76,16 @@ public abstract class Generator implements IAPIVisitor {
 
     /**
      * Can be used for generating names of methods and classes. Replace "%s" sequence with {@code originalName}.
+     * If original class is generic, method remove generics from class name.
      * @param pattern         All "%s" sequences will be replaced with originalName
      * @param originalName    Original name of class/method.
      * @return                new name
      */
-    protected String generateName(String pattern, String originalName) {
-        return pattern.replaceAll("%s", originalName);
-    }
-
-    protected String getPathToPackage(String pkgName) {
-        return pkgName.replace('.', File.separatorChar);
-    }
-
-
-    /**
-     * Makes JCTree.method parameter declaration node with given name and type.
-     * @param name  Name of the parameter
-     * @param type  Name of type of the parameter.
-     * @return
-     */
-    protected JCTree.JCVariableDecl makeParameter(String name, String type) {
-        JCTree.JCModifiers mods = maker.Modifiers(Flags.PARAMETER);
-
-        //base type "String"
-        JCTree.JCIdent stringType = maker.Ident(names.fromString(type));
-
-        //parameter name
-        Name paramName = names.fromString(name);
-
-        return maker.VarDef(mods, paramName, stringType, null);
-    }
-
-    public void generate(API api, GeneratorJobConfiguration job) {
-        jobConfiguration = job;
-        visit(api);
+    protected static String generateName(String pattern, String originalName) {
+        if(originalName.contains("<") && originalName.contains(">")) {
+            String name = originalName.substring(0, originalName.indexOf("<"));
+            return pattern.replaceAll("%s", name);
+        } else return pattern.replaceAll("%s", originalName);
     }
 
     /**
@@ -161,5 +137,21 @@ public abstract class Generator implements IAPIVisitor {
         return sb.toString();
     }
 
+    /**
+     * Returns default value for given type.
+     * @param name
+     * @return
+     */
+    protected JExpression getDefaultPrimitiveValue(String name) {
+        if(name.equals("byte")) return JExpr.lit(0);
+        if(name.equals("short")) return JExpr.lit(0);
+        if(name.equals("int")) return JExpr.lit(0);
+        if(name.equals("long")) return JExpr.lit(0);
+        if(name.equals("float")) return JExpr.lit(0.0);
+        if(name.equals("double")) return JExpr.lit(0.0);
+        if(name.equals("boolean")) return JExpr.lit(false);
+        if(name.equals("char")) return JExpr.lit('a');
+        return JExpr._null();
+    }
 
 }
