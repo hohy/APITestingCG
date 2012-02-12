@@ -25,16 +25,22 @@ public class ExtenderGenerator extends ClassGenerator{
 
         try {
             visitingClass = apiClass;
+            int classMods;
+            if(visitingClass.getModifiers().contains(APIModifier.Modifier.ABSTRACT)
+                    || apiClass.getType() == APIItem.Kind.INTERFACE) {
+                classMods = JMod.PUBLIC | JMod.ABSTRACT;
+            } else {
+                classMods = JMod.PUBLIC;
+            }
 
             // if tested item is interface, create Implementator, otherwise Extender
             String pattern = null;
             if(apiClass.getType() == APIItem.Kind.INTERFACE) {
-                cls = cm._class(currentPackageName + '.' + generateName(configuration.getImplementerClassIdentifier(), apiClass.getName()));
-                cls._implements(cm.ref(apiClass.getFullName()));
+                cls = cm._class(classMods, currentPackageName + '.' + generateName(configuration.getImplementerClassIdentifier(), apiClass.getName()), ClassType.CLASS);                cls._implements(getClassRef(apiClass.getFullName()));
             } else {
                 String newname = generateName(configuration.getExtenderClassIdentifier(), apiClass.getName());
-                cls = cm._class(currentPackageName + '.' + generateName(configuration.getExtenderClassIdentifier(), apiClass.getName()));
-                cls._extends(cm.ref(apiClass.getFullName()));
+                cls = cm._class(classMods, currentPackageName + '.' + generateName(configuration.getExtenderClassIdentifier(), apiClass.getName()), ClassType.CLASS);
+                cls._extends(getClassRef(apiClass.getFullName()));
             }
             if(apiClass.getGenerics() != null) {
                 cls.generify(apiClass.getGenerics());
@@ -77,7 +83,7 @@ public class ExtenderGenerator extends ClassGenerator{
         // define params of the constructor.
         char paramName = 'a';
         for(String param : constructor.getParameters()) {
-            JType type = cm.ref(param);//cm.directClass(param);
+            JType type = getClassRef(param);//cm.directClass(param);
 
             constr.param(type, String.valueOf(paramName));
             superInv.arg(JExpr.ref(String.valueOf(paramName)));
@@ -98,11 +104,11 @@ public class ExtenderGenerator extends ClassGenerator{
 
         if(apiField.getModifiers().contains(APIModifier.Modifier.FINAL)) {
             // create new local variable and assing original value to it
-            fieldsMethodBlock.decl(cm.ref(apiField.getVarType()), apiField.getName(), JExpr.ref(apiField.getName()));
+            fieldsMethodBlock.decl(getClassRef(apiField.getVarType()), apiField.getName(), JExpr.ref(apiField.getName()));
         } else {
             // create new field of same type as original
             String fldName = generateName(configuration.getFieldTestVariableIdentifier(), apiField.getName());
-            JVar var = fieldsMethodBlock.decl(cm.ref(apiField.getVarType()),fldName,getDefaultPrimitiveValue(apiField.getVarType()));
+            JVar var = fieldsMethodBlock.decl(getClassRef(apiField.getVarType()),fldName,getDefaultPrimitiveValue(apiField.getVarType()));
             fieldsMethodBlock.assign(JExpr.ref(apiField.getName()), var);
         }
         fieldsMethodBlock.directStatement(" ");
@@ -115,7 +121,7 @@ public class ExtenderGenerator extends ClassGenerator{
         if(!isEnabled(methodSignature(method,visitingClass.getFullName()), WhitelistRule.RuleItem.EXTENDER)) return;
 
         // define new method
-        JMethod mthd = cls.method(JMod.PUBLIC, cm.ref(method.getReturnType()),method.getName());
+        JMethod mthd = cls.method(JMod.PUBLIC, getClassRef(method.getReturnType()),method.getName());
 
         // set body of the method. = return super.method(...);
         mthd.body()._throw(JExpr._new(cm.ref(UnsupportedOperationException.class)));
@@ -130,7 +136,7 @@ public class ExtenderGenerator extends ClassGenerator{
         // add params to method. New method has same params as overridden method.
         char paramName = 'a';
         for(String param : method.getParameters()) {
-            JType type = cm.ref(param);
+            JType type = getClassRef(param);
             mthd.param(type, String.valueOf(paramName));
             //sinv.arg(JExpr.ref(String.valueOf(paramName)));
             paramName++;
@@ -141,7 +147,7 @@ public class ExtenderGenerator extends ClassGenerator{
 
         // add list of thrown methods. Must be same as list of original class
         for(String thrown : method.getThrown()) {
-            mthd._throws(cm.ref(thrown));
+            mthd._throws(getClassRef(thrown));
         }
                 
     }

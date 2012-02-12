@@ -139,4 +139,27 @@ public class ExtenderGeneratorTest {
         //FileAssert.assertEquals(expected, resultFile);
 
     }
+
+    @Test
+    public void TestAbstract() {
+
+        Generator generator = new ExtenderGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("extender");
+        job.setOutputDir("output/tests/extender");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.EXTENDER);
+        r.setRule("lib.AbstractClass");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
+
+        File resultFile = new File("output/tests/extender/test/lib/AbstractClassExtender.java");
+        assertTrue(resultFile.exists());
+
+        //File expected = new File("testres/extender_exp/ClassBExtender.java");
+
+        //FileAssert.assertEquals(expected, resultFile);
+
+    }
 }

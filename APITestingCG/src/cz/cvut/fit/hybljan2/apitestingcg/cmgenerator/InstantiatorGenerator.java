@@ -77,7 +77,7 @@ public class InstantiatorGenerator extends ClassGenerator {
      * case. Only in cases when constructor is unique.
      * @param constructor
      */
-    private void visitConstructor(APIMethod constructor) {
+    public void visitConstructor(APIMethod constructor) {
         // Check if constructor is enabled in job configuration.
         if(!isEnabled(methodSignature(constructor,visitingClass.getFullName()), WhitelistRule.RuleItem.INSTANTIATOR)) return;
 
