@@ -1,0 +1,17 @@
+<component name="libraryTable">
+  <library name="junit-addons">
+    <CLASSES>
+      <root url="file:///media/data/javalibs/junit-addons-1.4" />
+      <root url="file:///media/data/javalibs/junit-addons-1.4" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="file:///media/data/javalibs/junit-addons-1.4/api" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="file:///media/data/javalibs/junit-addons-1.4" />
+      <root url="file:///media/data/javalibs/junit-addons-1.4" />
+    </SOURCES>
+    <jarDirectory url="file:///media/data/javalibs/junit-addons-1.4" recursive="false" />
+    <jarDirectory url="file:///media/data/javalibs/junit-addons-1.4" recursive="false" type="SOURCES" />
+  </library>
+</component>
