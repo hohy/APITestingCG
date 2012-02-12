@@ -80,7 +80,7 @@ public class SourceTreeScanner extends TreeScanner{
             
                 APIMethod mth = new APIMethod(jcmd, currentClassImports, types);
                 if(mth.getType() == Kind.CONSTRUCTOR){ 
-                    mth.setName(currentClass.getFullName());
+                    mth.setName(currentClass.getName());
                     currentClass.addConstructor(mth);                    
                 }
                 else currentClass.addMethod(mth);

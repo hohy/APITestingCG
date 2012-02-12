@@ -27,6 +27,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     private List<String> implementing = new LinkedList<String>();
     // Full name of class (contains package name) - expample: java.util.Set
     private String fullName;
+    private String generics;
 
     public APIClass(String name) {
         if(name.contains(".")) this.name = name.substring(name.lastIndexOf('.')+1);
@@ -41,8 +42,9 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     }
 
     public APIClass(JCClassDecl jccd, String packageName, Map<String, String> importsMap) {
-        this.name = jccd.type.toString();//jccd.name.toString();
-        this.fullName = packageName + '.' + jccd.name.toString();
+        this.name = jccd.name.toString();
+        this.fullName = packageName + "." + jccd.getSimpleName();
+        if(jccd.typarams.size() > 0) this.generics = jccd.typarams.toString();
         this.methods = new TreeSet<APIMethod>(); 
         this.constructors = new TreeSet<APIMethod>();        
         this.kind = getKind(jccd.getKind());
@@ -169,6 +171,10 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
 
     public void setExtending(String extending) {
         this.extending = extending;
+    }
+
+    public String getGenerics() {
+        return generics;
     }
 
     /**

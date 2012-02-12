@@ -3,10 +3,7 @@ package cz.cvut.fit.hybljan2.apitestingcg.cmgenerator;
 import com.sun.codemodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
-import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorJobConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
-
-import java.io.File;
 
 /**
  * Created by IntelliJ IDEA.
@@ -15,10 +12,6 @@ import java.io.File;
  * Time: 14:11
  */
 public class ExtenderGenerator extends ClassGenerator{
-
-    private JDefinedClass cls;
-    private String visitingClassName;
-    private JBlock fieldsMethodBlock;
 
     public ExtenderGenerator(GeneratorConfiguration configuration) {
         super(configuration);
@@ -37,15 +30,14 @@ public class ExtenderGenerator extends ClassGenerator{
             String pattern = null;
             if(apiClass.getType() == APIItem.Kind.INTERFACE) {
                 cls = cm._class(currentPackageName + '.' + generateName(configuration.getImplementerClassIdentifier(), apiClass.getName()));
-                cls._implements(cm.directClass(apiClass.getFullName()));
+                cls._implements(cm.ref(apiClass.getFullName()));
             } else {
                 String newname = generateName(configuration.getExtenderClassIdentifier(), apiClass.getName());
                 cls = cm._class(currentPackageName + '.' + generateName(configuration.getExtenderClassIdentifier(), apiClass.getName()));
-                cls._extends(cm.directClass(apiClass.getFullName()));
+                cls._extends(cm.ref(apiClass.getFullName()));
             }
-            if(apiClass.getName().contains("<")) {
-                String generics = apiClass.getName().substring(apiClass.getName().indexOf("<") + 1, apiClass.getName().length() - 1);
-                cls.generify(generics);
+            if(apiClass.getGenerics() != null) {
+                cls.generify(apiClass.getGenerics());
             }
 
             // visit all constructors
@@ -57,15 +49,16 @@ public class ExtenderGenerator extends ClassGenerator{
             for(APIMethod method : apiClass.getMethods()) {
                 method.accept(this);
             }
-            
-            JMethod fieldsMethod = cls.method(JMod.PUBLIC,cm.VOID,"fields");
-            fieldsMethodBlock = fieldsMethod.body();
 
+            // create method for fields test if there are any field
+            if(apiClass.getFields().size() > 0) {
+                JMethod fieldsMethod = cls.method(JMod.PUBLIC,cm.VOID,"fields");
+                fieldsMethodBlock = fieldsMethod.body();
+            }
             // visit all fields
             for(APIField field : apiClass.getFields()) {
                 field.accept(this);
             }
-
         } catch (JClassAlreadyExistsException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
@@ -105,12 +98,12 @@ public class ExtenderGenerator extends ClassGenerator{
 
         if(apiField.getModifiers().contains(APIModifier.Modifier.FINAL)) {
             // create new local variable and assing original value to it
-            fieldsMethodBlock.decl(cm.ref(apiField.getVarType()),apiField.getName(),JExpr.ref(apiField.getName()));
+            fieldsMethodBlock.decl(cm.ref(apiField.getVarType()), apiField.getName(), JExpr.ref(apiField.getName()));
         } else {
             // create new field of same type as original
             String fldName = generateName(configuration.getFieldTestVariableIdentifier(), apiField.getName());
             JVar var = fieldsMethodBlock.decl(cm.ref(apiField.getVarType()),fldName,getDefaultPrimitiveValue(apiField.getVarType()));
-            fieldsMethodBlock.assign(JExpr.ref(apiField.getName()),var);
+            fieldsMethodBlock.assign(JExpr.ref(apiField.getName()), var);
         }
         fieldsMethodBlock.directStatement(" ");
         //fieldsMethod.body().add(JExpr.)
