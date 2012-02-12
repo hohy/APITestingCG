@@ -106,7 +106,7 @@ public class ExtenderGenerator extends ClassGenerator{
             fieldsMethodBlock.assign(JExpr.ref(apiField.getName()), var);
         }
         fieldsMethodBlock.directStatement(" ");
-        //fieldsMethod.body().add(JExpr.)
+
     }
 
     @Override

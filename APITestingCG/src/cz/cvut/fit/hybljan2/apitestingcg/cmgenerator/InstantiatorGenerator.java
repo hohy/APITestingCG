@@ -100,16 +100,33 @@ public class InstantiatorGenerator extends ClassGenerator {
         addCreateInstanceMethod(constructor.getName(), generateName(configuration.getCreateInstanceIdentifier(), constructor.getName()), constructor.getParameters(), true);
     }
 
+    /**
+     * Generates test of the field.
+     * Final fields are tested by assigning their value to new field of same type. Ex: {@code int x = x;}. New
+     * local variable x hides original super field x, but it doesn't mind.
+     * Non-final fields are tested by assigning some value to them. Ex: {@codeFile f = null; fileField = f;}
+     * @param apiField
+     */
     @Override
     public void visit(APIField apiField) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        if(apiField.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
+            if(apiField.getModifiers().contains(APIModifier.Modifier.FINAL)) {
+                // create new local variable and assing original value to it
+                fieldsMethodBlock.decl(getClassRef(apiField.getVarType()), apiField.getName(), JExpr.ref(apiField.getName()));
+            } else {
+                // create new field of same type as original
+                String fldName = generateName(configuration.getFieldTestVariableIdentifier(), apiField.getName());
+                JVar var = fieldsMethodBlock.decl(getClassRef(apiField.getVarType()),fldName,getDefaultPrimitiveValue(apiField.getVarType()));
+                fieldsMethodBlock.assign(JExpr.ref(apiField.getName()), var);
+            }
+            fieldsMethodBlock.directStatement(" ");
+        }
     }
 
     @Override
     public void visit(APIMethod method) {
         // is method enabled in configuration
         if(!isEnabled(methodSignature(method,visitingClass.getFullName()), WhitelistRule.RuleItem.INSTANTIATOR)) return;
-
 
         // if it is possible, create null version of previous method caller
         // method without parameters cant be called with null parameters.
