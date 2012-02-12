@@ -24,7 +24,7 @@ public class ExtenderGenerator extends ClassGenerator{
         if(!isEnabled(apiClass.getFullName(), WhitelistRule.RuleItem.EXTENDER)) return;
 
         try {
-            visitingClassName = apiClass.getFullName();
+            visitingClass = apiClass;
 
             // if tested item is interface, create Implementator, otherwise Extender
             String pattern = null;
@@ -52,7 +52,7 @@ public class ExtenderGenerator extends ClassGenerator{
 
             // create method for fields test if there are any field
             if(apiClass.getFields().size() > 0) {
-                JMethod fieldsMethod = cls.method(JMod.PUBLIC,cm.VOID,"fields");
+                JMethod fieldsMethod = cls.method(JMod.PUBLIC,cm.VOID,configuration.getFieldTestIdentifier());
                 fieldsMethodBlock = fieldsMethod.body();
             }
             // visit all fields
@@ -66,7 +66,7 @@ public class ExtenderGenerator extends ClassGenerator{
 
     private void visitConstructor(APIMethod constructor) {
         // Check if constructor is enabled in job configuration.
-        if(!isEnabled(methodSignature(constructor,visitingClassName), WhitelistRule.RuleItem.EXTENDER)) return;
+        if(!isEnabled(methodSignature(constructor,visitingClass.getFullName()), WhitelistRule.RuleItem.EXTENDER)) return;
 
         // create new constructor
         JMethod constr = cls.constructor(JMod.PUBLIC);
@@ -112,7 +112,7 @@ public class ExtenderGenerator extends ClassGenerator{
     @Override
     public void visit(APIMethod method) {
         // check if method is enabled in configuration.
-        if(!isEnabled(methodSignature(method,visitingClassName), WhitelistRule.RuleItem.EXTENDER)) return;
+        if(!isEnabled(methodSignature(method,visitingClass.getFullName()), WhitelistRule.RuleItem.EXTENDER)) return;
 
         // define new method
         JMethod mthd = cls.method(JMod.PUBLIC, cm.ref(method.getReturnType()),method.getName());

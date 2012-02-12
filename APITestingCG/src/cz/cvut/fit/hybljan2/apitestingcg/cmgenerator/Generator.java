@@ -23,7 +23,7 @@ public abstract class Generator implements IAPIVisitor {
     protected GeneratorConfiguration configuration;
     protected GeneratorJobConfiguration jobConfiguration;
 
-    protected JCodeModel cm = new JCodeModel();
+    protected JCodeModel cm;
 
     // defines package name for currently generated package content
     protected String currentPackageName;
@@ -34,6 +34,7 @@ public abstract class Generator implements IAPIVisitor {
 
     public void generate(API api, GeneratorJobConfiguration job) {
         jobConfiguration = job;
+        cm = new JCodeModel();
         // create directory for package
         File outputDir = new File(jobConfiguration.getOutputDir());
         if(!outputDir.exists()) outputDir.mkdirs();
@@ -73,7 +74,6 @@ public abstract class Generator implements IAPIVisitor {
 
     }
 
-
     /**
      * Can be used for generating names of methods and classes. Replace "%s" sequence with {@code originalName}.
      * If original class is generic, method remove generics from class name.
@@ -84,8 +84,8 @@ public abstract class Generator implements IAPIVisitor {
     protected static String generateName(String pattern, String originalName) {
         if(originalName.contains("<") && originalName.contains(">")) {
             String name = originalName.substring(0, originalName.indexOf("<"));
-            return pattern.replaceAll("%s", name);
-        } else return pattern.replaceAll("%s", originalName);
+            return pattern.replaceAll("%s", simplifyName(name));
+        } else return pattern.replaceAll("%s", simplifyName(originalName));
     }
 
     /**
@@ -142,7 +142,7 @@ public abstract class Generator implements IAPIVisitor {
      * @param name
      * @return
      */
-    protected JExpression getDefaultPrimitiveValue(String name) {
+    public JExpression getDefaultPrimitiveValue(String name) {
         if(name.equals("byte")) return JExpr.lit(0);
         if(name.equals("short")) return JExpr.lit(0);
         if(name.equals("int")) return JExpr.lit(0);
@@ -154,4 +154,9 @@ public abstract class Generator implements IAPIVisitor {
         return JExpr._null();
     }
 
+
+    public static String simplifyName(String originalName) {
+        if(originalName.contains(".")) return originalName.substring(originalName.lastIndexOf(".")+1);
+        return originalName;
+    }
 }

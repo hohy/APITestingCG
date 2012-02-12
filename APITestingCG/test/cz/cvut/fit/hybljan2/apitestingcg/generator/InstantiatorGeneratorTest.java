@@ -18,6 +18,8 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 
+import static cz.cvut.fit.hybljan2.apitestingcg.generator.Generator.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -71,6 +73,38 @@ public class InstantiatorGeneratorTest {
 
         //FileAssert.assertEquals(expected, resultFile);
 
+    }
+
+    /**
+     * Test of generating simple constructor for extender class
+     */
+    @Test
+    public void TestConstructors2() {
+
+        cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("instantiator");
+        job.setOutputDir("output/tests/instantiator");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.INSTANTIATOR);
+        r.setRule("lib.Constructors");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
+
+        File resultFile = new File("output/tests/instantiator/test/lib/ConstructorsInstantiator.java");
+        assertTrue(resultFile.exists());
+
+        //File expected = new File("testres/extender_exp/ClassAExtender.java");
+
+        //FileAssert.assertEquals(expected, resultFile);
+
+    }
+    
+    @Test
+    public void testSimplifyName() {
+        assertEquals("List", cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.Generator.simplifyName("java.util.List"));
+        assertEquals("Set", cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.Generator.simplifyName("Set"));
     }
 
 }

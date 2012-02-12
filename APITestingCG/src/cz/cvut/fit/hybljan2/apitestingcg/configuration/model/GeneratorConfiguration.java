@@ -29,7 +29,7 @@ public class GeneratorConfiguration {
     // same as createInstanceIdentifier, but method test creating of implemented interface instance.
     private String createInterfaceInstanceIdentifier = "create%s";
     // name of method which test fields in class.
-    private String fieldTestIdentifier = "%s";
+    private String fieldTestIdentifier = "fields";
     // name of field used for fields tests.
     private String fieldTestVariableIdentifier = "%sValue";
 
