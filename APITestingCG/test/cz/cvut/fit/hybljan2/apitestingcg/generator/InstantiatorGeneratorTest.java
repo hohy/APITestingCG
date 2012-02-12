@@ -107,4 +107,30 @@ public class InstantiatorGeneratorTest {
         assertEquals("Set", cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.Generator.simplifyName("Set"));
     }
 
+    /**
+     * Test of generating simple constructor for extender class
+     */
+    @Test
+    public void TestMethods() {
+
+        cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("instantiator");
+        job.setOutputDir("output/tests/instantiator");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.INSTANTIATOR);
+        r.setRule("lib.Methods");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
+
+        File resultFile = new File("output/tests/instantiator/test/lib/MethodsInstantiator.java");
+        assertTrue(resultFile.exists());
+
+        //File expected = new File("testres/extender_exp/ClassAExtender.java");
+
+        //FileAssert.assertEquals(expected, resultFile);
+
+    }
+
 }

@@ -4,6 +4,7 @@ import com.sun.codemodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIField;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIMethod;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 
@@ -106,7 +107,23 @@ public class InstantiatorGenerator extends ClassGenerator {
 
     @Override
     public void visit(APIMethod method) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        // is method enabled in configuration
+        if(!isEnabled(methodSignature(method,visitingClass.getFullName()), WhitelistRule.RuleItem.INSTANTIATOR)) return;
+
+
+        // if it is possible, create null version of previous method caller
+        // method without parameters cant be called with null parameters.
+
+        // Check if there is no other same method caller
+        boolean unique = true;
+
+        if(method.getParameters().isEmpty()) unique = false;
+        else for(APIMethod m : visitingClass.getMethods()) {
+            // if the tested constructor is equal to c constructor, it's not unique.
+            unique = !((method.getName().equals(m.getName()))&&(equalsNullParams(m.getParameters(), method.getParameters())));
+        }
+
+        addMethodCaller(method,unique);
     }
 
     private boolean equalsNullParams(List<String> paramsA, List<String> paramsB) {
@@ -122,16 +139,51 @@ public class InstantiatorGenerator extends ClassGenerator {
     }
     
     private void addCreateInstanceMethod(String instanceClassName, String methodName, List<String> args, boolean nullParams) {
-        JClass returnCls = cm.directClass(instanceClassName);
+        JClass returnCls = getClassRef(instanceClassName);
         JMethod result = cls.method(JMod.PUBLIC, returnCls, methodName);
         JInvocation newInstance = JExpr._new(returnCls);
         char argName = 'a';
         for(String arg : args) {
-            result.param(cm.ref(arg), String.valueOf(argName));
+            result.param(getClassRef(arg), String.valueOf(argName));
             if(nullParams) newInstance.arg(getDefaultPrimitiveValue(arg));
             else newInstance.arg(JExpr.ref(String.valueOf(argName)));
             argName++;
         }
         result.body()._return(newInstance);
     }
+
+    private void addMethodCaller(APIMethod method, boolean nullParams) {
+
+        JClass returnCls = getClassRef(method.getReturnType());
+
+        JMethod caller = cls.method(JMod.PUBLIC, returnCls, generateName(configuration.getMethodCallIdentifier(),method.getName()));
+        JInvocation methodCall;
+
+        JInvocation nullMethodCall;
+
+        // call static method?
+        if(method.getModifiers().contains(APIModifier.Modifier.STATIC)) {
+            JClass instance = getClassRef(visitingClass.getFullName());
+            methodCall = instance.staticInvoke(method.getName());
+            nullMethodCall = instance.staticInvoke(method.getName());
+        } else {
+            caller.param(getClassRef(visitingClass.getFullName()),configuration.getInstanceIdentifier());
+            JExpression instance = JExpr.ref(configuration.getInstanceIdentifier());
+            methodCall = JExpr.invoke(instance,method.getName());
+            nullMethodCall = JExpr.invoke(instance,method.getName());
+        }
+
+        char argName = 'a';
+        for(String arg : method.getParameters()) {
+            caller.param(getClassRef(arg), String.valueOf(argName));
+            methodCall.arg(getDefaultPrimitiveValue(arg));
+            nullMethodCall.arg(JExpr.ref(String.valueOf(argName)));
+            argName++;
+        }
+        caller.body()._return(methodCall);
+        if(nullParams) {
+            JMethod nullCaller = cls.method(JMod.PUBLIC, returnCls, generateName(configuration.getMethodNullCallIdentifier(),method.getName()));
+            nullCaller.body()._return(nullMethodCall);
+        }
+    }    
 }

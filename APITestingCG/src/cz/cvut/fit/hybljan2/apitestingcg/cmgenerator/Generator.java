@@ -1,5 +1,6 @@
 package cz.cvut.fit.hybljan2.apitestingcg.cmgenerator;
 
+import com.sun.codemodel.JClass;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JExpr;
 import com.sun.codemodel.JExpression;
@@ -10,7 +11,9 @@ import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -24,6 +27,7 @@ public abstract class Generator implements IAPIVisitor {
     protected GeneratorJobConfiguration jobConfiguration;
 
     protected JCodeModel cm;
+    private Map<String, JClass> classMap;
 
     // defines package name for currently generated package content
     protected String currentPackageName;
@@ -35,6 +39,7 @@ public abstract class Generator implements IAPIVisitor {
     public void generate(API api, GeneratorJobConfiguration job) {
         jobConfiguration = job;
         cm = new JCodeModel();
+        classMap = new HashMap<String, JClass>();
         // create directory for package
         File outputDir = new File(jobConfiguration.getOutputDir());
         if(!outputDir.exists()) outputDir.mkdirs();
@@ -154,6 +159,16 @@ public abstract class Generator implements IAPIVisitor {
         return JExpr._null();
     }
 
+    protected  JClass getClassRef(String className) {
+        if(classMap.containsKey(className)) {
+            return classMap.get(className);
+        } else {
+            JClass classReference = cm.ref(className);
+            classMap.put(className, classReference);
+            return classReference;
+        }
+    }
+    
 
     public static String simplifyName(String originalName) {
         if(originalName.contains(".")) return originalName.substring(originalName.lastIndexOf(".")+1);
