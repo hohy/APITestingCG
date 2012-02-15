@@ -20,6 +20,9 @@ public class ExtenderGenerator extends ClassGenerator{
     @Override
     public void visit(APIClass apiClass) {
 
+        // extender can be generated for classes and interfaces
+        if((!apiClass.getType().equals(APIItem.Kind.CLASS)) && (!apiClass.getType().equals(APIItem.Kind.INTERFACE))) return;
+
         // check if extender for this class is enabled in jobConfiguration.
         if(!isEnabled(apiClass.getFullName(), WhitelistRule.RuleItem.EXTENDER)) return;
 

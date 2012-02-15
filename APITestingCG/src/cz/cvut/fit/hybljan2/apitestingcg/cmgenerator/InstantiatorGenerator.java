@@ -1,10 +1,7 @@
 package cz.cvut.fit.hybljan2.apitestingcg.cmgenerator;
 
 import com.sun.codemodel.*;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIField;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIMethod;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 
@@ -25,6 +22,10 @@ public class InstantiatorGenerator extends ClassGenerator {
 
     @Override
     public void visit(APIClass apiClass) {
+
+        // instantiator can be generated for classes and interfaces
+        if((!apiClass.getType().equals(APIItem.Kind.CLASS)) && (!apiClass.getType().equals(APIItem.Kind.INTERFACE))) return;
+
         // check if extender for this class is enabled in jobConfiguration.
         if(!isEnabled(apiClass.getFullName(), WhitelistRule.RuleItem.INSTANTIATOR)) return;
 

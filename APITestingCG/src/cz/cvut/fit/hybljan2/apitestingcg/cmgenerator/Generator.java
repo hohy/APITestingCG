@@ -70,7 +70,7 @@ public abstract class Generator implements IAPIVisitor {
      */
     @Override
     public void visit(APIPackage apiPackage) {
-        currentPackageName = generateName(jobConfiguration.getOutputPackage(), apiPackage.getName());
+        currentPackageName = jobConfiguration.getOutputPackage().replaceAll("%s", apiPackage.getName());
 
         for(APIClass cls : apiPackage.getClasses()) {
             cls.accept(this);

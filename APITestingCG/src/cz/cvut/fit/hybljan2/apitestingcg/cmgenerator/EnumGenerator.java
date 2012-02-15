@@ -3,6 +3,7 @@ package cz.cvut.fit.hybljan2.apitestingcg.cmgenerator;
 import com.sun.codemodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIField;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIItem;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIMethod;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
@@ -21,6 +22,8 @@ public class EnumGenerator extends InstantiatorGenerator {
 
     @Override
     public void visit(APIClass apiClass) {
+        // enum test should be generated only for Enums
+        if(!apiClass.getType().equals(APIItem.Kind.ENUM)) return;
 
         // check if extender for this class is enabled in jobConfiguration.
         if(!isEnabled(apiClass.getFullName(), WhitelistRule.RuleItem.INSTANTIATOR)) return;

@@ -1,5 +1,9 @@
 package cz.cvut.fit.hybljan2.apitestingcg;
 
+import cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.EnumGenerator;
+import cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.ExtenderGenerator;
+import cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.Generator;
+import cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.InstantiatorGenerator;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.ConfigurationReader;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ApiViewConfiguration;
@@ -12,6 +16,8 @@ import cz.cvut.fit.hybljan2.apitestingcg.scanner.ByteCodeScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.view.APIViewForm;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -61,11 +67,24 @@ public class APITestingCG {
             new APIViewForm(apiMap.get(ac.getApiId())).setVisible(true);
         }
 
-        GeneratorDirector gd = new GeneratorDirector(configuration.getGeneratorConfiguration());
+        Generator[] generators = {
+                new ExtenderGenerator(configuration.getGeneratorConfiguration()),
+                new InstantiatorGenerator(configuration.getGeneratorConfiguration()),
+                new EnumGenerator(configuration.getGeneratorConfiguration())
+        };
 
-        for(GeneratorJobConfiguration gc : configuration.getGeneratorJobConfigurations()) {
-            System.out.println("Generating code for api " + gc.getApiId());
-            gd.generate(apiMap.get(gc.getApiId()), gc);
+        for(GeneratorJobConfiguration gjc : configuration.getGeneratorJobConfigurations()) {
+            System.out.println("Generating code for api " + gjc.getApiId());
+            for(Generator generator : generators) {
+                generator.generate(apiMap.get(gjc.getApiId()), gjc);
+            }
         }
+
+//        GeneratorDirector gd = new GeneratorDirector(configuration.getGeneratorConfiguration());
+//
+//        for(GeneratorJobConfiguration gc : configuration.getGeneratorJobConfigurations()) {
+//            System.out.println("Generating code for api " + gc.getApiId());
+//            gd.generate(apiMap.get(gc.getApiId()), gc);
+//        }
     }
 }
