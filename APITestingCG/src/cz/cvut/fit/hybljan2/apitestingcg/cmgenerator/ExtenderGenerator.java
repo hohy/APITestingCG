@@ -26,6 +26,9 @@ public class ExtenderGenerator extends ClassGenerator{
         // check if extender for this class is enabled in jobConfiguration.
         if(!isEnabled(apiClass.getFullName(), WhitelistRule.RuleItem.EXTENDER)) return;
 
+        // check if extender has at least one protected or public constructor. If it hasn't, extender can't be generated.
+        if(apiClass.getConstructors().isEmpty()) return;
+
         try {
             visitingClass = apiClass;
             int classMods;
@@ -128,20 +131,12 @@ public class ExtenderGenerator extends ClassGenerator{
 
         // set body of the method. = return super.method(...);
         mthd.body()._throw(JExpr._new(cm.ref(UnsupportedOperationException.class)));
-//        JInvocation sinv = JExpr.invoke(JExpr._super(),mthd);
-//        if(method.getReturnType().equals("void")) {
-//            mthd.body().add(sinv);
-//        } else {
-//            mthd.body()._return(sinv);
-//        }
-
 
         // add params to method. New method has same params as overridden method.
         char paramName = 'a';
         for(String param : method.getParameters()) {
             JType type = getClassRef(param);
             mthd.param(type, String.valueOf(paramName));
-            //sinv.arg(JExpr.ref(String.valueOf(paramName)));
             paramName++;
         }
 

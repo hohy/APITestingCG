@@ -6,6 +6,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfigurat
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -98,7 +99,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         }
 
         // generate null constructor (same as previous, but params are NULLs).
-        addCreateInstanceMethod(constructor.getName(), generateName(configuration.getCreateInstanceIdentifier(), constructor.getName()), constructor.getParameters(), true);
+        addCreateInstanceMethod(constructor.getReturnType(), generateName(configuration.getCreateInstanceIdentifier(), constructor.getName()), constructor.getParameters(), true);
     }
 
     /**
@@ -159,7 +160,7 @@ public class InstantiatorGenerator extends ClassGenerator {
     private void addCreateInstanceMethod(String instanceClassName, String methodName, List<String> args, boolean nullParams) {
         JClass returnCls = getClassRef(instanceClassName);
         JMethod result = cls.method(JMod.PUBLIC, returnCls, methodName);
-        JInvocation newInstance = JExpr._new(returnCls);
+        JInvocation newInstance = JExpr._new(getClassRef(visitingClass.getName()));
         char argName = 'a';
         for(String arg : args) {
             result.param(getClassRef(arg), String.valueOf(argName));
@@ -175,6 +176,10 @@ public class InstantiatorGenerator extends ClassGenerator {
         JClass returnCls = getClassRef(method.getReturnType());
 
         JMethod caller = cls.method(JMod.PUBLIC, returnCls, generateName(configuration.getMethodCallIdentifier(),method.getName()));
+        
+        JMethod nullCaller = null;
+        if(nullParams) nullCaller = cls.method(JMod.PUBLIC, returnCls, generateName(configuration.getMethodNullCallIdentifier(),method.getName()));
+        
         JInvocation methodCall;
 
         JInvocation nullMethodCall;
@@ -186,22 +191,28 @@ public class InstantiatorGenerator extends ClassGenerator {
             nullMethodCall = instance.staticInvoke(method.getName());
         } else {
             caller.param(getClassRef(visitingClass.getFullName()),configuration.getInstanceIdentifier());
+            if(nullParams) nullCaller.param(getClassRef(visitingClass.getFullName()),configuration.getInstanceIdentifier());
             JExpression instance = JExpr.ref(configuration.getInstanceIdentifier());
             methodCall = JExpr.invoke(instance,method.getName());
             nullMethodCall = JExpr.invoke(instance,method.getName());
         }
 
         char argName = 'a';
-        for(String arg : method.getParameters()) {
-            caller.param(getClassRef(arg), String.valueOf(argName));
-            methodCall.arg(getDefaultPrimitiveValue(arg));
+        for(String argType : method.getParameters()) {
+            caller.param(getClassRef(argType), String.valueOf(argName));
+            if(nullParams) nullCaller.param(getClassRef(argType), String.valueOf(argName));
+            methodCall.arg(getDefaultPrimitiveValue(argType));
             nullMethodCall.arg(JExpr.ref(String.valueOf(argName)));
             argName++;
         }
-        caller.body()._return(methodCall);
+
+        if(method.getReturnType().equals("void")) caller.body().add(methodCall);
+        else caller.body()._return(methodCall);
+
         if(nullParams) {
-            JMethod nullCaller = cls.method(JMod.PUBLIC, returnCls, generateName(configuration.getMethodNullCallIdentifier(),method.getName()));
-            nullCaller.body()._return(nullMethodCall);
+            //JMethod nullCaller = cls.method(JMod.PUBLIC, returnCls, generateName(configuration.getMethodNullCallIdentifier(),method.getName()));
+            if(method.getReturnType().equals("void")) nullCaller.body().add(nullMethodCall);
+            else nullCaller.body()._return(nullMethodCall);
         }
     }    
 }

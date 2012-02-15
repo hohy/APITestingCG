@@ -60,16 +60,19 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
             }
         }
         
-        // Constructor should hava return type null. Void method raturns "void" 
+        // Constructor should return type fullclassname. Void method raturns "void"
         // and other methods retrun full name of Class from jcmd.getReturnType()
         if(!constructor) {
             if(jcmd.getReturnType() == null) this.returnType = "void";
-            else this.returnType = findFullClassName(jcmd.getReturnType().toString(), importsMap);
+            else this.returnType = jcmd.restype.type.toString();//findFullClassName(jcmd.getReturnType().toString(), importsMap);
+        } else {
+            this.returnType = jcmd.sym.owner.toString();
         }
         this.parameters = new LinkedList<String>();
-        for(JCVariableDecl jcvd : jcmd.getParameters()) 
-            parameters.add(findFullClassName(jcvd.getType().toString(), importsMap));
-        
+        for(JCVariableDecl jcvd : jcmd.getParameters()) { 
+            //parameters.add(findFullClassName(jcvd.getType().toString(), importsMap));
+            parameters.add(jcvd.type.toString());
+        }
         if(constructor) this.kind = Kind.CONSTRUCTOR;
         else this.kind = getKind(jcmd.getKind());
         

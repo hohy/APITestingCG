@@ -52,10 +52,10 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         if(this.kind == Kind.ENUM) modifiers.add(Modifier.FINAL);
         this.fields = new TreeSet<APIField>();
         //if(this.kind == Kind.CLASS) addDefaultConstructor();
-        if(jccd.getExtendsClause() != null) this.extending = findFullClassName(jccd.getExtendsClause().getTree().toString(), importsMap);
+        if(jccd.getExtendsClause() != null) this.extending = jccd.extending.type.toString();//findFullClassName(jccd.getExtendsClause().getTree().toString(), importsMap);
         if(jccd.getImplementsClause() != null) {
             this.implementing = new LinkedList<String>();
-            for(JCExpression e : jccd.getImplementsClause()) this.implementing.add(findFullClassName(e.toString(), importsMap));
+            for(JCExpression e : jccd.getImplementsClause()) this.implementing.add(e.type.toString());//findFullClassName(e.toString(), importsMap));
         }
     }
     

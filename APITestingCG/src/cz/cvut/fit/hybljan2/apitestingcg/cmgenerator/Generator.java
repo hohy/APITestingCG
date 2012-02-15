@@ -5,6 +5,7 @@ import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JExpr;
 import com.sun.codemodel.JExpression;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.BlacklistRule;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorJobConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
@@ -111,6 +112,13 @@ public abstract class Generator implements IAPIVisitor {
                 }
             }
         } else enabled = true;  // if there is no rules for whitelist, enable all items.
+
+        for(BlacklistRule rule : jobConfiguration.getBlacklistRules()) {
+            if((rule.getRule().contains(itemSignature)||(itemSignature.contains(rule.getRule()))) && (rule.getItem().equals(target) || rule.getItem().equals(WhitelistRule.RuleItem.ALL))) {
+                enabled = false;    // disable item if there is blacklist rule for it.
+                break;
+            }
+        }
 
         return enabled;
     }

@@ -17,6 +17,7 @@ public class GeneratorJobConfiguration {
     private String outputDir = "output";
     private String outputPackage = "test.%s";
     private List<WhitelistRule> whitelistRules = new LinkedList<WhitelistRule>();
+    private List<BlacklistRule> blacklistRules = new LinkedList<BlacklistRule>();
 
     @XmlElement(name = "id", required = true)
     public String getApiId() {
@@ -56,5 +57,18 @@ public class GeneratorJobConfiguration {
     
     public void addWhitelistRule(WhitelistRule rule) {
         getWhitelistRules().add(rule);
+    }
+
+    @XmlElement(name = "blacklist")
+    public List<BlacklistRule> getBlacklistRules() {
+        return blacklistRules;
+    }
+
+    public void setBlacklistRules(List<BlacklistRule> blacklistRules) {
+        this.blacklistRules = blacklistRules;
+    }
+
+    public void addBlackListRule(BlacklistRule rule) {
+        blacklistRules.add(rule);
     }
 }
