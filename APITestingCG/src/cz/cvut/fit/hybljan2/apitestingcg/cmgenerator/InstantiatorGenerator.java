@@ -239,6 +239,11 @@ public class InstantiatorGenerator extends ClassGenerator {
                 tryBlock._catch(exception).param(exceptionParam);
                 nullTryBlock._catch(exception).param(exceptionParam);
             }
+
+            if(!method.getReturnType().equals("void")) {
+                caller.body()._return(getDefaultPrimitiveValue(method.getReturnType()));
+                nullCaller.body()._return(getDefaultPrimitiveValue(method.getReturnType()));
+            }
         }
 
         if(method.getReturnType().equals("void")) {
