@@ -167,6 +167,23 @@ public abstract class Generator implements IAPIVisitor {
         return JExpr._null();
     }
 
+    /**
+     * Returns default value for given type.
+     * @param name
+     * @return
+     */
+    public String getDefaultPrimitiveValueString(String name) {
+        if(name.equals("byte")) return "0";
+        if(name.equals("short")) return "0";
+        if(name.equals("int")) return "0";
+        if(name.equals("long")) return "0";
+        if(name.equals("float")) return "0.0";
+        if(name.equals("double")) return "0.0";
+        if(name.equals("boolean")) return "false";
+        if(name.equals("char")) return "a";
+        return "null";
+    }    
+
     protected  JClass getClassRef(String className) {
         if(classMap.containsKey(className)) {
             return classMap.get(className);

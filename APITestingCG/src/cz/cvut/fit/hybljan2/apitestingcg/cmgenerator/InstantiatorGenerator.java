@@ -73,8 +73,8 @@ public class InstantiatorGenerator extends ClassGenerator {
     }
 
     /**
-     * Generates tests of given constructors.
-     * Two createInstance methods are generated. First simply creates new instance using tested constructor.
+     * Generates tests for given constructors.
+     * Two createInstance methods are generated. First simply creates a new instance using tested constructor.
      * Second method do same thing but with null parameters. Null constructor can't be generated in every
      * case. Only in cases when constructor is unique.
      * @param constructor
@@ -99,7 +99,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         }
 
         // generate null constructor (same as previous, but params are NULLs).
-        addCreateInstanceMethod(constructor.getReturnType(), generateName(configuration.getCreateInstanceIdentifier(), constructor.getName()), constructor.getParameters(), true);
+        addCreateInstanceMethod(constructor.getReturnType(), generateName(configuration.getCreateNullInstanceIdentifier(), constructor.getName()), constructor.getParameters(), true);
     }
 
     /**
@@ -138,8 +138,11 @@ public class InstantiatorGenerator extends ClassGenerator {
 
         if(method.getParameters().isEmpty()) unique = false;
         else for(APIMethod m : visitingClass.getMethods()) {
-            // if the tested constructor is equal to c constructor, it's not unique.
-            unique = !((method.getName().equals(m.getName()))&&(equalsNullParams(m.getParameters(), method.getParameters())));
+            // if the tested method is equal to m method, it's not unique.
+            if(!method.equals(m)) { // don't compare object to itself
+                unique = !((method.getName().equals(m.getName()))&&(equalsNullParams(m.getParameters(), method.getParameters())));
+                if(!unique) break;
+            }
         }
 
         addMethodCaller(method,unique);
@@ -150,17 +153,29 @@ public class InstantiatorGenerator extends ClassGenerator {
         Iterator<String> itA = paramsA.iterator();
         Iterator<String> itB = paramsB.iterator();
         while(itA.hasNext()) {
-            String paramA = itA.next();
-            String paramB = itB.next();
-            if(!getDefaultPrimitiveValue(paramA).equals(getDefaultPrimitiveValue(paramB))) return false;
+            String paramA = getDefaultPrimitiveValueString(itA.next());
+            String paramB = getDefaultPrimitiveValueString(itB.next());
+            if(!paramA.equals(paramB)) return false;
         }
         return true;
     }
-    
+
+    /**
+     * Create new metod like this template:
+     *
+     * public instanceClassName methodName(args[0] a, args[1] b, ...) {
+     *     return new visitingClassName(a, b);
+     * }
+     *
+     * @param instanceClassName
+     * @param methodName
+     * @param args
+     * @param nullParams
+     */
     private void addCreateInstanceMethod(String instanceClassName, String methodName, List<String> args, boolean nullParams) {
         JClass returnCls = getClassRef(instanceClassName);
         JMethod result = cls.method(JMod.PUBLIC, returnCls, methodName);
-        JInvocation newInstance = JExpr._new(getClassRef(visitingClass.getName()));
+        JInvocation newInstance = JExpr._new(getClassRef(visitingClass.getFullName()));
         char argName = 'a';
         for(String arg : args) {
             result.param(getClassRef(arg), String.valueOf(argName));
@@ -171,8 +186,70 @@ public class InstantiatorGenerator extends ClassGenerator {
         result.body()._return(newInstance);
     }
 
-    private void addMethodCaller(APIMethod method, boolean nullParams) {
+    
+    private void addMethodCaller(APIMethod method, boolean generateNullCall) {
+        
+        int methodMods = JMod.PUBLIC;
+        JType returnType = getClassRef(method.getReturnType());
+        String callerName = generateName(configuration.getMethodCallIdentifier(),method.getName());
+        String nullCallerName = generateName(configuration.getMethodNullCallIdentifier(),method.getName());
 
+        JMethod caller = cls.method(methodMods,returnType,callerName);
+        JMethod nullCaller = cls.method(methodMods,returnType,nullCallerName);
+
+        // get instance for method call
+        JExpression instance;
+        JExpression nullInstance;
+        if(method.getModifiers().contains(APIModifier.Modifier.STATIC)) {  // Static method - instance = Class name
+            instance = getClassRef(visitingClass.getFullName()).dotclass();
+            nullInstance = getClassRef(visitingClass.getFullName()).dotclass();
+        } else { // instance is first parameter
+            instance = caller.param(getClassRef(visitingClass.getFullName()), configuration.getInstanceIdentifier());
+            nullInstance = nullCaller.param(getClassRef(visitingClass.getFullName()),configuration.getInstanceIdentifier());
+        }
+
+        // define method invocation
+        JInvocation invocation = instance.invoke(method.getName());
+        JInvocation nullInvocation = nullInstance.invoke(method.getName());
+
+        // add parameter to the method and invocation - new method has same parameters as original method
+        char pName = 'a';
+        for(String pType : method.getParameters()) {
+            String name = String.valueOf(pName++);
+            JClass type = getClassRef(pType);
+            JVar param = caller.param(type,name);
+            nullCaller.param(type,name);
+            invocation.arg(param);
+            nullInvocation.arg(getDefaultPrimitiveValue(pType));
+        }
+
+        JBlock callerBody = caller.body();
+        JBlock nullCallerBody = nullCaller.body();
+        
+        // add try-catch block if method trows any exception
+        if(!method.getThrown().isEmpty()) {
+            JTryBlock tryBlock = caller.body()._try();
+            JTryBlock nullTryBlock = nullCaller.body()._try();
+            callerBody = tryBlock.body();
+            nullCallerBody = nullTryBlock.body();
+            char eName = 'E';
+            for(String exceptionType : method.getThrown()) {
+                JClass exception = getClassRef(exceptionType);
+                String exceptionParam = "ex" + String.valueOf(eName++);
+                tryBlock._catch(exception).param(exceptionParam);
+                nullTryBlock._catch(exception).param(exceptionParam);
+            }
+        }
+
+        callerBody.add(invocation);
+        nullCallerBody.add(nullInvocation);
+
+        if(!generateNullCall) {
+            cls.methods().remove(nullCaller);
+        }
+    }
+    
+    private void oldaddMethodCaller(APIMethod method, boolean nullParams) {
         JClass returnCls = getClassRef(method.getReturnType());
 
         JMethod caller = cls.method(JMod.PUBLIC, returnCls, generateName(configuration.getMethodCallIdentifier(),method.getName()));
