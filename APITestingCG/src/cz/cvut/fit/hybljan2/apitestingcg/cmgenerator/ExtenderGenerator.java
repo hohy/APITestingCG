@@ -104,7 +104,7 @@ public class ExtenderGenerator extends ClassGenerator{
 
     /**
      * Generates test of the field.
-     * Final fields are tested by assigning their value to new field of same type. Ex: {@code int x = x;}. New
+     * Final fields are tested by assigning their value to new field of same type. Ex: {@code int x = super.x;}. New
      * local variable x hides original super field x, but it doesn't mind.
      * Non-final fields are tested by assigning some value to them. Ex: {@codeFile f = null; fileField = f;}
      * @param apiField
@@ -113,8 +113,15 @@ public class ExtenderGenerator extends ClassGenerator{
     public void visit(APIField apiField) {
 
         if(apiField.getModifiers().contains(APIModifier.Modifier.FINAL)) {
+            // original field
+            JFieldRef fld;
+            if(apiField.getModifiers().contains(APIModifier.Modifier.STATIC)) {
+                fld = getClassRef(visitingClass.getFullName()).staticRef(apiField.getName());
+            } else {
+                fld = JExpr._super().ref(apiField.getName());
+            }
             // create new local variable and assing original value to it
-            fieldsMethodBlock.decl(getClassRef(apiField.getVarType()), apiField.getName(), JExpr.ref(apiField.getName()));
+            fieldsMethodBlock.decl(getClassRef(apiField.getVarType()), apiField.getName(), fld);
         } else {
             // create new field of same type as original
             String fldName = generateName(configuration.getFieldTestVariableIdentifier(), apiField.getName());
