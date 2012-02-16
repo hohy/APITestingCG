@@ -95,6 +95,10 @@ public class ExtenderGenerator extends ClassGenerator{
             superInv.arg(JExpr.ref(String.valueOf(paramName)));
             paramName++;
         }
+        
+        for(String exception : constructor.getThrown()) {
+            constr._throws(getClassRef(exception));
+        }
 
     }
 
