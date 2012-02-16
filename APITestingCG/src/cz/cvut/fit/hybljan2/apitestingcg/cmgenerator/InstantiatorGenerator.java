@@ -197,20 +197,20 @@ public class InstantiatorGenerator extends ClassGenerator {
         JMethod caller = cls.method(methodMods,returnType,callerName);
         JMethod nullCaller = cls.method(methodMods,returnType,nullCallerName);
 
-        // get instance for method call
-        JExpression instance;
-        JExpression nullInstance;
-        if(method.getModifiers().contains(APIModifier.Modifier.STATIC)) {  // Static method - instance = Class name
-            instance = getClassRef(visitingClass.getFullName()).dotclass();
-            nullInstance = getClassRef(visitingClass.getFullName()).dotclass();
-        } else { // instance is first parameter
-            instance = caller.param(getClassRef(visitingClass.getFullName()), configuration.getInstanceIdentifier());
-            nullInstance = nullCaller.param(getClassRef(visitingClass.getFullName()),configuration.getInstanceIdentifier());
-        }
-
         // define method invocation
-        JInvocation invocation = instance.invoke(method.getName());
-        JInvocation nullInvocation = nullInstance.invoke(method.getName());
+        JInvocation invocation;
+        JInvocation nullInvocation;
+
+        // set invocation
+        if(method.getModifiers().contains(APIModifier.Modifier.STATIC)) {  // Static method - instance = Class name
+            invocation = getClassRef(visitingClass.getFullName()).staticInvoke(method.getName());
+            nullInvocation = getClassRef(visitingClass.getFullName()).staticInvoke(method.getName());
+        } else { // instance is first parameter
+            JExpression instance = caller.param(getClassRef(visitingClass.getFullName()), configuration.getInstanceIdentifier());
+            JExpression nullInstance = nullCaller.param(getClassRef(visitingClass.getFullName()),configuration.getInstanceIdentifier());
+            invocation = instance.invoke(method.getName());
+            nullInvocation = nullInstance.invoke(method.getName());
+        }
 
         // add parameter to the method and invocation - new method has same parameters as original method
         char pName = 'a';
@@ -241,8 +241,15 @@ public class InstantiatorGenerator extends ClassGenerator {
             }
         }
 
-        callerBody.add(invocation);
-        nullCallerBody.add(nullInvocation);
+        if(method.getReturnType().equals("void")) {
+            callerBody.add(invocation);
+            nullCallerBody.add(nullInvocation);
+        } else {
+            callerBody._return(invocation);
+            nullCallerBody._return(invocation);
+        }
+
+
 
         if(!generateNullCall) {
             cls.methods().remove(nullCaller);
