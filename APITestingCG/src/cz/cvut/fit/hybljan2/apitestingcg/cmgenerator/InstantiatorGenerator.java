@@ -43,13 +43,13 @@ public class InstantiatorGenerator extends ClassGenerator {
 
             // genetate test of extending - cant be performed if tested class has no constructors
             if(apiClass.getExtending() != null && !apiClass.getConstructors().isEmpty()) {
-                addCreateInstanceMethod(apiClass.getExtending(),generateName(configuration.getCreateSuperInstanceIdentifier(), apiClass.getExtending()),apiClass.getConstructors().first().getParameters(), false);
+                addCreateInstanceMethod(apiClass.getExtending(),generateName(configuration.getCreateSuperInstanceIdentifier(), apiClass.getExtending()),apiClass.getConstructors().first(), false);
             }
 
             // genetate test of implementing - cant be performed if tested class has no constructors
             if(!apiClass.getImplementing().isEmpty() && !apiClass.getConstructors().isEmpty()) {
                 for(String implementing : apiClass.getImplementing()) {
-                    addCreateInstanceMethod(implementing,generateName(configuration.getCreateSuperInstanceIdentifier(), implementing),apiClass.getConstructors().first().getParameters(), false);
+                    addCreateInstanceMethod(implementing,generateName(configuration.getCreateSuperInstanceIdentifier(), implementing),apiClass.getConstructors().first(), false);
                 }
             }
             
@@ -84,7 +84,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         if(!isEnabled(methodSignature(constructor,visitingClass.getFullName()), WhitelistRule.RuleItem.INSTANTIATOR)) return;
 
         // create basic create new instance method
-        addCreateInstanceMethod(visitingClass.getFullName(), generateName(configuration.getCreateInstanceIdentifier(), constructor.getName()), constructor.getParameters(), false);
+        addCreateInstanceMethod(visitingClass.getFullName(), generateName(configuration.getCreateInstanceIdentifier(), constructor.getName()), constructor, false);
 
         // if it is possible, create null version of previous constructor
         // nonparam constructor can't be tested with null values.
@@ -99,12 +99,12 @@ public class InstantiatorGenerator extends ClassGenerator {
         }
 
         // generate null constructor (same as previous, but params are NULLs).
-        addCreateInstanceMethod(constructor.getReturnType(), generateName(configuration.getCreateNullInstanceIdentifier(), constructor.getName()), constructor.getParameters(), true);
+        addCreateInstanceMethod(constructor.getReturnType(), generateName(configuration.getCreateNullInstanceIdentifier(), constructor.getName()), constructor, true);
     }
 
     /**
-     * Generates test of the field.
-     * Final fields are tested by assigning their value to new field of same type. Ex: {@code int x = x;}. New
+     * Generates test of the public field.
+     * Final fields are tested by assigning their value to new field of same type. Ex: {@code int x = super.x;}. New
      * local variable x hides original super field x, but it doesn't mind.
      * Non-final fields are tested by assigning some value to them. Ex: {@codeFile f = null; fileField = f;}
      * @param apiField
@@ -113,8 +113,15 @@ public class InstantiatorGenerator extends ClassGenerator {
     public void visit(APIField apiField) {
         if(apiField.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
             if(apiField.getModifiers().contains(APIModifier.Modifier.FINAL)) {
+                // original field
+                JFieldRef fld;
+                if(apiField.getModifiers().contains(APIModifier.Modifier.STATIC)) {
+                    fld = getClassRef(visitingClass.getFullName()).staticRef(apiField.getName());
+                } else {
+                    fld = JExpr._super().ref(apiField.getName());
+                }
                 // create new local variable and assing original value to it
-                fieldsMethodBlock.decl(getClassRef(apiField.getVarType()), apiField.getName(), JExpr.ref(apiField.getName()));
+                fieldsMethodBlock.decl(getClassRef(apiField.getVarType()), apiField.getName(), fld);
             } else {
                 // create new field of same type as original
                 String fldName = generateName(configuration.getFieldTestVariableIdentifier(), apiField.getName());
@@ -169,21 +176,36 @@ public class InstantiatorGenerator extends ClassGenerator {
      *
      * @param instanceClassName
      * @param methodName
-     * @param args
+     * @param constructor
      * @param nullParams
      */
-    private void addCreateInstanceMethod(String instanceClassName, String methodName, List<String> args, boolean nullParams) {
+    private void addCreateInstanceMethod(String instanceClassName, String methodName, APIMethod constructor, boolean nullParams) {
         JClass returnCls = getClassRef(instanceClassName);
         JMethod result = cls.method(JMod.PUBLIC, returnCls, methodName);
         JInvocation newInstance = JExpr._new(getClassRef(visitingClass.getFullName()));
         char argName = 'a';
-        for(String arg : args) {
+        for(String arg : constructor.getParameters()) {
             result.param(getClassRef(arg), String.valueOf(argName));
             if(nullParams) newInstance.arg(getDefaultPrimitiveValue(arg));
             else newInstance.arg(JExpr.ref(String.valueOf(argName)));
             argName++;
         }
-        result.body()._return(newInstance);
+
+        JBlock resultBody = result.body();
+        if(!constructor.getThrown().isEmpty()) {
+            JTryBlock tryBlock = result.body()._try();
+            resultBody = tryBlock.body();
+            char eName = 'E';
+            for(String exceptionType : constructor.getThrown()) {
+                JClass exception = getClassRef(exceptionType);
+                String exceptionParam = "ex" + String.valueOf(eName++);
+                tryBlock._catch(exception).param(exceptionParam);
+            }
+
+            result.body()._return(getDefaultPrimitiveValue(constructor.getReturnType()));
+        }
+
+        resultBody._return(newInstance);
     }
 
     
