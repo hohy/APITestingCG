@@ -28,6 +28,11 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     // Full name of class (contains package name) - expample: java.util.Set
     private String fullName;
     private String generics;
+    private List<AnnotationTargets> annotationTargets;
+
+    public enum AnnotationTargets {
+        TYPE, FIELD, METHOD, PARAMETER, CONSTRUCTOR, LOCAL_VARIABLE, ANNOTATION_TYPE, PACKAGE
+    }
 
     public APIClass(String name) {
         if(name.contains(".")) this.name = name.substring(name.lastIndexOf('.')+1);
@@ -267,6 +272,24 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     void setImplementing(List<String> implement) {
         this.implementing = implement;
     }
+
+    public List<AnnotationTargets> getAnnotationTargets() {
+        return annotationTargets;
+    }
+
+    public void setAnnotationTargets(List<AnnotationTargets> annotationTargets) {
+        this.annotationTargets = annotationTargets;
+    }
     
-    
+    public static AnnotationTargets parseAnnotationTarget(String name) throws Exception {
+        if(name.equals("ElementType.ANNOTATION_TYPE")) return AnnotationTargets.ANNOTATION_TYPE;
+        if(name.equals("ElementType.CONSTRUCTOR")) return AnnotationTargets.CONSTRUCTOR;
+        if(name.equals("ElementType.TYPE")) return AnnotationTargets.TYPE;
+        if(name.equals("ElementType.FIELD")) return AnnotationTargets.FIELD;
+        if(name.equals("ElementType.LOCAL_VARIABLE")) return AnnotationTargets.LOCAL_VARIABLE;
+        if(name.equals("ElementType.METHOD")) return AnnotationTargets.METHOD;
+        if(name.equals("ElementType.PACKAGE")) return AnnotationTargets.PACKAGE;
+        if(name.equals("ElementType.PARAMETER")) return AnnotationTargets.PARAMETER;
+        throw new Exception("Unknown annotation target \""+ name + "\".");
+    }
 }

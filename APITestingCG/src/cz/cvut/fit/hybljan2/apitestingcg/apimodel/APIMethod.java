@@ -24,6 +24,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
     private String returnType;
     private List<String> thrown;
     private LinkedList<com.sun.tools.javac.code.Type> thrownTypes;
+    private String annotationDefaultValue;
     
     public APIMethod(String name, List<Modifier> modifiers, List<String> params, String returnType, List<String> thrown) {
         this.name = name;
@@ -75,7 +76,10 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         }
         if(constructor) this.kind = Kind.CONSTRUCTOR;
         else this.kind = getKind(jcmd.getKind());
-        
+
+        if(jcmd.defaultValue != null) {
+            annotationDefaultValue = jcmd.defaultValue.toString();
+        }
     }
 
     public APIMethod(Method mth) {
@@ -188,5 +192,9 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         String a = this.getName() + this.getParametersString() + this.returnType;
         String b = t.getName() + t.getParametersString() + t.returnType;
         return a.compareTo(b);
+    }
+
+    public String getAnnotationDefaultValue() {
+        return annotationDefaultValue;
     }
 }

@@ -5,6 +5,7 @@ import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.model.JavacTypes;
+import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.tree.JCTree.JCImport;
@@ -19,6 +20,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIItem.Kind;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIMethod;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIPackage;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Stack;
 
@@ -68,6 +70,36 @@ public class SourceTreeScanner extends TreeScanner{
             currentPackage.addClass(currentClass);
             currentClass = classes.pop(); 
             currentClassImports = new HashMap<String, String>();
+        }
+    }
+
+    @Override
+    public void visitAnnotation(JCTree.JCAnnotation jcca) {
+        super.visitAnnotation(jcca);    //To change body of overridden methods use File | Settings | File Templates.
+        if(jcca.annotationType.type.toString().equals("java.lang.annotation.Target")) {
+            for(JCTree.JCExpression e : jcca.getArguments()) {
+                JCTree.JCAssign a = (JCTree.JCAssign) e;
+                System.out.println(a);
+                if(a.rhs instanceof JCTree.JCFieldAccess) {
+                    currentClass.setAnnotationTargets(new LinkedList<APIClass.AnnotationTargets>());
+                    try {
+                        APIClass.AnnotationTargets target = APIClass.parseAnnotationTarget(((JCTree.JCAssign) a).rhs.toString());
+                        currentClass.getAnnotationTargets().add(target);
+                    } catch (Exception e1) {
+                        System.err.println(e1.getMessage());
+                    }
+                } else if(a.rhs instanceof JCTree.JCNewArray) {
+                    currentClass.setAnnotationTargets(new LinkedList<APIClass.AnnotationTargets>());
+                    JCTree.JCNewArray array = (JCTree.JCNewArray) a.rhs;
+                    for(JCTree.JCExpression fld : array.elems) {
+                        try {
+                            currentClass.getAnnotationTargets().add(APIClass.parseAnnotationTarget(fld.toString()));
+                        } catch (Exception e1) {
+                            System.err.println(e1.getMessage());
+                        }
+                    }
+                }
+            }
         }
     }
 
