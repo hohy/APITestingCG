@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -156,6 +157,29 @@ public class ExtenderGeneratorTest {
 
         File resultFile = new File("output/tests/extender/test/lib/AbstractClassExtender.java");
         assertTrue(resultFile.exists());
+
+        //File expected = new File("testres/extender_exp/ClassBExtender.java");
+
+        //FileAssert.assertEquals(expected, resultFile);
+
+    }
+
+    @Test
+    public void TestPrivateConstr() {
+
+        Generator generator = new ExtenderGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("extender");
+        job.setOutputDir("output/tests/extender");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.EXTENDER);
+        r.setRule("lib.PrivateConstr");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
+
+        File resultFile = new File("output/tests/extender/test/lib/PrivateConstrExtender.java");
+        assertFalse(resultFile.exists());
 
         //File expected = new File("testres/extender_exp/ClassBExtender.java");
 

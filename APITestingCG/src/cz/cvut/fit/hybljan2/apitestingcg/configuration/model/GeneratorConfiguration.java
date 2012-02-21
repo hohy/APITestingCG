@@ -20,6 +20,7 @@ public class GeneratorConfiguration {
     private String instantiatorClassIdentifier = "%sInstantiator";
     private String extenderClassIdentifier = "%sExtender";
     private String implementerClassIdentifier = "%sImplementer";
+    private String annotationClassIdentifier = "%sAnnotation";
     // name of method that is used for creating instance of object (test constructor)
     private String createInstanceIdentifier = "create%s";
     // same as previous, but with null params.
@@ -136,5 +137,14 @@ public class GeneratorConfiguration {
 
     public void setFieldTestVariableIdentifier(String fieldTestVariableIdentifier) {
         this.fieldTestVariableIdentifier = fieldTestVariableIdentifier;
+    }
+    
+    @XmlElement(name = "annotation-class-identifier")
+    public String getAnnotationClassIdentifier() {
+        return annotationClassIdentifier;
+    }
+
+    public void setAnnotationClassIdentifier(String annotationClassIdentifier) {
+        this.annotationClassIdentifier = annotationClassIdentifier;
     }
 }

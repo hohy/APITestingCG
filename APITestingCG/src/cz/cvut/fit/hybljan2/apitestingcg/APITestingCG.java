@@ -1,9 +1,6 @@
 package cz.cvut.fit.hybljan2.apitestingcg;
 
-import cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.EnumGenerator;
-import cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.ExtenderGenerator;
-import cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.Generator;
-import cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.InstantiatorGenerator;
+import cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.*;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.ConfigurationReader;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ApiViewConfiguration;
@@ -70,7 +67,8 @@ public class APITestingCG {
         Generator[] generators = {
                 new ExtenderGenerator(configuration.getGeneratorConfiguration()),
                 new InstantiatorGenerator(configuration.getGeneratorConfiguration()),
-                new EnumGenerator(configuration.getGeneratorConfiguration())
+                new EnumGenerator(configuration.getGeneratorConfiguration()),
+                new AnnotationGenerator(configuration.getGeneratorConfiguration())
         };
 
         for(GeneratorJobConfiguration gjc : configuration.getGeneratorJobConfigurations()) {

@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Class-Path: tools.jar junit-addons-1.4.jar src.jar junit-addons-1.4.ja
+ r src.jar junit-4.10.jar hamcrest-core-1.1.jar codemodel-2.5-SNAPSHOT
+ .jar
+Main-Class: cz.cvut.fit.hybljan2.apitestingcg.APITestingCG
+

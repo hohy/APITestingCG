@@ -40,6 +40,7 @@ public class GeneratorJobConfigurationTest {
         // delete output files from previous run of whiteListTest2
         TestUtils.delete(new File("output/tests/configuration"));
         TestUtils.delete(new File("output/tests/configuration2"));
+        TestUtils.delete(new File("output/tests/configuration3"));
     }
 
 
@@ -102,6 +103,23 @@ public class GeneratorJobConfigurationTest {
         
         File expected = new File("testres/configuration/expected/ClassBExtender.java");
         FileAssert.assertEquals(expected, fb);
+    }
+
+    @Test
+    public void blackListTest() {
+
+        Configuration configuration = reader.parseConfiguration("testres/configuration/blacklist_lib.xml");
+        APIScanner scanner = new SourceScanner();
+        scanner.setConfiguration(configuration.getApiConfigurations().get(0));
+        API api = scanner.scan();
+
+        Generator generator = new ExtenderGenerator(configuration.getGeneratorConfiguration());
+        generator.generate(api, configuration.getGeneratorJobConfigurations().get(0));
+
+        File fa = new File("output/tests/configuration3/lib/ClassAExtender.java");
+        File fb = new File("output/tests/configuration3/lib/ClassBExtender.java");
+        assertFalse(fa.exists());
+        assertTrue(fb.exists());
     }
 
 }

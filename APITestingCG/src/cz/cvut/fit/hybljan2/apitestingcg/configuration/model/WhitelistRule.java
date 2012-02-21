@@ -20,6 +20,8 @@ public class WhitelistRule {
         IMPLEMENTER,
         @XmlEnumValue("instantiator")
         INSTANTIATOR,
+        @XmlEnumValue("annotation")
+        ANNOTATION,
         @XmlEnumValue("all")
         ALL
     }
