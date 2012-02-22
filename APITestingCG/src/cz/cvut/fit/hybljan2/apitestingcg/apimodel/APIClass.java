@@ -60,7 +60,8 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         if(jccd.getExtendsClause() != null) this.extending = jccd.extending.type.toString();//findFullClassName(jccd.getExtendsClause().getTree().toString(), importsMap);
         if(jccd.getImplementsClause() != null) {
             this.implementing = new LinkedList<String>();
-            for(JCExpression e : jccd.getImplementsClause()) this.implementing.add(e.type.toString());//findFullClassName(e.toString(), importsMap));
+            for(JCExpression e : jccd.getImplementsClause())
+                this.implementing.add(e.type.toString());//findFullClassName(e.toString(), importsMap));
         }
     }
     
@@ -69,7 +70,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         this.fullName = cls.getName();
         this.constructors = new TreeSet<APIMethod>();
         for(Constructor constr : cls.getDeclaredConstructors()) {
-            APIMethod apiconstr = new APIMethod(constr);
+            APIMethod apiconstr = new APIMethod(constr, fullName);
             if(apiconstr.getModifiers().contains(Modifier.PUBLIC) 
                     || apiconstr.getModifiers().contains(Modifier.PROTECTED)) 
                 this.constructors.add(apiconstr);
@@ -94,7 +95,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         if(cls.getSuperclass() != null && !cls.getSuperclass().getSimpleName().equals("Object") && !cls.getSuperclass().getSimpleName().equals("Enum")) this.extending = cls.getSuperclass().getName();
         this.implementing = new LinkedList<String>();
         for(Class intfc : cls.getInterfaces()) {
-            this.implementing.add(intfc.getSimpleName());
+            this.implementing.add(intfc.getName());
         }
     }
     

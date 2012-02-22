@@ -97,18 +97,18 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         this.kind = Kind.METHOD;
     }
     
-    public APIMethod(Constructor c) {
+    public APIMethod(Constructor c, String fullClassName) {
         this.name = c.getName();
         this.modifiers = APIModifier.getModifiersSet(c.getModifiers());
         this.thrown = new LinkedList<String>();
         for(java.lang.reflect.Type excType : c.getExceptionTypes()) {
-            this.thrown.add(excType.toString().substring(6));  // TODO: toto by chtělo asi udělat nějak elegantnějš...            
+            this.thrown.add(excType.toString().substring(6));
         }
         this.parameters = new LinkedList<String>();
         for(Class paramc : c.getParameterTypes()) {
-            this.parameters.add(c.getName());
+            this.parameters.add(paramc.getName());
         }        
-        this.returnType = null;
+        this.returnType = fullClassName;
         this.kind = Kind.METHOD;        
     }
     

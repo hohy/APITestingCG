@@ -109,6 +109,7 @@ public abstract class APIItem {
     protected String getTypeName(Type t) {
         String rawName = t.toString();
         if(rawName.contains("class")) return rawName.substring(6);
+        if(rawName.contains("interface")) return rawName.substring(10);
         return rawName;
     }
 
