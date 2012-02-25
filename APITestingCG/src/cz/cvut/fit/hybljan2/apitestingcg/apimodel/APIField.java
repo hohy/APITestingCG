@@ -13,13 +13,24 @@ import java.util.Map;
 public class APIField extends APIItem implements Comparable<APIField> {
     private String varType;
 
+    /**
+     * Constructor used in unit testing.
+     * @param varType
+     * @param name
+     * @param modifiers
+     */
     public APIField(String varType, String name, List<Modifier> modifiers) {
         this.varType = varType;
         this.modifiers = modifiers;
         this.name = name;
         this.kind = Kind.VARIABLE;
-    }    
-    
+    }
+
+    /**
+     * Constructor used by source scanner.
+     * @param jcvd
+     * @param importsMap
+     */
     public APIField(JCVariableDecl jcvd, Map<String, String> importsMap) {
         this.name = jcvd.name.toString();
         this.varType = findFullClassName(jcvd.type.toString(), importsMap);
@@ -27,6 +38,10 @@ public class APIField extends APIItem implements Comparable<APIField> {
         this.kind = getKind(jcvd.getKind());
     }
 
+    /**
+     * Constructor used by bytecode scanner.
+     * @param f
+     */
     public APIField(Field f) {
         this.name = f.getName();
         this.varType = getTypeName(f.getGenericType());

@@ -3,6 +3,8 @@ package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
+
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -91,6 +93,16 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
                 this.fields.add(new APIField(f));
         }
         this.kind = getKind(cls);
+        if(kind==Kind.ANNOTATION) {
+            System.out.println(cls);
+            for(Annotation a : cls.getAnnotations()) {
+                System.out.println(a.annotationType());
+                if(a.annotationType().getName().equals("interface java.lang.annotation.Target")) {
+                    System.out.println(a.toString());
+                }
+            }
+        }
+
         // Check, if class has some superclass (other than Object) 
         if(cls.getSuperclass() != null && !cls.getSuperclass().getSimpleName().equals("Object") && !cls.getSuperclass().getSimpleName().equals("Enum")) this.extending = cls.getSuperclass().getName();
         this.implementing = new LinkedList<String>();

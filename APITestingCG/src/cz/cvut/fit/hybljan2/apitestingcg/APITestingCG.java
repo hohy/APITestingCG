@@ -7,7 +7,6 @@ import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ApiViewConfiguratio
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.Configuration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorJobConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ScannerConfiguration;
-import cz.cvut.fit.hybljan2.apitestingcg.generator.GeneratorDirector;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.ByteCodeScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
@@ -78,11 +77,5 @@ public class APITestingCG {
             }
         }
 
-//        GeneratorDirector gd = new GeneratorDirector(configuration.getGeneratorConfiguration());
-//
-//        for(GeneratorJobConfiguration gc : configuration.getGeneratorJobConfigurations()) {
-//            System.out.println("Generating code for api " + gc.getApiId());
-//            gd.generate(apiMap.get(gc.getApiId()), gc);
-//        }
     }
 }
