@@ -1,17 +1,14 @@
 package cz.cvut.fit.hybljan2.apitestingcg.configuration;
 
-import com.sun.jnlp.ApiDialog;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.Configuration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
-import cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.ExtenderGenerator;
-import cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.Generator;
+import cz.cvut.fit.hybljan2.apitestingcg.generator.ExtenderGenerator;
+import cz.cvut.fit.hybljan2.apitestingcg.generator.Generator;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
 import junitx.framework.FileAssert;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -20,9 +17,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -33,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 public class GeneratorJobConfigurationTest {
 
     private static ConfigurationReader reader;
-    
+
     @BeforeClass
     public static void setup() throws IOException {
         reader = new ConfigurationReader();
@@ -78,7 +73,7 @@ public class GeneratorJobConfigurationTest {
 
         Generator generator = new ExtenderGenerator(configuration.getGeneratorConfiguration());
         generator.generate(api, configuration.getGeneratorJobConfigurations().get(0));
-        
+
         File fa = new File("output/tests/configuration/lib/ClassAExtender.java");
         File fb = new File("output/tests/configuration/lib/ClassBExtender.java");
         assertTrue(fa.exists());
@@ -100,7 +95,7 @@ public class GeneratorJobConfigurationTest {
         File fb = new File("output/tests/configuration2/lib/ClassBExtender.java");
         assertFalse(fa.exists());
         assertTrue(fb.exists());
-        
+
         File expected = new File("testres/configuration/expected/ClassBExtender.java");
         FileAssert.assertEquals(expected, fb);
     }

@@ -1,4 +1,4 @@
-package cz.cvut.fit.hybljan2.apitestingcg.cmgenerator;
+package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
 import com.sun.codemodel.JBlock;
 import com.sun.codemodel.JDefinedClass;

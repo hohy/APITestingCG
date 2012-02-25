@@ -1,9 +1,6 @@
 package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
-import cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.Generator;
-import cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.EnumGenerator;
-import cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.ExtenderGenerator;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorJobConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ScannerConfiguration;
@@ -11,7 +8,6 @@ import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
-import junitx.framework.FileAssert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

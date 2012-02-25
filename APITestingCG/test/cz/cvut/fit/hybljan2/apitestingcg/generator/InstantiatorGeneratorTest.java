@@ -1,9 +1,6 @@
 package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
-import cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.*;
-import cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.ExtenderGenerator;
-import cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.InstantiatorGenerator;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorJobConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ScannerConfiguration;
@@ -11,7 +8,6 @@ import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
-import junitx.framework.FileAssert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -54,7 +50,7 @@ public class InstantiatorGeneratorTest {
     @Test
     public void TestConstructors() {
 
-        cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
+        cz.cvut.fit.hybljan2.apitestingcg.generator.Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
         GeneratorJobConfiguration job = new GeneratorJobConfiguration();
         job.setApiId("instantiator");
         job.setOutputDir("output/tests/instantiator");
@@ -80,7 +76,7 @@ public class InstantiatorGeneratorTest {
     @Test
     public void TestConstructors2() {
 
-        cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
+        cz.cvut.fit.hybljan2.apitestingcg.generator.Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
         GeneratorJobConfiguration job = new GeneratorJobConfiguration();
         job.setApiId("instantiator");
         job.setOutputDir("output/tests/instantiator");
@@ -99,11 +95,11 @@ public class InstantiatorGeneratorTest {
         //FileAssert.assertEquals(expected, resultFile);
 
     }
-    
+
     @Test
     public void testSimplifyName() {
-        assertEquals("List", cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.Generator.simplifyName("java.util.List"));
-        assertEquals("Set", cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.Generator.simplifyName("Set"));
+        assertEquals("List", cz.cvut.fit.hybljan2.apitestingcg.generator.Generator.simplifyName("java.util.List"));
+        assertEquals("Set", cz.cvut.fit.hybljan2.apitestingcg.generator.Generator.simplifyName("Set"));
     }
 
     /**
@@ -112,7 +108,7 @@ public class InstantiatorGeneratorTest {
     @Test
     public void TestMethods() {
 
-        cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
+        cz.cvut.fit.hybljan2.apitestingcg.generator.Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
         GeneratorJobConfiguration job = new GeneratorJobConfiguration();
         job.setApiId("instantiator");
         job.setOutputDir("output/tests/instantiator");
@@ -135,7 +131,7 @@ public class InstantiatorGeneratorTest {
     @Test
     public void TestFields() {
 
-        cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
+        cz.cvut.fit.hybljan2.apitestingcg.generator.Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
         GeneratorJobConfiguration job = new GeneratorJobConfiguration();
         job.setApiId("instantiator");
         job.setOutputDir("output/tests/instantiator");

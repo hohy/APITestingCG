@@ -1,9 +1,10 @@
 package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
-import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.*;
-import cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.Generator;
-import cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.ExtenderGenerator;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorJobConfiguration;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ScannerConfiguration;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
@@ -14,7 +15,6 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -62,10 +62,10 @@ public class ExtenderGeneratorTest {
         r.setRule("lib.ClassA.ClassA");
         job.addWhitelistRule(r);
         generator.generate(api, job);
-        
+
         File resultFile = new File("output/tests/extender/test/lib/ClassAExtender.java");
         assertTrue(resultFile.exists());
-        
+
         File expected = new File("testres/extender_exp/ClassAExtender.java");
 
         FileAssert.assertEquals(expected, resultFile);
