@@ -25,7 +25,6 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
     private List<String> parameters;
     private String returnType;
     private List<String> thrown;
-    private LinkedList<com.sun.tools.javac.code.Type> thrownTypes;
     private String annotationDefaultValue;
 
     public APIMethod(String name, List<Modifier> modifiers, List<String> params, String returnType, List<String> thrown) {
@@ -44,7 +43,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         this.modifiers = APIModifier.getModifiersSet(jcmd.getModifiers().getFlags());
 
         thrown = new LinkedList<String>();
-        thrownTypes = new LinkedList<com.sun.tools.javac.code.Type>();
+        LinkedList<com.sun.tools.javac.code.Type> thrownTypes = new LinkedList<com.sun.tools.javac.code.Type>();
         if (jcmd.getThrows() != null) {
             for (JCExpression e : jcmd.getThrows()) {
                 boolean alredyThrown = false;

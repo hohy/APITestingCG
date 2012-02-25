@@ -56,10 +56,7 @@ public class API extends APIItem {
             return false;
         }
         final API other = (API) obj;
-        if (this.packages != other.packages && (this.packages == null || !this.packages.equals(other.packages))) {
-            return false;
-        }
-        return true;
+        return !(this.packages != other.packages && (this.packages == null || !this.packages.equals(other.packages)));
     }
 
     public String getVersion() {

@@ -43,11 +43,11 @@ public class APIViewForm extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new javax.swing.JScrollPane();
+        JScrollPane jScrollPane1 = new JScrollPane();
         apiTree = new javax.swing.JTree();
-        contentScrollPanel = new javax.swing.JScrollPane();
+        JScrollPane contentScrollPanel = new JScrollPane();
         contentPanel = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
+        JLabel jLabel1 = new JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -166,7 +166,7 @@ public class APIViewForm extends javax.swing.JFrame {
                 if (mth.getParameters() != null && mth.getParameters().size() > 0) {
                     contentPanel.add(new JLabel("Parameters:"));
                     for (String f : mth.getParameters()) {
-                        contentPanel.add(new JLabel("  " + f.toString()));
+                        contentPanel.add(new JLabel("  " + f));
                     }
                     contentPanel.add(contentPanel.add(Box.createVerticalStrut(10)));
                 }
@@ -249,9 +249,6 @@ public class APIViewForm extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTree apiTree;
     private javax.swing.JPanel contentPanel;
-    private javax.swing.JScrollPane contentScrollPanel;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 }
 

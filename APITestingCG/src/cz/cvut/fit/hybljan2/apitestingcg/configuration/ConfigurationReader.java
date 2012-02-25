@@ -14,8 +14,6 @@ import java.io.File;
  */
 public class ConfigurationReader {
 
-    private Configuration configuration;
-
 
     public enum ConfigurationKey {
         NAME, VERSION, SOURCE
@@ -27,7 +25,7 @@ public class ConfigurationReader {
             Unmarshaller unmarshaller = context.createUnmarshaller();
             // skip validation
             unmarshaller.setSchema(null);
-            configuration = (Configuration) unmarshaller.unmarshal(new File(filePath));
+            Configuration configuration = (Configuration) unmarshaller.unmarshal(new File(filePath));
             return configuration;
         } catch (JAXBException e) {
             System.out.println("Configuration read error.");

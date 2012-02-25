@@ -130,6 +130,10 @@ public class GeneratorConfiguration {
         return fieldTestIdentifier;
     }
 
+    public void setFieldTestIdentifier(String fieldTestIdentifier) {
+        this.fieldTestIdentifier = fieldTestIdentifier;
+    }
+
     @XmlElement(name = "field-test-variable-identifier")
     public String getFieldTestVariableIdentifier() {
         return fieldTestVariableIdentifier;

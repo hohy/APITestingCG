@@ -21,7 +21,6 @@ import java.util.Stack;
  */
 public class SourceTreeScanner extends TreeScanner {
     private Map<String, String> currentClassImports = new HashMap<String, String>();
-    private API api;
     private APIPackage currentPackage;
     private APIClass currentClass;
     private Stack<APIClass> classes = new Stack<APIClass>();
@@ -33,7 +32,7 @@ public class SourceTreeScanner extends TreeScanner {
     }
 
     public API getAPI() {
-        api = new API("");
+        API api = new API("");
         // Add all packages to API. We don't want default package in API, we can't import it!
         for (APIPackage p : pkgs.values()) if (!p.getName().equals("")) api.addPackage(p);
         return api;
@@ -74,7 +73,7 @@ public class SourceTreeScanner extends TreeScanner {
                 if (a.rhs instanceof JCTree.JCFieldAccess) {
                     currentClass.setAnnotationTargets(new LinkedList<APIClass.AnnotationTargets>());
                     try {
-                        APIClass.AnnotationTargets target = APIClass.parseAnnotationTarget(((JCTree.JCAssign) a).rhs.toString());
+                        APIClass.AnnotationTargets target = APIClass.parseAnnotationTarget(a.rhs.toString());
                         currentClass.getAnnotationTargets().add(target);
                     } catch (Exception e1) {
                         System.err.println(e1.getMessage());
