@@ -1,9 +1,5 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
-import com.sun.source.tree.Tree.Kind;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 

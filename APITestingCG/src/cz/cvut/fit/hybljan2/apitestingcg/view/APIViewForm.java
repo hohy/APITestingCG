@@ -6,19 +6,14 @@
 package cz.cvut.fit.hybljan2.apitestingcg.view;
 
 
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIField;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIItem;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIItem.Kind;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIMethod;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIPackage;
-import java.awt.Font;
-import javax.swing.Box;
-import javax.swing.JLabel;
+
+import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import java.awt.*;
 
 /**
  *

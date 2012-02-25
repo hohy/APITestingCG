@@ -1,8 +1,8 @@
 package cz.cvut.fit.hybljan2.apitestingcg;
 
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 import cz.cvut.fit.hybljan2.apitestingcg.cmgenerator.*;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.ConfigurationReader;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ApiViewConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.Configuration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorJobConfiguration;
@@ -11,9 +11,8 @@ import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.ByteCodeScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.view.APIViewForm;
+
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 /**

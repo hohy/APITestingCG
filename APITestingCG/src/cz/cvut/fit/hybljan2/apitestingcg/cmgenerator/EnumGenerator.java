@@ -1,6 +1,9 @@
 package cz.cvut.fit.hybljan2.apitestingcg.cmgenerator;
 
-import com.sun.codemodel.*;
+import com.sun.codemodel.JClass;
+import com.sun.codemodel.JClassAlreadyExistsException;
+import com.sun.codemodel.JMethod;
+import com.sun.codemodel.JMod;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIField;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIItem;

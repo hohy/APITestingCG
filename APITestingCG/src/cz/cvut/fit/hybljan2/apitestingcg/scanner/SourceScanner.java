@@ -1,17 +1,19 @@
 package cz.cvut.fit.hybljan2.apitestingcg.scanner;
 
-import com.sun.tools.javac.model.JavacTypes;
-import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ScannerConfiguration;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.tools.javac.api.JavacTaskImpl;
 import com.sun.tools.javac.api.JavacTool;
 import com.sun.tools.javac.file.JavacFileManager;
 import com.sun.tools.javac.main.JavaCompiler;
+import com.sun.tools.javac.model.JavacTypes;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Options;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ScannerConfiguration;
 
+import javax.tools.JavaFileManager;
+import javax.tools.JavaFileObject;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
@@ -21,8 +23,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.tools.JavaFileManager;
-import javax.tools.JavaFileObject;
 
 /**
  * TODO: write some javadoc

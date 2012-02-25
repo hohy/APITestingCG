@@ -1,8 +1,6 @@
 package cz.cvut.fit.hybljan2.apitestingcg.cmgenerator;
 
 import com.sun.codemodel.*;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.xml.internal.rngom.ast.builder.Annotations;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIField;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIItem;
@@ -10,7 +8,6 @@ import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIMethod;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 /**

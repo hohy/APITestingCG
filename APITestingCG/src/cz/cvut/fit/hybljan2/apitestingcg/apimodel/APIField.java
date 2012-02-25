@@ -2,6 +2,7 @@ package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
+
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;

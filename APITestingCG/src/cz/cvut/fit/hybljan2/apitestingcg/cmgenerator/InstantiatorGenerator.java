@@ -6,7 +6,6 @@ import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfigurat
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
