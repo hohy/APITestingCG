@@ -138,7 +138,7 @@ public class GeneratorConfiguration {
     public void setFieldTestVariableIdentifier(String fieldTestVariableIdentifier) {
         this.fieldTestVariableIdentifier = fieldTestVariableIdentifier;
     }
-    
+
     @XmlElement(name = "annotation-class-identifier")
     public String getAnnotationClassIdentifier() {
         return annotationClassIdentifier;

@@ -26,10 +26,10 @@ public class EnumGenerator extends InstantiatorGenerator {
     @Override
     public void visit(APIClass apiClass) {
         // enum test should be generated only for Enums
-        if(!apiClass.getType().equals(APIItem.Kind.ENUM)) return;
+        if (!apiClass.getType().equals(APIItem.Kind.ENUM)) return;
 
         // check if extender for this class is enabled in jobConfiguration.
-        if(!isEnabled(apiClass.getFullName(), WhitelistRule.RuleItem.INSTANTIATOR)) return;
+        if (!isEnabled(apiClass.getFullName(), WhitelistRule.RuleItem.INSTANTIATOR)) return;
 
         try {
             visitingClass = apiClass;
@@ -38,17 +38,17 @@ public class EnumGenerator extends InstantiatorGenerator {
             cls = cm._class(currentPackageName + '.' + generateName(configuration.getInstantiatorClassIdentifier(), apiClass.getName()));
 
             // visit all methods
-            for(APIMethod method : apiClass.getMethods()) {
+            for (APIMethod method : apiClass.getMethods()) {
                 method.accept(this);
             }
 
-            if(!apiClass.getFields().isEmpty()) {
-                JMethod fieldsMethod = cls.method(JMod.PUBLIC,cm.VOID,configuration.getFieldTestIdentifier());
+            if (!apiClass.getFields().isEmpty()) {
+                JMethod fieldsMethod = cls.method(JMod.PUBLIC, cm.VOID, configuration.getFieldTestIdentifier());
                 fieldsMethodBlock = fieldsMethod.body();
             }
             // visit all fields
-            for(APIField field : apiClass.getFields()) {
-                if(field.getVarType().equals(apiClass.getName())) { // test if field is enum field or just variable
+            for (APIField field : apiClass.getFields()) {
+                if (field.getVarType().equals(apiClass.getName())) { // test if field is enum field or just variable
                     visitEnumField(field);
                 } else {  // it's not a enum field but constant or variable. Test it in same way as in Instantiator or Extender.
                     field.accept(this);

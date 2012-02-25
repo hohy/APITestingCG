@@ -2,7 +2,7 @@ package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
 /**
  * Interface for visitors of APIModel classes.
- *
+ * <p/>
  * User: Jan Hýbl
  * Date: 3.2.12
  * Time: 16:13

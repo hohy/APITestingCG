@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
  * @author Jan Hýbl
  */
 public class APIField extends APIItem implements Comparable<APIField> {
@@ -16,6 +15,7 @@ public class APIField extends APIItem implements Comparable<APIField> {
 
     /**
      * Constructor used in unit testing.
+     *
      * @param varType
      * @param name
      * @param modifiers
@@ -29,6 +29,7 @@ public class APIField extends APIItem implements Comparable<APIField> {
 
     /**
      * Constructor used by source scanner.
+     *
      * @param jcvd
      * @param importsMap
      */
@@ -41,6 +42,7 @@ public class APIField extends APIItem implements Comparable<APIField> {
 
     /**
      * Constructor used by bytecode scanner.
+     *
      * @param f
      */
     public APIField(Field f) {
@@ -50,17 +52,18 @@ public class APIField extends APIItem implements Comparable<APIField> {
         this.modifiers = APIModifier.getModifiersSet(f.getModifiers());
         this.kind = Kind.VARIABLE;
     }
-        
+
     /**
      * Return string representation of APIField.
      * Format is [Modifiers] [Type] [Name]
      * Example: public static final int numberVar
-     * @return 
+     *
+     * @return
      */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for(Modifier m : modifiers) sb.append(m).append(' ');
+        for (Modifier m : modifiers) sb.append(m).append(' ');
         sb.append(varType).append(' ');
         sb.append(name);
         return sb.toString();
@@ -73,12 +76,13 @@ public class APIField extends APIItem implements Comparable<APIField> {
     public void setVarType(String varType) {
         this.varType = varType;
     }
-    
+
     /**
-     * APIField are compared by names, 
+     * APIField are compared by names,
      * so in SortedSet will be sorted in alphabetic order.
+     *
      * @param t
-     * @return 
+     * @return
      */
     @Override
     public int compareTo(APIField t) {

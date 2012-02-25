@@ -9,17 +9,18 @@ import java.io.File;
 
 /**
  * This class reads configuration file and provide access to information in it.
+ *
  * @author Jan Hýbl
  */
 public class ConfigurationReader {
-    
+
     private Configuration configuration;
 
-    
+
     public enum ConfigurationKey {
         NAME, VERSION, SOURCE
     }
-    
+
     public Configuration parseConfiguration(String filePath) {
         try {
             JAXBContext context = JAXBContext.newInstance(Configuration.class);

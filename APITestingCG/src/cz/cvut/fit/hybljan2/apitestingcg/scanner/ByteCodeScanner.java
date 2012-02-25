@@ -19,7 +19,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author Jan Hýbl
  */
 public class ByteCodeScanner implements APIScanner {
@@ -32,15 +31,16 @@ public class ByteCodeScanner implements APIScanner {
         this.jarFilePath = jarFilePath;
     }
 
-    public ByteCodeScanner() {        
+    public ByteCodeScanner() {
     }
-    
+
     @Override
     public void setConfiguration(ScannerConfiguration sc) {
         this.jarFilePath = sc.getPath();
         this.apiName = sc.getApiName();
         this.apiVersion = sc.getApiVersion();
-    }        
+    }
+
     @Override
     public API scan() {
         JarInputStream jis = null;
@@ -48,24 +48,24 @@ public class ByteCodeScanner implements APIScanner {
         try {
             File jarFile = new File(jarFilePath);
             jis = new JarInputStream(new FileInputStream(jarFile));
-            
+
             URL[] jarUrls = new URL[1];
             jarUrls[0] = jarFile.toURI().toURL();
-            URLClassLoader urlcl =  new URLClassLoader(jarUrls, this.getClass().getClassLoader());
-            
+            URLClassLoader urlcl = new URLClassLoader(jarUrls, this.getClass().getClassLoader());
+
             JarEntry jarEntry;
             while ((jarEntry = jis.getNextJarEntry()) != null) {
-                if(jarEntry.getName().endsWith(".class")) {                    
+                if (jarEntry.getName().endsWith(".class")) {
                     String className = jarEntry.getName().replaceAll("/", "\\.");
-                    className = className.substring(0,className.length() - 6);
+                    className = className.substring(0, className.length() - 6);
                     //System.out.println("Class: " + className);
-                    Class classToLoad = Class.forName (className, true, urlcl);
+                    Class classToLoad = Class.forName(className, true, urlcl);
                     //Method m[] = classToLoad.getDeclaredMethods();
-                    if(Modifier.isPublic(classToLoad.getModifiers()) || Modifier.isProtected(classToLoad.getModifiers())) {
-                        APIClass apicls = new APIClass(classToLoad);                        
-                        if(classToLoad.getPackage() != null) { 
+                    if (Modifier.isPublic(classToLoad.getModifiers()) || Modifier.isProtected(classToLoad.getModifiers())) {
+                        APIClass apicls = new APIClass(classToLoad);
+                        if (classToLoad.getPackage() != null) {
                             String packageName = classToLoad.getPackage().getName();
-                            if(pkgMap.containsKey(packageName)) {
+                            if (pkgMap.containsKey(packageName)) {
                                 pkgMap.get(packageName).addClass(apicls);
                             } else {
                                 APIPackage pkg = new APIPackage(packageName);
@@ -77,9 +77,9 @@ public class ByteCodeScanner implements APIScanner {
                     //for (int i = 0; i < m.length; i++) System.out.println("  " + m[i].toString());
                 } else {
                     //System.out.println("Package: " + jarEntry.getName().substring(0, jarEntry.getName().length()-1).replaceAll("/", "\\."));
-                }                
+                }
             }
-            
+
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ByteCodeScanner.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ioex) {
@@ -92,8 +92,8 @@ public class ByteCodeScanner implements APIScanner {
             }
         }
         API api = new API(apiName, apiVersion);
-        for(APIPackage pkg : pkgMap.values()) api.addPackage(pkg);
+        for (APIPackage pkg : pkgMap.values()) api.addPackage(pkg);
         return api;
     }
-    
+
 }

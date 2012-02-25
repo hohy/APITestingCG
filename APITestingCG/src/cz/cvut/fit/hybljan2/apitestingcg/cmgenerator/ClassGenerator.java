@@ -11,7 +11,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfigurat
  * Date: 10.2.12
  * Time: 14:11
  */
-public abstract class ClassGenerator extends Generator{
+public abstract class ClassGenerator extends Generator {
 
     protected JDefinedClass cls;
     protected APIClass visitingClass;

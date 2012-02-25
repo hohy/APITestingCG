@@ -5,6 +5,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Class store configuration for ApiView window.
+ *
  * @author Jan Hybl
  */
 @XmlRootElement(name = "apiview")
@@ -59,5 +60,5 @@ public class ApiViewConfiguration {
     public void setY(int y) {
         this.y = y;
     }
-        
+
 }

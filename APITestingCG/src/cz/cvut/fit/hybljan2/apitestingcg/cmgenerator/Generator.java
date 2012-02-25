@@ -43,7 +43,7 @@ public abstract class Generator implements IAPIVisitor {
         classMap = new HashMap<String, JClass>();
         // create directory for package
         File outputDir = new File(jobConfiguration.getOutputDir());
-        if(!outputDir.exists()) outputDir.mkdirs();
+        if (!outputDir.exists()) outputDir.mkdirs();
         visit(api);
         try {
             cm.build(outputDir);
@@ -54,11 +54,12 @@ public abstract class Generator implements IAPIVisitor {
 
     /**
      * Process all packages in given API.
+     *
      * @param api
      */
     @Override
     public void visit(API api) {
-        for(APIPackage pkg : api.getPackages()) {
+        for (APIPackage pkg : api.getPackages()) {
             pkg.accept(this);
         }
     }
@@ -67,13 +68,14 @@ public abstract class Generator implements IAPIVisitor {
      * For every original package from API creates new test package where test classes will be placed.
      * New packages are named by original name of package and configuration string from jobConfiguration field.
      * After visiting all classes in the package, directory for the package is created and classes from cuBuffer are generated.
+     *
      * @param apiPackage
      */
     @Override
     public void visit(APIPackage apiPackage) {
         currentPackageName = jobConfiguration.getOutputPackage().replaceAll("%s", apiPackage.getName());
 
-        for(APIClass cls : apiPackage.getClasses()) {
+        for (APIClass cls : apiPackage.getClasses()) {
             cls.accept(this);
         }
 
@@ -83,12 +85,13 @@ public abstract class Generator implements IAPIVisitor {
     /**
      * Can be used for generating names of methods and classes. Replace "%s" sequence with {@code originalName}.
      * If original class is generic, method remove generics from class name.
-     * @param pattern         All "%s" sequences will be replaced with originalName
-     * @param originalName    Original name of class/method.
-     * @return                new name
+     *
+     * @param pattern      All "%s" sequences will be replaced with originalName
+     * @param originalName Original name of class/method.
+     * @return new name
      */
     protected static String generateName(String pattern, String originalName) {
-        if(originalName.contains("<") && originalName.contains(">")) {
+        if (originalName.contains("<") && originalName.contains(">")) {
             String name = originalName.substring(0, originalName.indexOf("<"));
             return pattern.replaceAll("%s", simplifyName(name));
         } else return pattern.replaceAll("%s", simplifyName(originalName));
@@ -96,25 +99,26 @@ public abstract class Generator implements IAPIVisitor {
 
     /**
      * Check if given item is enabled for generating in white and black lists in jobConfiguration.
-     * @param itemSignature     Unique string that can be used for identification of the item. For class it's
-     *                          full class name (with package name), for methods it's string containing className,
-     *                          methodName, parameters and return type.
+     *
+     * @param itemSignature Unique string that can be used for identification of the item. For class it's
+     *                      full class name (with package name), for methods it's string containing className,
+     *                      methodName, parameters and return type.
      * @param target
      * @return
      */
     protected boolean isEnabled(String itemSignature, WhitelistRule.RuleItem target) {
         boolean enabled = false;
-        if(jobConfiguration.getWhitelistRules().size() > 0) {
-            for(WhitelistRule rule : jobConfiguration.getWhitelistRules()) {
-                if((rule.getRule().contains(itemSignature)||(itemSignature.contains(rule.getRule()))) && (rule.getItem().equals(target) || rule.getItem().equals(WhitelistRule.RuleItem.ALL))) {
+        if (jobConfiguration.getWhitelistRules().size() > 0) {
+            for (WhitelistRule rule : jobConfiguration.getWhitelistRules()) {
+                if ((rule.getRule().contains(itemSignature) || (itemSignature.contains(rule.getRule()))) && (rule.getItem().equals(target) || rule.getItem().equals(WhitelistRule.RuleItem.ALL))) {
                     enabled = true;
                     break;
                 }
             }
         } else enabled = true;  // if there is no rules for whitelist, enable all items.
 
-        for(BlacklistRule rule : jobConfiguration.getBlacklistRules()) {
-            if((rule.getRule().contains(itemSignature)||(itemSignature.contains(rule.getRule()))) && (rule.getItem().equals(target) || rule.getItem().equals(WhitelistRule.RuleItem.ALL))) {
+        for (BlacklistRule rule : jobConfiguration.getBlacklistRules()) {
+            if ((rule.getRule().contains(itemSignature) || (itemSignature.contains(rule.getRule()))) && (rule.getItem().equals(target) || rule.getItem().equals(WhitelistRule.RuleItem.ALL))) {
                 enabled = false;    // disable item if there is blacklist rule for it.
                 break;
             }
@@ -126,6 +130,7 @@ public abstract class Generator implements IAPIVisitor {
     /**
      * Generates unique identification string for method. Used for identification in blacklist and whitelist
      * in configuration.
+     *
      * @param method
      * @param className
      * @return
@@ -133,7 +138,8 @@ public abstract class Generator implements IAPIVisitor {
     protected String methodSignature(APIMethod method, String className) {
         StringBuilder sb = new StringBuilder();
         sb.append(className).append(".");
-        if(method.getName().contains(".")) sb.append(method.getName().substring(method.getName().lastIndexOf(".")+1));
+        if (method.getName().contains("."))
+            sb.append(method.getName().substring(method.getName().lastIndexOf(".") + 1));
         else sb.append(method.getName());
         sb.append('(');
         // list of Params
@@ -152,40 +158,42 @@ public abstract class Generator implements IAPIVisitor {
 
     /**
      * Returns default value for given type.
+     *
      * @param name
      * @return
      */
     public JExpression getDefaultPrimitiveValue(String name) {
-        if(name.equals("byte")) return JExpr.lit(0);
-        if(name.equals("short")) return JExpr.lit(0);
-        if(name.equals("int")) return JExpr.lit(0);
-        if(name.equals("long")) return JExpr.lit(0);
-        if(name.equals("float")) return JExpr.lit(0.0);
-        if(name.equals("double")) return JExpr.lit(0.0);
-        if(name.equals("boolean")) return JExpr.lit(false);
-        if(name.equals("char")) return JExpr.lit('a');
+        if (name.equals("byte")) return JExpr.lit(0);
+        if (name.equals("short")) return JExpr.lit(0);
+        if (name.equals("int")) return JExpr.lit(0);
+        if (name.equals("long")) return JExpr.lit(0);
+        if (name.equals("float")) return JExpr.lit(0.0);
+        if (name.equals("double")) return JExpr.lit(0.0);
+        if (name.equals("boolean")) return JExpr.lit(false);
+        if (name.equals("char")) return JExpr.lit('a');
         return JExpr._null();
     }
 
     /**
      * Returns default value for given type.
+     *
      * @param name
      * @return
      */
     public String getDefaultPrimitiveValueString(String name) {
-        if(name.equals("byte")) return "0";
-        if(name.equals("short")) return "0";
-        if(name.equals("int")) return "0";
-        if(name.equals("long")) return "0";
-        if(name.equals("float")) return "0.0";
-        if(name.equals("double")) return "0.0";
-        if(name.equals("boolean")) return "false";
-        if(name.equals("char")) return "a";
+        if (name.equals("byte")) return "0";
+        if (name.equals("short")) return "0";
+        if (name.equals("int")) return "0";
+        if (name.equals("long")) return "0";
+        if (name.equals("float")) return "0.0";
+        if (name.equals("double")) return "0.0";
+        if (name.equals("boolean")) return "false";
+        if (name.equals("char")) return "a";
         return "null";
-    }    
+    }
 
-    protected  JClass getClassRef(String className) {
-        if(classMap.containsKey(className)) {
+    protected JClass getClassRef(String className) {
+        if (classMap.containsKey(className)) {
             return classMap.get(className);
         } else {
             JClass classReference = cm.ref(className);
@@ -193,10 +201,10 @@ public abstract class Generator implements IAPIVisitor {
             return classReference;
         }
     }
-    
+
 
     public static String simplifyName(String originalName) {
-        if(originalName.contains(".")) return originalName.substring(originalName.lastIndexOf(".")+1);
+        if (originalName.contains(".")) return originalName.substring(originalName.lastIndexOf(".") + 1);
         return originalName;
     }
 }

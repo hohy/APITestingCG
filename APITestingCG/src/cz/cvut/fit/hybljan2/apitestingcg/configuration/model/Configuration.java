@@ -20,7 +20,7 @@ public class Configuration {
 
     @XmlElement(name = "api")
     List<ScannerConfiguration> apiConfigurations = new LinkedList<ScannerConfiguration>();
-    
+
     @XmlElement(name = "generate")
     List<GeneratorJobConfiguration> generatorJobConfigurations = new LinkedList<GeneratorJobConfiguration>();
 

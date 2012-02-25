@@ -40,50 +40,51 @@ public class SourceScanner implements APIScanner {
         this.sourceVersion = sourceVersion;
     }
 
-    public SourceScanner() {        
+    public SourceScanner() {
     }
-    
+
     @Override
     public void setConfiguration(ScannerConfiguration sc) {
-        if(sc.getPath() != null) this.sourceDir = sc.getPath();
-        if(sc.getClasspath() != null) this.classPath = sc.getClasspath();
-        if(sc.getSourceVersion() != null) this.sourceVersion = sc.getSourceVersion();
-        if(sc.getApiName() != null) this.apiName = sc.getApiName();
-        if(sc.getApiVersion() != null) this.apiVersion = sc.getApiVersion();
-    }        
+        if (sc.getPath() != null) this.sourceDir = sc.getPath();
+        if (sc.getClasspath() != null) this.classPath = sc.getClasspath();
+        if (sc.getSourceVersion() != null) this.sourceVersion = sc.getSourceVersion();
+        if (sc.getApiName() != null) this.apiName = sc.getApiName();
+        if (sc.getApiVersion() != null) this.apiVersion = sc.getApiVersion();
+    }
+
     /**
      * Scan
      */
     @Override
     public API scan() {
         try {
-            Context ctx = new Context();        
-            Options opt = Options.instance(ctx); 
+            Context ctx = new Context();
+            Options opt = Options.instance(ctx);
             opt.put("-source", sourceVersion);
             JavaCompiler compiler = JavaCompiler.instance(ctx);
             compiler.attrParseOnly = true;
             compiler.keepComments = true;
 
             List<String> files = listFiles(sourceDir);
-            
+
             JavacFileManager fileManager = (JavacFileManager) ctx.get(JavaFileManager.class);
             List<JavaFileObject> fileObjects = new ArrayList<JavaFileObject>();
             for (String s : files) {
                 fileObjects.add(fileManager.getFileForInput(s));
             }
-            
+
             JavacTool tool = JavacTool.create();
             List<String> options = Arrays.asList("-cp", classPath);
             JavacTaskImpl javacTaskImpl = (JavacTaskImpl) tool.getTask(null, fileManager, null, options, null, fileObjects);
-            javacTaskImpl.updateContext(ctx);        
+            javacTaskImpl.updateContext(ctx);
             Iterable<? extends CompilationUnitTree> units = javacTaskImpl.parse();
             javacTaskImpl.analyze();
             JavacTypes types = javacTaskImpl.getTypes();
             SourceTreeScanner sc = new SourceTreeScanner(types);
-            for (CompilationUnitTree cut : units) {                
-                sc.visitTopLevel((JCCompilationUnit) cut);  
+            for (CompilationUnitTree cut : units) {
+                sc.visitTopLevel((JCCompilationUnit) cut);
             }
-            
+
             API api = sc.getAPI();
             api.setName(apiName);
             api.setVersion(apiVersion);
@@ -92,17 +93,18 @@ public class SourceScanner implements APIScanner {
             Logger.getLogger(SourceScanner.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
-    }    
-    
+    }
+
     /**
      * Gets list of java files in directory with given path.
+     *
      * @param path
-     * @return 
+     * @return
      */
     private List<String> listFiles(String path) throws FileNotFoundException {
         List<String> p = new ArrayList<String>();
         File dir = new File(path);
-        if(!dir.exists()) throw new FileNotFoundException("Can't file/dir " + dir.getAbsolutePath());
+        if (!dir.exists()) throw new FileNotFoundException("Can't file/dir " + dir.getAbsolutePath());
         FileFilter filter = new FileFilter() {
 
             @Override

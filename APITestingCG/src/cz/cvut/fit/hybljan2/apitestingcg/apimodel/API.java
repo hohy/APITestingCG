@@ -4,28 +4,29 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
- * Represents API of library or framework. Contains classes and methods library 
+ * Represents API of library or framework. Contains classes and methods library
  * provides to client.
+ *
  * @author Jan Hýbl
  */
-public class API extends APIItem{
-        
+public class API extends APIItem {
+
     private SortedSet<APIPackage> packages;
     private String version;
 
     public API(String name) {
-        super.name = name; 
+        super.name = name;
         packages = new TreeSet<APIPackage>();
         version = "";
-    }    
-    
+    }
+
     public API(String name, String version) {
-        super.name = name; 
+        super.name = name;
         packages = new TreeSet<APIPackage>();
         this.version = version;
     }
-    
-    public void addPackage(APIPackage pkg) {        
+
+    public void addPackage(APIPackage pkg) {
         packages.add(pkg);
     }
 
@@ -33,8 +34,8 @@ public class API extends APIItem{
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(name).append(" ").append(version).append(":\n");
-        for(APIPackage p : packages) sb.append(p).append('\n');
-        return sb.toString().substring(0,sb.length()-1);
+        for (APIPackage p : packages) sb.append(p).append('\n');
+        return sb.toString().substring(0, sb.length() - 1);
     }
 
     public SortedSet<APIPackage> getPackages() {
@@ -67,5 +68,5 @@ public class API extends APIItem{
 
     public void setVersion(String version) {
         this.version = version;
-    }    
+    }
 }

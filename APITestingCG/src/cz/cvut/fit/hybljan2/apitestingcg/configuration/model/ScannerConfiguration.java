@@ -5,6 +5,7 @@ import javax.xml.bind.annotation.*;
 /**
  * Class stores information how to scan API and other information about API for
  * scanner
+ *
  * @author Jan Hybl
  */
 @XmlRootElement(name = "api")
@@ -17,7 +18,7 @@ public class ScannerConfiguration {
         @XmlEnumValue("bytecode")
         BYTECODE
     }
-    
+
     private APISource source;
     private String apiName = "";
     private String apiVersion = "";
@@ -28,10 +29,10 @@ public class ScannerConfiguration {
 
     @XmlElement(name = "id", required = true)
     public String getId() {
-        if(id != null) return id;
+        if (id != null) return id;
         else return apiName + " " + apiVersion + " " + source;
-    }    
-    
+    }
+
     public void setId(String id) {
         this.id = id;
     }
@@ -89,6 +90,6 @@ public class ScannerConfiguration {
     public void setSourceVersion(String sourceVersion) {
         this.sourceVersion = sourceVersion;
     }
-        
-    
+
+
 }

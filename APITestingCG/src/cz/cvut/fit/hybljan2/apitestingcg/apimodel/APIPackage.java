@@ -5,10 +5,11 @@ import java.util.TreeSet;
 
 /**
  * Class that represents package of classes in API.
+ *
  * @author Jan Hýbl
  */
 public class APIPackage extends APIItem implements Comparable<APIPackage> {
-    
+
     private SortedSet<APIClass> classes;
 
     public APIPackage(String name) {
@@ -16,7 +17,7 @@ public class APIPackage extends APIItem implements Comparable<APIPackage> {
         classes = new TreeSet<APIClass>();
         this.kind = Kind.PACKAGE;
     }
-    
+
     public void addClass(APIClass clazz) {
         classes.add(clazz);
     }
@@ -25,8 +26,8 @@ public class APIPackage extends APIItem implements Comparable<APIPackage> {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("\npackage ").append(name).append("\n\n");
-        for(APIClass c : classes) sb.append(c).append("\n");
-        return sb.toString().substring(0, sb.length()-1);
+        for (APIClass c : classes) sb.append(c).append("\n");
+        return sb.toString().substring(0, sb.length() - 1);
     }
 
     public SortedSet<APIClass> getClasses() {
@@ -57,5 +58,5 @@ public class APIPackage extends APIItem implements Comparable<APIPackage> {
     public int compareTo(APIPackage t) {
         return this.getName().compareTo(t.getName());
     }
-    
+
 }

@@ -16,35 +16,34 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * @author Jan Hýbl
  */
-public class APITestingCG {    
-    
+public class APITestingCG {
+
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {       
-        
+    public static void main(String[] args) {
+
         String pathToConfigFile = "configuration.xml";
         for (int i = 0; i < args.length; i++) {
-            if(args[i].equals("-c")) {  // read path to configuration file
-                pathToConfigFile = args[i+1];
+            if (args[i].equals("-c")) {  // read path to configuration file
+                pathToConfigFile = args[i + 1];
             }
             // there will be other args processing
-        }                   
-        
+        }
+
         Map<String, API> apiMap = new HashMap<String, API>();
-        
+
         ConfigurationReader cr = new ConfigurationReader();
         Configuration configuration = cr.parseConfiguration(pathToConfigFile);
-        
+
         APIScanner scanner = null;
         APIScanner sourceScanner = new SourceScanner();
         APIScanner bytecodeScanner = new ByteCodeScanner();
-        for(ScannerConfiguration sc : configuration.getApiConfigurations()) {
-            switch(sc.getSource()) {
-                case SOURCECODE: 
+        for (ScannerConfiguration sc : configuration.getApiConfigurations()) {
+            switch (sc.getSource()) {
+                case SOURCECODE:
                     scanner = sourceScanner;
                     break;
                 case BYTECODE:
@@ -56,8 +55,8 @@ public class APITestingCG {
             System.out.println("Loaded api: " + sc.getId());
             apiMap.put(sc.getId(), api);
         }
-        
-        for(ApiViewConfiguration ac : configuration.getViewConfigurations()) {
+
+        for (ApiViewConfiguration ac : configuration.getViewConfigurations()) {
             System.out.println("Creating new ApiViewForm: " + ac.getApiId());
             new APIViewForm(apiMap.get(ac.getApiId())).setVisible(true);
         }
@@ -69,9 +68,9 @@ public class APITestingCG {
                 new AnnotationGenerator(configuration.getGeneratorConfiguration())
         };
 
-        for(GeneratorJobConfiguration gjc : configuration.getGeneratorJobConfigurations()) {
+        for (GeneratorJobConfiguration gjc : configuration.getGeneratorJobConfigurations()) {
             System.out.println("Generating code for api " + gjc.getApiId());
-            for(Generator generator : generators) {
+            for (Generator generator : generators) {
                 generator.generate(apiMap.get(gjc.getApiId()), gjc);
             }
         }

@@ -13,6 +13,7 @@ import java.util.*;
 /**
  * Represent java class. Store information about it. Contains list of class
  * methods.
+ *
  * @author hohy
  */
 public class APIClass extends APIItem implements Comparable<APIClass> {
@@ -32,7 +33,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     }
 
     public APIClass(String name) {
-        if(name.contains(".")) this.name = name.substring(name.lastIndexOf('.')+1);
+        if (name.contains(".")) this.name = name.substring(name.lastIndexOf('.') + 1);
         else this.name = name;
         this.fullName = name;
         methods = new TreeSet<APIMethod>();
@@ -46,70 +47,72 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     public APIClass(JCClassDecl jccd, String packageName, Map<String, String> importsMap) {
         this.name = jccd.name.toString();
         this.fullName = packageName + "." + jccd.getSimpleName();
-        if(jccd.typarams.size() > 0) this.generics = jccd.typarams.toString();
-        this.methods = new TreeSet<APIMethod>(); 
-        this.constructors = new TreeSet<APIMethod>();        
+        if (jccd.typarams.size() > 0) this.generics = jccd.typarams.toString();
+        this.methods = new TreeSet<APIMethod>();
+        this.constructors = new TreeSet<APIMethod>();
         this.kind = getKind(jccd.getKind());
         this.modifiers = APIModifier.getModifiersSet(jccd.mods.getFlags());
-        if(this.kind == Kind.ENUM) modifiers.add(Modifier.FINAL);
+        if (this.kind == Kind.ENUM) modifiers.add(Modifier.FINAL);
         this.fields = new TreeSet<APIField>();
         //if(this.kind == Kind.CLASS) addDefaultConstructor();
-        if(jccd.getExtendsClause() != null) this.extending = jccd.extending.type.toString();//findFullClassName(jccd.getExtendsClause().getTree().toString(), importsMap);
-        if(jccd.getImplementsClause() != null) {
+        if (jccd.getExtendsClause() != null)
+            this.extending = jccd.extending.type.toString();//findFullClassName(jccd.getExtendsClause().getTree().toString(), importsMap);
+        if (jccd.getImplementsClause() != null) {
             this.implementing = new LinkedList<String>();
-            for(JCExpression e : jccd.getImplementsClause())
+            for (JCExpression e : jccd.getImplementsClause())
                 this.implementing.add(e.type.toString());//findFullClassName(e.toString(), importsMap));
         }
     }
-    
+
     public APIClass(Class cls) {
         this.name = cls.getSimpleName();
         this.fullName = cls.getName();
         this.constructors = new TreeSet<APIMethod>();
-        for(Constructor constr : cls.getDeclaredConstructors()) {
+        for (Constructor constr : cls.getDeclaredConstructors()) {
             APIMethod apiconstr = new APIMethod(constr, fullName);
-            if(apiconstr.getModifiers().contains(Modifier.PUBLIC) 
-                    || apiconstr.getModifiers().contains(Modifier.PROTECTED)) 
+            if (apiconstr.getModifiers().contains(Modifier.PUBLIC)
+                    || apiconstr.getModifiers().contains(Modifier.PROTECTED))
                 this.constructors.add(apiconstr);
         }
         this.methods = new TreeSet<APIMethod>();
-        for(Method mth : cls.getDeclaredMethods()) {
+        for (Method mth : cls.getDeclaredMethods()) {
             APIMethod apimth = new APIMethod(mth);
-            if(apimth.getModifiers().contains(Modifier.PUBLIC) 
-                    || apimth.getModifiers().contains(Modifier.PROTECTED)) 
+            if (apimth.getModifiers().contains(Modifier.PUBLIC)
+                    || apimth.getModifiers().contains(Modifier.PROTECTED))
                 this.methods.add(apimth);
         }
         this.modifiers = APIModifier.getModifiersSet(cls.getModifiers());
         this.fields = new TreeSet<APIField>();
-        for(Field f : cls.getDeclaredFields()) {
+        for (Field f : cls.getDeclaredFields()) {
             APIField apifield = new APIField(f);
-            if(apifield.getModifiers().contains(Modifier.PUBLIC) 
+            if (apifield.getModifiers().contains(Modifier.PUBLIC)
                     || apifield.getModifiers().contains(Modifier.PROTECTED))
                 this.fields.add(new APIField(f));
         }
         this.kind = getKind(cls);
-        if(kind==Kind.ANNOTATION) {
+        if (kind == Kind.ANNOTATION) {
             System.out.println(cls);
-            for(Annotation a : cls.getAnnotations()) {
+            for (Annotation a : cls.getAnnotations()) {
                 System.out.println(a.annotationType());
-                if(a.annotationType().getName().equals("interface java.lang.annotation.Target")) {
+                if (a.annotationType().getName().equals("interface java.lang.annotation.Target")) {
                     System.out.println(a.toString());
                 }
             }
         }
 
         // Check, if class has some superclass (other than Object) 
-        if(cls.getSuperclass() != null && !cls.getSuperclass().getSimpleName().equals("Object") && !cls.getSuperclass().getSimpleName().equals("Enum")) this.extending = cls.getSuperclass().getName();
+        if (cls.getSuperclass() != null && !cls.getSuperclass().getSimpleName().equals("Object") && !cls.getSuperclass().getSimpleName().equals("Enum"))
+            this.extending = cls.getSuperclass().getName();
         this.implementing = new LinkedList<String>();
-        for(Class intfc : cls.getInterfaces()) {
+        for (Class intfc : cls.getInterfaces()) {
             this.implementing.add(intfc.getName());
         }
     }
-    
+
     public void addMethod(APIMethod method) {
         methods.add(method);
     }
-    
+
     public void addField(APIField field) {
         fields.add(field);
     }
@@ -117,7 +120,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     public void addConstructor(APIMethod constructor) {
         constructors.add(constructor);
     }
-    
+
     public void addDefaultConstructor() {
         List<Modifier> publicmodifier = new LinkedList<Modifier>();
         publicmodifier.add(Modifier.PUBLIC);
@@ -127,7 +130,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         constr.kind = Kind.CONSTRUCTOR;
         this.constructors.add(constr);
     }
-    
+
     public void deleteDefaultConstructor() {
         List<Modifier> publicmodifier = new LinkedList<Modifier>();
         publicmodifier.add(Modifier.PUBLIC);
@@ -137,12 +140,13 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         constr.kind = Kind.CONSTRUCTOR;
         this.constructors.remove(constr);
     }
-    
+
     /**
      * Converts this class to String.
      * String format: [modifiers] [kind] [fullName] extends [extending] implements [implementing]\n
      * [fields] [methods]
-     * @return  String representation of this class 
+     *
+     * @return String representation of this class
      */
     @Override
     public String toString() {
@@ -150,14 +154,14 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         sb.append(APIModifier.modifiersToString(modifiers));
         sb.append(kind.toString().toLowerCase()).append(' ');
         sb.append(fullName);
-        if(extending != null) sb.append(" extends ").append(extending);
-        if(implementing != null && implementing.size() > 0) {
+        if (extending != null) sb.append(" extends ").append(extending);
+        if (implementing != null && implementing.size() > 0) {
             sb.append(" implements");
-            for(String i : implementing) sb.append(' ').append(i);
+            for (String i : implementing) sb.append(' ').append(i);
         }
-        if(fields != null) for(APIField f : fields) sb.append("\n ").append(f.toString());
-        if(constructors != null) for(APIMethod c : constructors) sb.append("\n ").append(c.toString());
-        if(methods != null) for(APIMethod m : methods) sb.append("\n ").append(m.toString());
+        if (fields != null) for (APIField f : fields) sb.append("\n ").append(f.toString());
+        if (constructors != null) for (APIMethod c : constructors) sb.append("\n ").append(c.toString());
+        if (methods != null) for (APIMethod m : methods) sb.append("\n ").append(m.toString());
         return sb.toString();
     }
 
@@ -167,7 +171,8 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
 
     /**
      * Return list of method of the class. Return empty list, if class has no methods.
-     * @return 
+     *
+     * @return
      */
     public Set<APIMethod> getMethods() {
         return methods;
@@ -176,7 +181,8 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     /**
      * Return name of class, that class is extending. Return null, if class extending
      * java.lang.Object (default situation).
-     * @return 
+     *
+     * @return
      */
     public String getExtending() {
         return extending;
@@ -193,7 +199,8 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     /**
      * Return list of names of interfaces, that class is implmenting. Return empty list,
      * if class implements no interface.
-     * @return 
+     *
+     * @return
      */
     public List<String> getImplementing() {
         return implementing;
@@ -202,7 +209,8 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     /**
      * Return full name of class - with package name.
      * Example: java.io.File
-     * @return 
+     *
+     * @return
      */
     public String getFullName() {
         return fullName;
@@ -210,11 +218,12 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
 
     /**
      * Parse name of package from full name of class.
+     *
      * @return name of package
      */
     public String getPackageName() {
         int lastDotPosition = fullName.lastIndexOf('.');
-        if(lastDotPosition != -1) {
+        if (lastDotPosition != -1) {
             return fullName.substring(0, lastDotPosition);
         } else { // full name doesn't contain dot character. Class isn't in any package.
             return "";
@@ -222,9 +231,9 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     }
 
     private Kind getKind(Class cls) {
-        if(cls.isAnnotation()) return Kind.ANNOTATION;
-        if(cls.isInterface()) return Kind.INTERFACE;
-        if(cls.isEnum()) return Kind.ENUM;        
+        if (cls.isAnnotation()) return Kind.ANNOTATION;
+        if (cls.isInterface()) return Kind.INTERFACE;
+        if (cls.isEnum()) return Kind.ENUM;
         return Kind.CLASS;
     }
 
@@ -251,8 +260,8 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         }
         if (this.constructors != other.constructors && (this.constructors == null || !this.constructors.equals(other.constructors))) {
             return false;
-        }   
-        if(!this.constructors.equals(other.constructors)) return false;
+        }
+        if (!this.constructors.equals(other.constructors)) return false;
         if (this.fields != other.fields && (this.fields == null || !this.fields.equals(other.fields))) {
             return false;
         }
@@ -288,16 +297,16 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     public void setAnnotationTargets(List<AnnotationTargets> annotationTargets) {
         this.annotationTargets = annotationTargets;
     }
-    
+
     public static AnnotationTargets parseAnnotationTarget(String name) throws Exception {
-        if(name.equals("ElementType.ANNOTATION_TYPE")) return AnnotationTargets.ANNOTATION_TYPE;
-        if(name.equals("ElementType.CONSTRUCTOR")) return AnnotationTargets.CONSTRUCTOR;
-        if(name.equals("ElementType.TYPE")) return AnnotationTargets.TYPE;
-        if(name.equals("ElementType.FIELD")) return AnnotationTargets.FIELD;
-        if(name.equals("ElementType.LOCAL_VARIABLE")) return AnnotationTargets.LOCAL_VARIABLE;
-        if(name.equals("ElementType.METHOD")) return AnnotationTargets.METHOD;
-        if(name.equals("ElementType.PACKAGE")) return AnnotationTargets.PACKAGE;
-        if(name.equals("ElementType.PARAMETER")) return AnnotationTargets.PARAMETER;
-        throw new Exception("Unknown annotation target \""+ name + "\".");
+        if (name.equals("ElementType.ANNOTATION_TYPE")) return AnnotationTargets.ANNOTATION_TYPE;
+        if (name.equals("ElementType.CONSTRUCTOR")) return AnnotationTargets.CONSTRUCTOR;
+        if (name.equals("ElementType.TYPE")) return AnnotationTargets.TYPE;
+        if (name.equals("ElementType.FIELD")) return AnnotationTargets.FIELD;
+        if (name.equals("ElementType.LOCAL_VARIABLE")) return AnnotationTargets.LOCAL_VARIABLE;
+        if (name.equals("ElementType.METHOD")) return AnnotationTargets.METHOD;
+        if (name.equals("ElementType.PACKAGE")) return AnnotationTargets.PACKAGE;
+        if (name.equals("ElementType.PARAMETER")) return AnnotationTargets.PARAMETER;
+        throw new Exception("Unknown annotation target \"" + name + "\".");
     }
 }
