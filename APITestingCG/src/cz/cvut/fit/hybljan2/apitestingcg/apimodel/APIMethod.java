@@ -36,7 +36,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         this.thrown = thrown;
     }
 
-    public APIMethod(JCMethodDecl jcmd, Map<String, String> importsMap, JavacTypes types) {
+    public APIMethod(JCMethodDecl jcmd, Map<String, String> genericsMap, JavacTypes types) {
         boolean constructor = false;
         if (jcmd.name.toString().equals("<init>")) constructor = true;
         this.name = jcmd.name.toString();
@@ -73,8 +73,8 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         }
         this.parameters = new LinkedList<String>();
         for (JCVariableDecl jcvd : jcmd.getParameters()) {
-            //parameters.add(findFullClassName(jcvd.getType().toString(), importsMap));
-            parameters.add(jcvd.type.toString());
+            parameters.add(findFullClassName(jcvd.getType().toString(), genericsMap));
+            //parameters.add(jcvd.type.toString());
         }
         if (constructor) this.kind = Kind.CONSTRUCTOR;
         else this.kind = getKind(jcmd.getKind());

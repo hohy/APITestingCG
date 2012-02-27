@@ -25,7 +25,6 @@ public class ExtenderGenerator extends ClassGenerator {
             return;
         }
 
-
         // check if extender for this class is enabled in jobConfiguration.
         if (!isEnabled(apiClass.getFullName(), WhitelistRule.RuleItem.EXTENDER)) {
             return;
@@ -146,10 +145,19 @@ public class ExtenderGenerator extends ClassGenerator {
     @Override
     public void visit(APIMethod method) {
         // check if method is enabled in configuration.
-        if (!isEnabled(methodSignature(method, visitingClass.getFullName()), WhitelistRule.RuleItem.EXTENDER)) return;
+        if (!isEnabled(methodSignature(method, visitingClass.getFullName()), WhitelistRule.RuleItem.EXTENDER)) {
+            return;
+        }
 
         // Extender can't override final methods
-        if (method.getModifiers().contains(APIModifier.Modifier.FINAL)) return;
+        if (method.getModifiers().contains(APIModifier.Modifier.FINAL)) {
+            return;
+        }
+
+        // Extender can't override static methods
+        if (method.getModifiers().contains(APIModifier.Modifier.STATIC)) {
+            return;
+        }
 
         // define new method
         JMethod mthd = cls.method(JMod.PUBLIC, getClassRef(method.getReturnType()), method.getName());

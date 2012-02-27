@@ -34,22 +34,36 @@ public class InstantiatorGenerator extends ClassGenerator {
             visitingClass = apiClass;
 
             // declare new class
-            cls = cm._class(currentPackageName + '.' + generateName(configuration.getInstantiatorClassIdentifier(), apiClass.getName()));
+            String clsName = generateName(configuration.getInstantiatorClassIdentifier(), apiClass.getName());
+            cls = cm._class(currentPackageName + '.' + clsName);
 
-            // visit all constructors
-            for (APIMethod constructor : apiClass.getConstructors()) {
-                visitConstructor(constructor);
+            // visit all constructors, if class isn't abstract
+            if (!visitingClass.getModifiers().contains(APIModifier.Modifier.ABSTRACT)) {
+                for (APIMethod constructor : apiClass.getConstructors()) {
+                    visitConstructor(constructor);
+                }
             }
 
-            // genetate test of extending - cant be performed if tested class has no constructors
-            if (apiClass.getExtending() != null && !apiClass.getConstructors().isEmpty()) {
-                addCreateInstanceMethod(apiClass.getExtending(), generateName(configuration.getCreateSuperInstanceIdentifier(), apiClass.getExtending()), apiClass.getConstructors().first(), false);
+            // add generics
+            if (apiClass.getGenerics() != null) {
+                cls.generify(apiClass.getGenerics());
+            }
+
+            // genetate test of extending - cant be performed if tested class has no constructors or is abstract
+            if (apiClass.getExtending() != null
+                    && !apiClass.getConstructors().isEmpty()
+                    && !visitingClass.getModifiers().contains(APIModifier.Modifier.ABSTRACT)) {
+                String name = generateName(configuration.getCreateSuperInstanceIdentifier(), apiClass.getExtending());
+                addCreateInstanceMethod(apiClass.getExtending(), name, apiClass.getConstructors().first(), false);
             }
 
             // genetate test of implementing - cant be performed if tested class has no constructors
-            if (!apiClass.getImplementing().isEmpty() && !apiClass.getConstructors().isEmpty()) {
+            if (!apiClass.getImplementing().isEmpty()
+                    && !apiClass.getConstructors().isEmpty()
+                    && !visitingClass.getModifiers().contains(APIModifier.Modifier.ABSTRACT)) {
                 for (String implementing : apiClass.getImplementing()) {
-                    addCreateInstanceMethod(implementing, generateName(configuration.getCreateSuperInstanceIdentifier(), implementing), apiClass.getConstructors().first(), false);
+                    String name = generateName(configuration.getCreateSuperInstanceIdentifier(), implementing);
+                    addCreateInstanceMethod(implementing, name, apiClass.getConstructors().first(), false);
                 }
             }
 
@@ -82,8 +96,9 @@ public class InstantiatorGenerator extends ClassGenerator {
      */
     public void visitConstructor(APIMethod constructor) {
         // Check if constructor is enabled in job configuration.
-        if (!isEnabled(methodSignature(constructor, visitingClass.getFullName()), WhitelistRule.RuleItem.INSTANTIATOR))
+        if (!isEnabled(methodSignature(constructor, visitingClass.getFullName()), WhitelistRule.RuleItem.INSTANTIATOR)) {
             return;
+        }
 
         // create basic create new instance method
         addCreateInstanceMethod(visitingClass.getFullName(), generateName(configuration.getCreateInstanceIdentifier(), constructor.getName()), constructor, false);
@@ -128,7 +143,7 @@ public class InstantiatorGenerator extends ClassGenerator {
             } else {
                 // create new field of same type as original
                 String fldName = generateName(configuration.getFieldTestVariableIdentifier(), apiField.getName());
-                JVar var = fieldsMethodBlock.decl(getClassRef(apiField.getVarType()), fldName, getDefaultPrimitiveValue(apiField.getVarType()));
+                JVar var = fieldsMethodBlock.decl(getClassRef(apiField.getVarType()), fldName, getPrimitiveValue(apiField.getVarType()));
                 fieldsMethodBlock.assign(JExpr.ref(apiField.getName()), var);
             }
             fieldsMethodBlock.directStatement(" ");
@@ -164,8 +179,8 @@ public class InstantiatorGenerator extends ClassGenerator {
         Iterator<String> itA = paramsA.iterator();
         Iterator<String> itB = paramsB.iterator();
         while (itA.hasNext()) {
-            String paramA = getDefaultPrimitiveValueString(itA.next());
-            String paramB = getDefaultPrimitiveValueString(itB.next());
+            String paramA = getPrimitiveValueString(itA.next());
+            String paramB = getPrimitiveValueString(itB.next());
             if (!paramA.equals(paramB)) return false;
         }
         return true;
@@ -190,7 +205,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         char argName = 'a';
         for (String arg : constructor.getParameters()) {
             result.param(getClassRef(arg), String.valueOf(argName));
-            if (nullParams) newInstance.arg(getDefaultPrimitiveValue(arg));
+            if (nullParams) newInstance.arg(getPrimitiveValue(arg));
             else newInstance.arg(JExpr.ref(String.valueOf(argName)));
             argName++;
         }
@@ -206,7 +221,7 @@ public class InstantiatorGenerator extends ClassGenerator {
                 tryBlock._catch(exception).param(exceptionParam);
             }
 
-            result.body()._return(getDefaultPrimitiveValue(constructor.getReturnType()));
+            result.body()._return(getPrimitiveValue(constructor.getReturnType()));
         }
 
         resultBody._return(newInstance);
@@ -246,7 +261,7 @@ public class InstantiatorGenerator extends ClassGenerator {
             JVar param = caller.param(type, name);
             nullCaller.param(type, name);
             invocation.arg(param);
-            nullInvocation.arg(getDefaultPrimitiveValue(pType));
+            nullInvocation.arg(getPrimitiveValue(pType));
         }
 
         JBlock callerBody = caller.body();
@@ -267,8 +282,8 @@ public class InstantiatorGenerator extends ClassGenerator {
             }
 
             if (!method.getReturnType().equals("void")) {
-                caller.body()._return(getDefaultPrimitiveValue(method.getReturnType()));
-                nullCaller.body()._return(getDefaultPrimitiveValue(method.getReturnType()));
+                caller.body()._return(getPrimitiveValue(method.getReturnType()));
+                nullCaller.body()._return(getPrimitiveValue(method.getReturnType()));
             }
         }
 
@@ -317,7 +332,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         for (String argType : method.getParameters()) {
             caller.param(getClassRef(argType), String.valueOf(argName));
             if (nullParams) nullCaller.param(getClassRef(argType), String.valueOf(argName));
-            methodCall.arg(getDefaultPrimitiveValue(argType));
+            methodCall.arg(getPrimitiveValue(argType));
             nullMethodCall.arg(JExpr.ref(String.valueOf(argName)));
             argName++;
         }

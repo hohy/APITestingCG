@@ -116,9 +116,15 @@ public abstract class APIItem {
 
     protected String getTypeName(Type t) {
         String rawName = t.toString();
-        if (rawName.contains("class")) return rawName.substring(6);
-        if (rawName.contains("interface")) return rawName.substring(10);
-        return rawName;
+        if (rawName.contains("class")) rawName = rawName.substring(6);
+        if (rawName.contains("interface")) rawName = rawName.substring(10);
+
+        if (rawName.startsWith("[L")) { // if method returns array, scanner gets wrong return class name.
+            // This fix this error
+            return rawName.substring(2, rawName.length() - 1) + "[]";
+        } else {
+            return rawName;
+        }
     }
 
     public enum Kind {

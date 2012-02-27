@@ -31,11 +31,11 @@ public class APIField extends APIItem implements Comparable<APIField> {
      * Constructor used by source scanner.
      *
      * @param jcvd
-     * @param importsMap
+     * @param genericsMap
      */
-    public APIField(JCVariableDecl jcvd, Map<String, String> importsMap) {
+    public APIField(JCVariableDecl jcvd, Map<String, String> genericsMap) {
         this.name = jcvd.name.toString();
-        this.varType = findFullClassName(jcvd.type.toString(), importsMap);
+        this.varType = findFullClassName(jcvd.type.toString(), genericsMap);
         this.modifiers = APIModifier.getModifiersSet(jcvd.getModifiers().getFlags());
         this.kind = getKind(jcvd.getKind());
     }

@@ -1,5 +1,6 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
+import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
@@ -29,6 +30,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     private String fullName;
     private String generics;
     private List<ElementType> annotationTargets;
+    private Map<String, String> typeParamsMap = new HashMap<String, String>();
 
     public APIClass(String name) {
         if (name.contains(".")) this.name = name.substring(name.lastIndexOf('.') + 1);
@@ -44,6 +46,11 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
 
     public APIClass(JCClassDecl jccd, String packageName) {
         this.name = jccd.name.toString();
+        if (jccd.typarams.size() > 0) {
+            for (JCTree.JCTypeParameter par : jccd.typarams) {
+                typeParamsMap.put(par.getName().toString(), par.type.getUpperBound().toString());
+            }
+        }
         this.fullName = packageName + "." + jccd.getSimpleName();
         if (jccd.typarams.size() > 0) this.generics = jccd.typarams.toString();
         this.methods = new TreeSet<APIMethod>();
@@ -196,6 +203,10 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
 
     public String getGenerics() {
         return generics;
+    }
+
+    public Map<String, String> getTypeParamsMap() {
+        return typeParamsMap;
     }
 
     /**

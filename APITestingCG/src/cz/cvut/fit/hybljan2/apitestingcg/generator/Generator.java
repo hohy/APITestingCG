@@ -171,7 +171,7 @@ public abstract class Generator implements IAPIVisitor {
      * @param name
      * @return
      */
-    public JExpression getDefaultPrimitiveValue(String name) {
+    public JExpression getPrimitiveValue(String name) {
         if (name.equals("byte")) return JExpr.lit(0);
         if (name.equals("short")) return JExpr.lit(0);
         if (name.equals("int")) return JExpr.lit(0);
@@ -189,7 +189,7 @@ public abstract class Generator implements IAPIVisitor {
      * @param name
      * @return
      */
-    public String getDefaultPrimitiveValueString(String name) {
+    public String getPrimitiveValueString(String name) {
         if (name.equals("byte")) return "0";
         if (name.equals("short")) return "0";
         if (name.equals("int")) return "0";
@@ -206,6 +206,7 @@ public abstract class Generator implements IAPIVisitor {
         if (className.endsWith("[]")) {
             return getClassRef(className.substring(0, className.length() - 2)).array();
         }
+
         if (className.contains("<")) {
             className = className.substring(0, className.indexOf("<"));
         }
