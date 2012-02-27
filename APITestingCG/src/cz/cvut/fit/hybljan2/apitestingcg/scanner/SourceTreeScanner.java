@@ -11,6 +11,7 @@ import com.sun.tools.javac.tree.TreeScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIItem.Kind;
 
+import java.lang.annotation.ElementType;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -55,7 +56,7 @@ public class SourceTreeScanner extends TreeScanner {
         ClassSymbol cs = jccd.sym;
         if ((cs.flags() & (Flags.PUBLIC | Flags.PROTECTED)) != 0) {
             classes.push(currentClass);
-            currentClass = new APIClass(jccd, currentPackage.getName(), currentClassImports);
+            currentClass = new APIClass(jccd, currentPackage.getName());
             super.visitClassDef(jccd);
             currentPackage.addClass(currentClass);
             currentClass = classes.pop();
@@ -71,15 +72,15 @@ public class SourceTreeScanner extends TreeScanner {
                 JCTree.JCAssign a = (JCTree.JCAssign) e;
                 System.out.println(a);
                 if (a.rhs instanceof JCTree.JCFieldAccess) {
-                    currentClass.setAnnotationTargets(new LinkedList<APIClass.AnnotationTargets>());
+                    currentClass.setAnnotationTargets(new LinkedList<ElementType>());
                     try {
-                        APIClass.AnnotationTargets target = APIClass.parseAnnotationTarget(a.rhs.toString());
+                        ElementType target = APIClass.parseAnnotationTarget(a.rhs.toString());
                         currentClass.getAnnotationTargets().add(target);
                     } catch (Exception e1) {
                         System.err.println(e1.getMessage());
                     }
                 } else if (a.rhs instanceof JCTree.JCNewArray) {
-                    currentClass.setAnnotationTargets(new LinkedList<APIClass.AnnotationTargets>());
+                    currentClass.setAnnotationTargets(new LinkedList<ElementType>());
                     JCTree.JCNewArray array = (JCTree.JCNewArray) a.rhs;
                     for (JCTree.JCExpression fld : array.elems) {
                         try {

@@ -5,6 +5,8 @@ import com.sun.tools.javac.tree.JCTree.JCExpression;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 
 import java.lang.annotation.Annotation;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -26,11 +28,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     // Full name of class (contains package name) - expample: java.util.Set
     private String fullName;
     private String generics;
-    private List<AnnotationTargets> annotationTargets;
-
-    public enum AnnotationTargets {
-        TYPE, FIELD, METHOD, PARAMETER, CONSTRUCTOR, LOCAL_VARIABLE, ANNOTATION_TYPE, PACKAGE
-    }
+    private List<ElementType> annotationTargets;
 
     public APIClass(String name) {
         if (name.contains(".")) this.name = name.substring(name.lastIndexOf('.') + 1);
@@ -44,7 +42,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         modifiers.add(Modifier.PUBLIC);
     }
 
-    public APIClass(JCClassDecl jccd, String packageName, Map<String, String> importsMap) {
+    public APIClass(JCClassDecl jccd, String packageName) {
         this.name = jccd.name.toString();
         this.fullName = packageName + "." + jccd.getSimpleName();
         if (jccd.typarams.size() > 0) this.generics = jccd.typarams.toString();
@@ -54,13 +52,12 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         this.modifiers = APIModifier.getModifiersSet(jccd.mods.getFlags());
         if (this.kind == Kind.ENUM) modifiers.add(Modifier.FINAL);
         this.fields = new TreeSet<APIField>();
-        //if(this.kind == Kind.CLASS) addDefaultConstructor();
         if (jccd.getExtendsClause() != null)
-            this.extending = jccd.extending.type.toString();//findFullClassName(jccd.getExtendsClause().getTree().toString(), importsMap);
+            this.extending = jccd.extending.type.toString();
         if (jccd.getImplementsClause() != null) {
             this.implementing = new LinkedList<String>();
             for (JCExpression e : jccd.getImplementsClause())
-                this.implementing.add(e.type.toString());//findFullClassName(e.toString(), importsMap));
+                this.implementing.add(e.type.toString());
         }
     }
 
@@ -94,8 +91,13 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
             System.out.println(cls);
             for (Annotation a : cls.getAnnotations()) {
                 System.out.println(a.annotationType());
-                if (a.annotationType().getName().equals("interface java.lang.annotation.Target")) {
-                    System.out.println(a.toString());
+
+                if (a instanceof java.lang.annotation.Target) {
+                    annotationTargets = new LinkedList<ElementType>();
+                    Target annotationTarget = (Target) a;
+                    for (ElementType elementType : annotationTarget.value()) {
+                        annotationTargets.add(elementType);
+                    }
                 }
             }
         }
@@ -290,23 +292,23 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         this.implementing = implement;
     }
 
-    public List<AnnotationTargets> getAnnotationTargets() {
+    public List<ElementType> getAnnotationTargets() {
         return annotationTargets;
     }
 
-    public void setAnnotationTargets(List<AnnotationTargets> annotationTargets) {
+    public void setAnnotationTargets(List<ElementType> annotationTargets) {
         this.annotationTargets = annotationTargets;
     }
 
-    public static AnnotationTargets parseAnnotationTarget(String name) throws Exception {
-        if (name.equals("ElementType.ANNOTATION_TYPE")) return AnnotationTargets.ANNOTATION_TYPE;
-        if (name.equals("ElementType.CONSTRUCTOR")) return AnnotationTargets.CONSTRUCTOR;
-        if (name.equals("ElementType.TYPE")) return AnnotationTargets.TYPE;
-        if (name.equals("ElementType.FIELD")) return AnnotationTargets.FIELD;
-        if (name.equals("ElementType.LOCAL_VARIABLE")) return AnnotationTargets.LOCAL_VARIABLE;
-        if (name.equals("ElementType.METHOD")) return AnnotationTargets.METHOD;
-        if (name.equals("ElementType.PACKAGE")) return AnnotationTargets.PACKAGE;
-        if (name.equals("ElementType.PARAMETER")) return AnnotationTargets.PARAMETER;
+    public static ElementType parseAnnotationTarget(String name) throws Exception {
+        if (name.equals("ElementType.ANNOTATION_TYPE")) return ElementType.ANNOTATION_TYPE;
+        if (name.equals("ElementType.CONSTRUCTOR")) return ElementType.CONSTRUCTOR;
+        if (name.equals("ElementType.TYPE")) return ElementType.TYPE;
+        if (name.equals("ElementType.FIELD")) return ElementType.FIELD;
+        if (name.equals("ElementType.LOCAL_VARIABLE")) return ElementType.LOCAL_VARIABLE;
+        if (name.equals("ElementType.METHOD")) return ElementType.METHOD;
+        if (name.equals("ElementType.PACKAGE")) return ElementType.PACKAGE;
+        if (name.equals("ElementType.PARAMETER")) return ElementType.PARAMETER;
         throw new Exception("Unknown annotation target \"" + name + "\".");
     }
 }

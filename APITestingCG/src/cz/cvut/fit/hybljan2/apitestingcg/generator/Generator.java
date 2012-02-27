@@ -91,10 +91,19 @@ public abstract class Generator implements IAPIVisitor {
      * @return new name
      */
     protected static String generateName(String pattern, String originalName) {
-        if (originalName.contains("<") && originalName.contains(">")) {
-            String name = originalName.substring(0, originalName.indexOf("<"));
-            return pattern.replaceAll("%s", simplifyName(name));
-        } else return pattern.replaceAll("%s", simplifyName(originalName));
+        try {
+            // escape $ char.
+            originalName = originalName.replaceAll("\\$", "\\\\\\$");
+            if (originalName.contains("<") && originalName.contains(">")) {
+                String name = originalName.substring(0, originalName.indexOf("<"));
+                return pattern.replaceAll("%s", simplifyName(name));
+            } else {
+                return pattern.replaceAll("%s", simplifyName(originalName));
+            }
+        } catch (IllegalArgumentException e) {
+            System.err.printf("Can't generate name using pattern \"%s\" and original name \"%s\".", pattern, originalName);
+        }
+        return null;
     }
 
     /**
@@ -193,6 +202,13 @@ public abstract class Generator implements IAPIVisitor {
     }
 
     protected JClass getClassRef(String className) {
+        // check if it's array
+        if (className.endsWith("[]")) {
+            return getClassRef(className.substring(0, className.length() - 2)).array();
+        }
+        if (className.contains("<")) {
+            className = className.substring(0, className.indexOf("<"));
+        }
         if (classMap.containsKey(className)) {
             return classMap.get(className);
         } else {

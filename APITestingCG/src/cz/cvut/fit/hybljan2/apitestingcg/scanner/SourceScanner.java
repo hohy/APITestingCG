@@ -95,13 +95,26 @@ public class SourceScanner implements APIScanner {
         }
     }
 
+
     /**
      * Gets list of java files in directory with given path.
      *
      * @param path
      * @return
      */
-    private List<String> listFiles(String path) throws FileNotFoundException {
+    public static List<String> listFiles(String path) throws FileNotFoundException {
+        return listFiles(path, ".java");
+    }
+
+    /**
+     * Gets list of files with given path and suffix.
+     *
+     * @param path   Path to directory with files
+     * @param suffix Suffix name of files. For example: ".java"
+     * @return List of files
+     * @throws FileNotFoundException
+     */
+    public static List<String> listFiles(String path, final String suffix) throws FileNotFoundException {
         List<String> p = new ArrayList<String>();
         File dir = new File(path);
         if (!dir.exists()) throw new FileNotFoundException("Can't file/dir " + dir.getAbsolutePath());
@@ -112,7 +125,7 @@ public class SourceScanner implements APIScanner {
                 if (f.isDirectory()) {
                     return true;
                 }
-                if (f.getName().endsWith(".java")) {
+                if (f.getName().endsWith(suffix)) {
                     return true;
                 }
                 return false;

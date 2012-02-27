@@ -8,6 +8,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIMethod;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 
+import java.lang.annotation.ElementType;
 import java.util.Arrays;
 
 /**
@@ -34,7 +35,7 @@ public class AnnotationGenerator extends ClassGenerator {
 
         // check if annotation has specified targets. If it hasn't, targets are all elements.
         if (apiClass.getAnnotationTargets() == null) {
-            apiClass.setAnnotationTargets(Arrays.asList(APIClass.AnnotationTargets.values()));
+            apiClass.setAnnotationTargets(Arrays.asList(ElementType.values()));
         }
 
         // generate test class
@@ -56,44 +57,44 @@ public class AnnotationGenerator extends ClassGenerator {
         try {
             String className = setDefaultValues ? generateName(configuration.getAnnotationClassIdentifier(), apiClass.getName()) + "DV" : generateName(configuration.getAnnotationClassIdentifier(), apiClass.getName());
             cls = cm._class(currentPackageName + '.' + className);
-            if (apiClass.getAnnotationTargets().contains(APIClass.AnnotationTargets.TYPE)) {
+            if (apiClass.getAnnotationTargets().contains(ElementType.TYPE)) {
                 annotate(cls, apiClass, setDefaultValues);
             }
 
-            if (apiClass.getAnnotationTargets().contains(APIClass.AnnotationTargets.FIELD)) {
+            if (apiClass.getAnnotationTargets().contains(ElementType.FIELD)) {
                 JFieldVar fld = cls.field(JMod.NONE, cm.INT, "annotatedField");
                 annotate(fld, apiClass, setDefaultValues);
             }
 
-            if (apiClass.getAnnotationTargets().contains(APIClass.AnnotationTargets.LOCAL_VARIABLE)) {
+            if (apiClass.getAnnotationTargets().contains(ElementType.LOCAL_VARIABLE)) {
                 JMethod method = cls.method(JMod.NONE, cm.VOID, "localVarMethod");
                 JVar localVar = method.body().decl(cm.INT, "localVariable");
                 annotate(localVar, apiClass, setDefaultValues);
             }
 
-            if (apiClass.getAnnotationTargets().contains(APIClass.AnnotationTargets.METHOD)) {
+            if (apiClass.getAnnotationTargets().contains(ElementType.METHOD)) {
                 JMethod method = cls.method(JMod.NONE, cm.VOID, "annotatedMethod");
                 annotate(method, apiClass, setDefaultValues);
             }
 
-            if (apiClass.getAnnotationTargets().contains(APIClass.AnnotationTargets.PARAMETER)) {
+            if (apiClass.getAnnotationTargets().contains(ElementType.PARAMETER)) {
                 JMethod method = cls.method(JMod.NONE, cm.VOID, "parameterMethod");
                 JVar param = method.param(cm.INT, "param");
                 annotate(param, apiClass, setDefaultValues);
             }
 
-            if (apiClass.getAnnotationTargets().contains(APIClass.AnnotationTargets.CONSTRUCTOR)) {
+            if (apiClass.getAnnotationTargets().contains(ElementType.CONSTRUCTOR)) {
                 JMethod method = cls.constructor(JMod.NONE);
                 annotate(method, apiClass, setDefaultValues);
             }
 
-            if (apiClass.getAnnotationTargets().contains(APIClass.AnnotationTargets.ANNOTATION_TYPE)) {
+            if (apiClass.getAnnotationTargets().contains(ElementType.ANNOTATION_TYPE)) {
                 String name = setDefaultValues ? "AnnotationTypeDV" : "AnnotationType";
                 JDefinedClass annotation = cm._class(name, ClassType.ANNOTATION_TYPE_DECL);
                 annotate(annotation, apiClass, setDefaultValues);
             }
 
-            if (apiClass.getAnnotationTargets().contains(APIClass.AnnotationTargets.PACKAGE)) {
+            if (apiClass.getAnnotationTargets().contains(ElementType.PACKAGE)) {
                 String packageName = setDefaultValues ? currentPackageName + ".annotatedPackageDV" : currentPackageName + ".annotatedPackage";
                 JPackage a = cm._package(packageName);
                 annotate(a, apiClass, setDefaultValues);
