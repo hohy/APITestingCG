@@ -21,14 +21,21 @@ public class ExtenderGenerator extends ClassGenerator {
     public void visit(APIClass apiClass) {
 
         // extender can be generated for classes and interfaces
-        if ((!apiClass.getType().equals(APIItem.Kind.CLASS)) && (!apiClass.getType().equals(APIItem.Kind.INTERFACE)))
+        if ((!apiClass.getType().equals(APIItem.Kind.CLASS)) && (!apiClass.getType().equals(APIItem.Kind.INTERFACE))) {
             return;
+        }
+
 
         // check if extender for this class is enabled in jobConfiguration.
-        if (!isEnabled(apiClass.getFullName(), WhitelistRule.RuleItem.EXTENDER)) return;
+        if (!isEnabled(apiClass.getFullName(), WhitelistRule.RuleItem.EXTENDER)) {
+            return;
+        }
 
-        // check if extender has at least one protected or public constructor. If it hasn't, extender can't be generated.
-        if (apiClass.getConstructors().isEmpty()) return;
+        // check if extender has at least one protected or public constructor.
+        // If it hasn't, extender can't be generated.
+        if (apiClass.getConstructors().isEmpty()) {
+            return;
+        }
 
         try {
             visitingClass = apiClass;
@@ -43,11 +50,12 @@ public class ExtenderGenerator extends ClassGenerator {
             // if tested item is interface, create Implementator, otherwise Extender
             String pattern = null;
             if (apiClass.getType() == APIItem.Kind.INTERFACE) {
-                cls = cm._class(classMods, currentPackageName + '.' + generateName(configuration.getImplementerClassIdentifier(), apiClass.getName()), ClassType.CLASS);
+                String className = generateName(configuration.getImplementerClassIdentifier(), apiClass.getName());
+                cls = cm._class(classMods, currentPackageName + '.' + className, ClassType.CLASS);
                 cls._implements(getClassRef(apiClass.getFullName()));
             } else {
-                String newname = generateName(configuration.getExtenderClassIdentifier(), apiClass.getName());
-                cls = cm._class(classMods, currentPackageName + '.' + generateName(configuration.getExtenderClassIdentifier(), apiClass.getName()), ClassType.CLASS);
+                String className = generateName(configuration.getExtenderClassIdentifier(), apiClass.getName());
+                cls = cm._class(classMods, currentPackageName + '.' + className, ClassType.CLASS);
                 cls._extends(getClassRef(apiClass.getFullName()));
             }
             if (apiClass.getGenerics() != null) {
@@ -74,14 +82,15 @@ public class ExtenderGenerator extends ClassGenerator {
                 field.accept(this);
             }
         } catch (JClassAlreadyExistsException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         }
     }
 
     private void visitConstructor(APIMethod constructor) {
         // Check if constructor is enabled in job configuration.
-        if (!isEnabled(methodSignature(constructor, visitingClass.getFullName()), WhitelistRule.RuleItem.EXTENDER))
+        if (!isEnabled(methodSignature(constructor, visitingClass.getFullName()), WhitelistRule.RuleItem.EXTENDER)) {
             return;
+        }
 
         // create new constructor
         JMethod constr = cls.constructor(JMod.PUBLIC);
@@ -92,8 +101,7 @@ public class ExtenderGenerator extends ClassGenerator {
         // define params of the constructor.
         char paramName = 'a';
         for (String param : constructor.getParameters()) {
-            JType type = getClassRef(param);//cm.directClass(param);
-
+            JType type = getClassRef(param);
             constr.param(type, String.valueOf(paramName));
             superInv.arg(JExpr.ref(String.valueOf(paramName)));
             paramName++;
@@ -102,21 +110,20 @@ public class ExtenderGenerator extends ClassGenerator {
         for (String exception : constructor.getThrown()) {
             constr._throws(getClassRef(exception));
         }
-
     }
 
     /**
      * Generates test of the field.
-     * Final fields are tested by assigning their value to new field of same type. Ex: {@code int x = super.x;}. New
-     * local variable x hides original super field x, but it doesn't mind.
-     * Non-final fields are tested by assigning some value to them. Ex: {@codeFile f = null; fileField = f;}
+     * Final fields are tested by assigning their value to new field of same type. Ex: {@code int x = super.x;}.
+     * New local variable x hides original super field x, but it doesn't mind.
+     * Non-final fields are tested by assigning some value to them. Ex: {@code File f = null; fileField = f;}
      *
      * @param apiField
      */
     @Override
     public void visit(APIField apiField) {
 
-        if (apiField.getModifiers().contains(APIModifier.Modifier.FINAL)) {
+        if (apiField.getModifiers().contains(APIModifier.Modifier.FINAL)) { // Final fields
             // original field
             JFieldRef fld;
             if (apiField.getModifiers().contains(APIModifier.Modifier.STATIC)) {
@@ -129,7 +136,7 @@ public class ExtenderGenerator extends ClassGenerator {
         } else {
             // create new field of same type as original
             String fldName = generateName(configuration.getFieldTestVariableIdentifier(), apiField.getName());
-            JVar var = fieldsMethodBlock.decl(getClassRef(apiField.getVarType()), fldName, getDefaultPrimitiveValue(apiField.getVarType()));
+            JVar var = fieldsMethodBlock.decl(getClassRef(apiField.getVarType()), fldName, getPrimitiveValue(apiField.getVarType()));
             fieldsMethodBlock.assign(JExpr.ref(apiField.getName()), var);
         }
         fieldsMethodBlock.directStatement(" ");
@@ -140,6 +147,9 @@ public class ExtenderGenerator extends ClassGenerator {
     public void visit(APIMethod method) {
         // check if method is enabled in configuration.
         if (!isEnabled(methodSignature(method, visitingClass.getFullName()), WhitelistRule.RuleItem.EXTENDER)) return;
+
+        // Extender can't override final methods
+        if (method.getModifiers().contains(APIModifier.Modifier.FINAL)) return;
 
         // define new method
         JMethod mthd = cls.method(JMod.PUBLIC, getClassRef(method.getReturnType()), method.getName());
