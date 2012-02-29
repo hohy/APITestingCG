@@ -165,14 +165,32 @@ public class ExtenderGenerator extends ClassGenerator {
             return;
         }
 
-        if (method.getName().contains("getAnnotations")) {
-            System.out.println(method);
+        JClass extenderReturnType = getClassRef(method.getReturnType());
+        String returnTypeParam = getParamArg(method.getReturnType());
+        if (returnTypeParam != null) {
+            if (visitingClass.getGenerics() != null) {
+                extenderReturnType = getClassRef(method.getReturnType());
+                /*
+                TODO: v nekterych pripadech je mozne pouzit genericky navratovy typ,
+                    viz metody write7 a 8 v testovacim souboru. Pouziti gt ale neni
+                    povinne, tak jej zatim vynechavam.
+                */
+
+            } else if (method.getGenerics() != null) {
+                extenderReturnType = getGenericsClassRef(method.getReturnType());
+            }
+        } else {
+            if (visitingClass.getTypeParamsMap().containsKey(method.getReturnType())) {
+                extenderReturnType = getClassRef(method.getReturnType());
+            } else if (method.getTypeParamsMap().containsKey(method.getReturnType())) {
+                String returnTypeName = method.getReturnType();//method.getTypeParamsMap().get(method.getReturnType());
+                extenderReturnType = getClassRef(returnTypeName);
+            }
         }
-
         // define new method
-        JMethod mthd = cls.method(JMod.PUBLIC, getClassRef(method.getReturnType()), method.getName());
+        JMethod mthd = cls.method(JMod.PUBLIC, extenderReturnType, method.getName());
 
-        if (method.getGenerics() != null) {
+        if (visitingClass.getGenerics() == null && method.getGenerics() != null) {
             mthd.generify(method.getGenerics());
         }
 
@@ -186,13 +204,38 @@ public class ExtenderGenerator extends ClassGenerator {
             if (param.endsWith("[]")) {
                 array = true;
             }
-            JClass paramCls = getClassRef(param);
-            if (param.contains("<" + method.getReturnType() + ">")) paramCls = cm.ref(param);
-            if (param.contains("<" + method.getGenerics() + ">")) paramCls = cm.ref(param);
-            if (array) {
-                paramCls.array();
+            JClass paramType = getClassRef(param);
+            String paramTypeParam = getParamArg(param);
+            if (paramTypeParam != null) {
+                if (visitingClass.getGenerics() != null) {
+                    paramType = getClassRef(param);
+                } else {
+                    paramType = cm.ref(param);
+                }
+
+            } else {
+                if (visitingClass.getTypeParamsMap().containsKey(param)) {
+                    String paramTypeName = visitingClass.getTypeParamsMap().get(param);
+                    paramType = getClassRef(paramTypeName);
+                } else if (method.getTypeParamsMap().containsKey(param)) {
+                    String paramTypeName = method.getTypeParamsMap().get(param);
+                    paramType = getClassRef(paramTypeName);
+                }
             }
-            mthd.param(paramCls, String.valueOf(paramName));
+//            if (param.contains("<")) {
+//                String paramTypeArg = param.substring(param.indexOf('<')+1, param.indexOf('>')).trim();
+//                if(paramTypeArg.equals(method.getGenerics().trim())) {
+//                    paramType = cm.ref(param);
+//                } else if(paramTypeArg.equals(visitingClass.getGenerics().trim())) {
+//                    paramType = getClassRef(visitingClass.getTypeParamsMap().get(param));
+//                }
+//            }
+            //if (param.contains("<" + method.getReturnType() + ">")) paramType = cm.ref(param);
+            //if (param.contains("<" + method.getGenerics() + ">")) paramType = cm.ref(param);
+            if (array) {
+                paramType.array();
+            }
+            mthd.param(paramType, String.valueOf(paramName));
 
             paramName++;
         }
@@ -205,6 +248,13 @@ public class ExtenderGenerator extends ClassGenerator {
             mthd._throws(getClassRef(thrown));
         }
 
+    }
+
+    protected static String getParamArg(String className) {
+        if (className.contains("<")) {
+            return className.substring(className.indexOf('<') + 1, className.lastIndexOf('>')).trim();
+        }
+        return null;
     }
 
 }

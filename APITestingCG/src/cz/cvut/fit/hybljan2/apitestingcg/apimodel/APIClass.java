@@ -166,14 +166,30 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         sb.append(APIModifier.modifiersToString(modifiers));
         sb.append(kind.toString().toLowerCase()).append(' ');
         sb.append(fullName);
-        if (extending != null) sb.append(" extends ").append(extending);
+        if (extending != null) {
+            sb.append(" extends ").append(extending);
+        }
         if (implementing != null && implementing.size() > 0) {
             sb.append(" implements");
-            for (String i : implementing) sb.append(' ').append(i);
+            for (String i : implementing) {
+                sb.append(' ').append(i);
+            }
         }
-        if (fields != null) for (APIField f : fields) sb.append("\n ").append(f.toString());
-        if (constructors != null) for (APIMethod c : constructors) sb.append("\n ").append(c.toString());
-        if (methods != null) for (APIMethod m : methods) sb.append("\n ").append(m.toString());
+        if (fields != null) {
+            for (APIField f : fields) {
+                sb.append("\n ").append(f.toString());
+            }
+        }
+        if (constructors != null) {
+            for (APIMethod c : constructors) {
+                sb.append("\n ").append(c.toString());
+            }
+        }
+        if (methods != null) {
+            for (APIMethod m : methods) {
+                sb.append("\n ").append(m.toString());
+            }
+        }
         return sb.toString();
     }
 

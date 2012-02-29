@@ -1,6 +1,7 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
 import com.sun.tools.javac.model.JavacTypes;
+import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
@@ -9,10 +10,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -28,6 +26,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
     private List<String> thrown;
     private String annotationDefaultValue;
     private String generics;
+    private Map<String, String> typeParamsMap = new HashMap<String, String>();
 
     public APIMethod(String name, List<Modifier> modifiers, List<String> params, String returnType, List<String> thrown) {
         this.name = name;
@@ -39,35 +38,43 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
     }
 
     public APIMethod(JCMethodDecl jcmd, Map<String, String> genericsMap, JavacTypes types) {
+
         boolean constructor = false;
         if (jcmd.name.toString().equals("<init>")) constructor = true;
-        this.name = jcmd.name.toString();
 
-        if (jcmd.typarams.size() > 0) this.generics = jcmd.typarams.toString();
-        this.modifiers = APIModifier.getModifiersSet(jcmd.getModifiers().getFlags());
+        name = jcmd.name.toString();
+
+        if (jcmd.typarams.size() > 0) {
+            this.generics = jcmd.typarams.toString();
+            for (JCTree.JCTypeParameter par : jcmd.typarams) {
+                typeParamsMap.put(par.getName().toString(), par.type.getUpperBound().toString());
+            }
+        }
+
+        modifiers = APIModifier.getModifiersSet(jcmd.getModifiers().getFlags());
 
         thrown = new LinkedList<String>();
         LinkedList<com.sun.tools.javac.code.Type> thrownTypes = new LinkedList<com.sun.tools.javac.code.Type>();
         if (jcmd.getThrows() != null) {
             for (JCExpression e : jcmd.getThrows()) {
-                boolean alredyThrown = false;
+                boolean alreadyThrown = false;
                 for (Iterator<com.sun.tools.javac.code.Type> it = thrownTypes.iterator(); it.hasNext(); ) {
                     com.sun.tools.javac.code.Type type = it.next();
                     if (types.isSubtype(e.type, type)) {
-                        alredyThrown = true;
+                        alreadyThrown = true;
                     } else if (types.isSubtype(type, e.type)) {
                         it.remove();
                     }
                 }
-                if (!alredyThrown) thrownTypes.add(e.type);
+                if (!alreadyThrown) thrownTypes.add(e.type);
             }
             for (com.sun.tools.javac.code.Type t : thrownTypes) {
                 thrown.add(t.getModelType().toString());
             }
         }
 
-        // Constructor should return type fullclassname. Void method raturns "void"
-        // and other methods retrun full name of Class from jcmd.getReturnType()
+        // Constructor should return type fullclassname. Void method returns "void"
+        // and other methods return full name of Class from jcmd.getReturnType()
         if (!constructor) {
             if (jcmd.getReturnType() == null) this.returnType = "void";
             else
@@ -217,5 +224,9 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
 
     public List<String> getParametersGenerics() {
         return parametersGenerics;
+    }
+
+    public Map<String, String> getTypeParamsMap() {
+        return typeParamsMap;
     }
 }
