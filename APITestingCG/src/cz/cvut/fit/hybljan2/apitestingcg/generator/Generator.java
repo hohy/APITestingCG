@@ -219,6 +219,21 @@ public abstract class Generator implements IAPIVisitor {
         }
     }
 
+    protected JClass getGenericsClassRef(String className) {
+        // check if it's array
+        if (className.endsWith("[]")) {
+            return getClassRef(className.substring(0, className.length() - 2)).array();
+        }
+
+        if (classMap.containsKey(className)) {
+            return classMap.get(className);
+        } else {
+            JClass classReference = cm.ref(className);
+            // classMap.put(className, classReference);
+            return classReference;
+        }
+    }
+
 
     public static String simplifyName(String originalName) {
         if (originalName.contains(".")) return originalName.substring(originalName.lastIndexOf(".") + 1);

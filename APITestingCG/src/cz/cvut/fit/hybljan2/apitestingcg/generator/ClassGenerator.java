@@ -2,6 +2,7 @@ package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
 import com.sun.codemodel.JBlock;
 import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JExpression;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 
@@ -16,6 +17,7 @@ public abstract class ClassGenerator extends Generator {
     protected JDefinedClass cls;
     protected APIClass visitingClass;
     protected JBlock fieldsMethodBlock;
+    protected JExpression fieldsInstance;
 
     public ClassGenerator(GeneratorConfiguration configuration) {
         super(configuration);

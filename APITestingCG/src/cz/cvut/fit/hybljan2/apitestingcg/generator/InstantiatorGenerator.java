@@ -49,22 +49,37 @@ public class InstantiatorGenerator extends ClassGenerator {
                 cls.generify(apiClass.getGenerics());
             }
 
-            // genetate test of extending - cant be performed if tested class has no constructors or is abstract
+            // genetate test of extending - cant be performed if tested class has no public constructors or is abstract
             if (apiClass.getExtending() != null
-                    && !apiClass.getConstructors().isEmpty()
                     && !visitingClass.getModifiers().contains(APIModifier.Modifier.ABSTRACT)) {
-                String name = generateName(configuration.getCreateSuperInstanceIdentifier(), apiClass.getExtending());
-                addCreateInstanceMethod(apiClass.getExtending(), name, apiClass.getConstructors().first(), false);
+
+                // find first public constructor and use it for creating new instance.
+                for (APIMethod constructor : apiClass.getConstructors()) {
+                    if (constructor.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
+                        String name = generateName(configuration.getCreateSuperInstanceIdentifier(), apiClass.getExtending());
+                        addCreateInstanceMethod(apiClass.getExtending(), name, constructor, false);
+                        break;
+                    }
+                }
+
             }
 
             // genetate test of implementing - cant be performed if tested class has no constructors
             if (!apiClass.getImplementing().isEmpty()
                     && !apiClass.getConstructors().isEmpty()
                     && !visitingClass.getModifiers().contains(APIModifier.Modifier.ABSTRACT)) {
-                for (String implementing : apiClass.getImplementing()) {
-                    String name = generateName(configuration.getCreateSuperInstanceIdentifier(), implementing);
-                    addCreateInstanceMethod(implementing, name, apiClass.getConstructors().first(), false);
+
+                // find first public constructor and use it for creating new instances of all implemented interfaces.
+                for (APIMethod constructor : apiClass.getConstructors()) {
+                    if (constructor.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
+                        for (String implementing : apiClass.getImplementing()) {
+                            String name = generateName(configuration.getCreateSuperInstanceIdentifier(), implementing);
+                            addCreateInstanceMethod(implementing, name, constructor, false);
+                        }
+                        break;
+                    }
                 }
+
             }
 
             // visit all methods
@@ -74,6 +89,13 @@ public class InstantiatorGenerator extends ClassGenerator {
 
             if (!apiClass.getFields().isEmpty()) {
                 JMethod fieldsMethod = cls.method(JMod.PUBLIC, cm.VOID, configuration.getFieldTestIdentifier());
+                String instanceClassName = visitingClass.getFullName();
+                if (visitingClass.getGenerics() != null) {
+                    instanceClassName += "<" + visitingClass.getGenerics() + ">";
+                }
+                JClass instanceClassRef = getGenericsClassRef(instanceClassName);
+                fieldsInstance = fieldsMethod.param(instanceClassRef, configuration.getInstanceIdentifier());
+
                 fieldsMethodBlock = fieldsMethod.body();
             }
             // visit all fields
@@ -99,6 +121,9 @@ public class InstantiatorGenerator extends ClassGenerator {
         if (!isEnabled(methodSignature(constructor, visitingClass.getFullName()), WhitelistRule.RuleItem.INSTANTIATOR)) {
             return;
         }
+
+        // only public constructors can be used in instantiator
+        if (!constructor.getModifiers().contains(APIModifier.Modifier.PUBLIC)) return;
 
         // create basic create new instance method
         addCreateInstanceMethod(visitingClass.getFullName(), generateName(configuration.getCreateInstanceIdentifier(), constructor.getName()), constructor, false);
@@ -136,7 +161,7 @@ public class InstantiatorGenerator extends ClassGenerator {
                 if (apiField.getModifiers().contains(APIModifier.Modifier.STATIC)) {
                     fld = getClassRef(visitingClass.getFullName()).staticRef(apiField.getName());
                 } else {
-                    fld = JExpr._super().ref(apiField.getName());
+                    fld = fieldsInstance.ref(apiField.getName());
                 }
                 // create new local variable and assing original value to it
                 fieldsMethodBlock.decl(getClassRef(apiField.getVarType()), apiField.getName(), fld);
@@ -144,7 +169,8 @@ public class InstantiatorGenerator extends ClassGenerator {
                 // create new field of same type as original
                 String fldName = generateName(configuration.getFieldTestVariableIdentifier(), apiField.getName());
                 JVar var = fieldsMethodBlock.decl(getClassRef(apiField.getVarType()), fldName, getPrimitiveValue(apiField.getVarType()));
-                fieldsMethodBlock.assign(JExpr.ref(apiField.getName()), var);
+                fieldsMethodBlock.assign(fieldsInstance.ref(apiField.getName()), var);
+
             }
             fieldsMethodBlock.directStatement(" ");
         }
@@ -156,18 +182,26 @@ public class InstantiatorGenerator extends ClassGenerator {
         if (!isEnabled(methodSignature(method, visitingClass.getFullName()), WhitelistRule.RuleItem.INSTANTIATOR))
             return;
 
+        // only public method can be tested by instantiator
+        if (!method.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
+            return;
+        }
+
         // if it is possible, create null version of previous method caller
         // method without parameters cant be called with null parameters.
 
         // Check if there is no other same method caller
         boolean unique = true;
 
-        if (method.getParameters().isEmpty()) unique = false;
-        else for (APIMethod m : visitingClass.getMethods()) {
-            // if the tested method is equal to m method, it's not unique.
-            if (!method.equals(m)) { // don't compare object to itself
-                unique = !((method.getName().equals(m.getName())) && (equalsNullParams(m.getParameters(), method.getParameters())));
-                if (!unique) break;
+        if (method.getParameters().isEmpty()) {
+            unique = false;
+        } else {
+            for (APIMethod m : visitingClass.getMethods()) {
+                // if the tested method is equal to m method, it's not unique.
+                if (!method.equals(m)) { // don't compare object to itself
+                    unique = !((method.getName().equals(m.getName())) && (equalsNullParams(m.getParameters(), method.getParameters())));
+                    if (!unique) break;
+                }
             }
         }
 
@@ -231,12 +265,21 @@ public class InstantiatorGenerator extends ClassGenerator {
     private void addMethodCaller(APIMethod method, boolean generateNullCall) {
 
         int methodMods = JMod.PUBLIC;
+        JTypeVar t = null;
+
         JType returnType = getClassRef(method.getReturnType());
         String callerName = generateName(configuration.getMethodCallIdentifier(), method.getName());
         String nullCallerName = generateName(configuration.getMethodNullCallIdentifier(), method.getName());
 
         JMethod caller = cls.method(methodMods, returnType, callerName);
         JMethod nullCaller = cls.method(methodMods, returnType, nullCallerName);
+
+        // add generics
+        if (method.getGenerics() != null) {
+            caller.generify(method.getGenerics());
+            nullCaller.generify(method.getGenerics());
+        }
+
 
         // define method invocation
         JInvocation invocation;
@@ -247,8 +290,13 @@ public class InstantiatorGenerator extends ClassGenerator {
             invocation = getClassRef(visitingClass.getFullName()).staticInvoke(method.getName());
             nullInvocation = getClassRef(visitingClass.getFullName()).staticInvoke(method.getName());
         } else { // instance is first parameter
-            JExpression instance = caller.param(getClassRef(visitingClass.getFullName()), configuration.getInstanceIdentifier());
-            JExpression nullInstance = nullCaller.param(getClassRef(visitingClass.getFullName()), configuration.getInstanceIdentifier());
+            String instanceClassName = visitingClass.getFullName();
+            if (visitingClass.getGenerics() != null) {
+                instanceClassName += "<" + visitingClass.getGenerics() + ">";
+            }
+            JClass instanceClassRef = getGenericsClassRef(instanceClassName);
+            JExpression instance = caller.param(instanceClassRef, configuration.getInstanceIdentifier());
+            JExpression nullInstance = nullCaller.param(instanceClassRef, configuration.getInstanceIdentifier());
             invocation = instance.invoke(method.getName());
             nullInvocation = nullInstance.invoke(method.getName());
         }
@@ -258,6 +306,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         for (String pType : method.getParameters()) {
             String name = String.valueOf(pName++);
             JClass type = getClassRef(pType);
+            if (pType.contains("<" + method.getReturnType() + ">")) type = cm.ref(pType);
             JVar param = caller.param(type, name);
             nullCaller.param(type, name);
             invocation.arg(param);
@@ -298,52 +347,6 @@ public class InstantiatorGenerator extends ClassGenerator {
 
         if (!generateNullCall) {
             cls.methods().remove(nullCaller);
-        }
-    }
-
-    private void oldaddMethodCaller(APIMethod method, boolean nullParams) {
-        JClass returnCls = getClassRef(method.getReturnType());
-
-        JMethod caller = cls.method(JMod.PUBLIC, returnCls, generateName(configuration.getMethodCallIdentifier(), method.getName()));
-
-        JMethod nullCaller = null;
-        if (nullParams)
-            nullCaller = cls.method(JMod.PUBLIC, returnCls, generateName(configuration.getMethodNullCallIdentifier(), method.getName()));
-
-        JInvocation methodCall;
-
-        JInvocation nullMethodCall;
-
-        // call static method?
-        if (method.getModifiers().contains(APIModifier.Modifier.STATIC)) {
-            JClass instance = getClassRef(visitingClass.getFullName());
-            methodCall = instance.staticInvoke(method.getName());
-            nullMethodCall = instance.staticInvoke(method.getName());
-        } else {
-            caller.param(getClassRef(visitingClass.getFullName()), configuration.getInstanceIdentifier());
-            if (nullParams)
-                nullCaller.param(getClassRef(visitingClass.getFullName()), configuration.getInstanceIdentifier());
-            JExpression instance = JExpr.ref(configuration.getInstanceIdentifier());
-            methodCall = JExpr.invoke(instance, method.getName());
-            nullMethodCall = JExpr.invoke(instance, method.getName());
-        }
-
-        char argName = 'a';
-        for (String argType : method.getParameters()) {
-            caller.param(getClassRef(argType), String.valueOf(argName));
-            if (nullParams) nullCaller.param(getClassRef(argType), String.valueOf(argName));
-            methodCall.arg(getPrimitiveValue(argType));
-            nullMethodCall.arg(JExpr.ref(String.valueOf(argName)));
-            argName++;
-        }
-
-        if (method.getReturnType().equals("void")) caller.body().add(methodCall);
-        else caller.body()._return(methodCall);
-
-        if (nullParams) {
-            //JMethod nullCaller = cls.method(JMod.PUBLIC, returnCls, generateName(configuration.getMethodNullCallIdentifier(),method.getName()));
-            if (method.getReturnType().equals("void")) nullCaller.body().add(nullMethodCall);
-            else nullCaller.body()._return(nullMethodCall);
         }
     }
 }

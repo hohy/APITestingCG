@@ -23,9 +23,11 @@ import java.util.Map;
 public class APIMethod extends APIItem implements Comparable<APIMethod> {
 
     private List<String> parameters;
+    private List<String> parametersGenerics;
     private String returnType;
     private List<String> thrown;
     private String annotationDefaultValue;
+    private String generics;
 
     public APIMethod(String name, List<Modifier> modifiers, List<String> params, String returnType, List<String> thrown) {
         this.name = name;
@@ -40,6 +42,8 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         boolean constructor = false;
         if (jcmd.name.toString().equals("<init>")) constructor = true;
         this.name = jcmd.name.toString();
+
+        if (jcmd.typarams.size() > 0) this.generics = jcmd.typarams.toString();
         this.modifiers = APIModifier.getModifiersSet(jcmd.getModifiers().getFlags());
 
         thrown = new LinkedList<String>();
@@ -72,9 +76,11 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
             this.returnType = jcmd.sym.owner.toString();
         }
         this.parameters = new LinkedList<String>();
+        this.parametersGenerics = new LinkedList<String>();
         for (JCVariableDecl jcvd : jcmd.getParameters()) {
-            parameters.add(findFullClassName(jcvd.getType().toString(), genericsMap));
-            //parameters.add(jcvd.type.toString());
+            parameters.add(jcvd.type.toString());
+            if (jcvd.type.allparams().size() > 0) parametersGenerics.add(jcvd.type.allparams().toString());
+            else parametersGenerics.add(null);
         }
         if (constructor) this.kind = Kind.CONSTRUCTOR;
         else this.kind = getKind(jcmd.getKind());
@@ -203,5 +209,13 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
 
     public String getAnnotationDefaultValue() {
         return annotationDefaultValue;
+    }
+
+    public String getGenerics() {
+        return generics;
+    }
+
+    public List<String> getParametersGenerics() {
+        return parametersGenerics;
     }
 }

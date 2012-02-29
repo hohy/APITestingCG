@@ -30,6 +30,11 @@ public class ExtenderGenerator extends ClassGenerator {
             return;
         }
 
+        //  check if tested class is not final
+        if (apiClass.getModifiers().contains(APIModifier.Modifier.FINAL)) {
+            return;
+        }
+
         // check if extender has at least one protected or public constructor.
         // If it hasn't, extender can't be generated.
         if (apiClass.getConstructors().isEmpty()) {
@@ -80,6 +85,7 @@ public class ExtenderGenerator extends ClassGenerator {
             for (APIField field : apiClass.getFields()) {
                 field.accept(this);
             }
+
         } catch (JClassAlreadyExistsException e) {
             e.printStackTrace();
         }
@@ -159,8 +165,16 @@ public class ExtenderGenerator extends ClassGenerator {
             return;
         }
 
+        if (method.getName().contains("getAnnotations")) {
+            System.out.println(method);
+        }
+
         // define new method
         JMethod mthd = cls.method(JMod.PUBLIC, getClassRef(method.getReturnType()), method.getName());
+
+        if (method.getGenerics() != null) {
+            mthd.generify(method.getGenerics());
+        }
 
         // set body of the method. = return super.method(...);
         mthd.body()._throw(JExpr._new(cm.ref(UnsupportedOperationException.class)));
@@ -168,8 +182,18 @@ public class ExtenderGenerator extends ClassGenerator {
         // add params to method. New method has same params as overridden method.
         char paramName = 'a';
         for (String param : method.getParameters()) {
-            JType type = getClassRef(param);
-            mthd.param(type, String.valueOf(paramName));
+            boolean array = false;
+            if (param.endsWith("[]")) {
+                array = true;
+            }
+            JClass paramCls = getClassRef(param);
+            if (param.contains("<" + method.getReturnType() + ">")) paramCls = cm.ref(param);
+            if (param.contains("<" + method.getGenerics() + ">")) paramCls = cm.ref(param);
+            if (array) {
+                paramCls.array();
+            }
+            mthd.param(paramCls, String.valueOf(paramName));
+
             paramName++;
         }
 

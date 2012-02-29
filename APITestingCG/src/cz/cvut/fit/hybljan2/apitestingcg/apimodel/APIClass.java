@@ -47,17 +47,20 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     public APIClass(JCClassDecl jccd, String packageName) {
         this.name = jccd.name.toString();
         if (jccd.typarams.size() > 0) {
+            this.generics = jccd.typarams.toString();
             for (JCTree.JCTypeParameter par : jccd.typarams) {
                 typeParamsMap.put(par.getName().toString(), par.type.getUpperBound().toString());
             }
         }
         this.fullName = packageName + "." + jccd.getSimpleName();
-        if (jccd.typarams.size() > 0) this.generics = jccd.typarams.toString();
+
         this.methods = new TreeSet<APIMethod>();
         this.constructors = new TreeSet<APIMethod>();
         this.kind = getKind(jccd.getKind());
         this.modifiers = APIModifier.getModifiersSet(jccd.mods.getFlags());
-        if (this.kind == Kind.ENUM) modifiers.add(Modifier.FINAL);
+        if (this.kind == Kind.ENUM) {
+            modifiers.add(Modifier.FINAL);
+        }
         this.fields = new TreeSet<APIField>();
         if (jccd.getExtendsClause() != null)
             this.extending = jccd.extending.type.toString();
