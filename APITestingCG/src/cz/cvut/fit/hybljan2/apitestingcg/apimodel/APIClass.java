@@ -26,11 +26,23 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     private SortedSet<APIField> fields;
     private String extending;
     private List<String> implementing = new LinkedList<String>();
-    // Full name of class (contains package name) - expample: java.util.Set
+    /**
+     * Full name of class (contains package name) - expample: java.util.Set
+     */
     private String fullName;
+    /**
+     * String representation of generic type declaration.
+     * Example: for class declared as <%code>class Box<T extends List, U></%code> this field
+     * contain value <%code>T extends List, U</%code>.
+     */
     private String generics;
-    private List<ElementType> annotationTargets;
+    /**
+     * Maps type variables names to names of their bounded types.
+     * Example: T extends Number --> java.lang.Number
+     * U                --> java.lang.Object
+     */
     private Map<String, String> typeParamsMap = new HashMap<String, String>();
+    private List<ElementType> annotationTargets;
 
     public APIClass(String name) {
         if (name.contains(".")) this.name = name.substring(name.lastIndexOf('.') + 1);
