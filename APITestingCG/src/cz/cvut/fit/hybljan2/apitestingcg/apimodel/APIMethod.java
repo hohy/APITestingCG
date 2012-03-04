@@ -25,8 +25,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
     private String returnType;
     private List<String> thrown;
     private String annotationDefaultValue;
-    private String generics;
-    private Map<String, String> typeParamsMap = new HashMap<String, String>();
+    private Map<String, String[]> typeParamsMap = new TreeMap<String, String[]>();
 
     public APIMethod(String name, List<Modifier> modifiers, List<String> params, String returnType, List<String> thrown) {
         this.name = name;
@@ -45,9 +44,24 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         name = jcmd.name.toString();
 
         if (jcmd.typarams.size() > 0) {
-            this.generics = jcmd.typarams.toString();
+
+            // gets all type params
             for (JCTree.JCTypeParameter par : jcmd.typarams) {
-                typeParamsMap.put(par.getName().toString(), par.type.getUpperBound().toString());
+                String typeName = par.getName().toString();
+
+                // and theirs bounds
+                List<String> typeBounds = new ArrayList<String>();
+                for (JCExpression typeBound : par.getBounds()) {
+                    typeBounds.add(typeBound.type.toString());
+                }
+
+                // if type bound is not specified, set default (java.lang.Object)
+                if (typeBounds.isEmpty()) {
+                    typeBounds.add("java.lang.Object");
+                }
+
+                // puts result to typeParams map
+                typeParamsMap.put(typeName, typeBounds.toArray(new String[0]));
             }
         }
 
@@ -78,7 +92,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         if (!constructor) {
             if (jcmd.getReturnType() == null) this.returnType = "void";
             else
-                this.returnType = jcmd.restype.type.toString();//findFullClassName(jcmd.getReturnType().toString(), importsMap);
+                this.returnType = jcmd.restype.type.toString();
         } else {
             this.returnType = jcmd.sym.owner.toString();
         }
@@ -100,10 +114,6 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
     public APIMethod(Method mth) {
 
         this.name = mth.getName();
-        if (name.equals("write")) {
-            System.out.println(mth.isBridge());
-            System.out.println(mth.isSynthetic());
-        }
         this.modifiers = APIModifier.getModifiersSet(mth.getModifiers());
         this.thrown = new LinkedList<String>();
         for (java.lang.reflect.Type excType : mth.getExceptionTypes()) {
@@ -223,15 +233,11 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         return annotationDefaultValue;
     }
 
-    public String getGenerics() {
-        return generics;
-    }
-
     public List<String> getParametersGenerics() {
         return parametersGenerics;
     }
 
-    public Map<String, String> getTypeParamsMap() {
+    public Map<String, String[]> getTypeParamsMap() {
         return typeParamsMap;
     }
 }

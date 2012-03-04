@@ -62,8 +62,9 @@ public class ExtenderGenerator extends ClassGenerator {
                 cls = cm._class(classMods, currentPackageName + '.' + className, ClassType.CLASS);
                 cls._extends(getClassRef(apiClass.getFullName()));
             }
-            if (apiClass.getGenerics() != null) {
-                cls.generify(apiClass.getGenerics());
+
+            if (!apiClass.getTypeParamsMap().isEmpty()) {
+                cls.generify(generateGenericsString(apiClass.getTypeParamsMap()));
             }
 
             // visit all constructors
@@ -168,7 +169,7 @@ public class ExtenderGenerator extends ClassGenerator {
         JClass extenderReturnType = getClassRef(method.getReturnType());
         String returnTypeParam = getParamArg(method.getReturnType());
         if (returnTypeParam != null) {
-            if (visitingClass.getGenerics() != null) {
+            if (!visitingClass.getTypeParamsMap().isEmpty()) {
                 extenderReturnType = getClassRef(method.getReturnType());
                 /*
                 TODO: v nekterych pripadech je mozne pouzit genericky navratovy typ,
@@ -176,7 +177,7 @@ public class ExtenderGenerator extends ClassGenerator {
                     povinne, tak jej zatim vynechavam.
                 */
 
-            } else if (method.getGenerics() != null) {
+            } else if (!method.getTypeParamsMap().isEmpty()) {
                 extenderReturnType = getGenericsClassRef(method.getReturnType());
             }
         } else {
@@ -190,8 +191,8 @@ public class ExtenderGenerator extends ClassGenerator {
         // define new method
         JMethod mthd = cls.method(JMod.PUBLIC, extenderReturnType, method.getName());
 
-        if (visitingClass.getGenerics() == null && method.getGenerics() != null) {
-            mthd.generify(method.getGenerics());
+        if (visitingClass.getTypeParamsMap().isEmpty() && !method.getTypeParamsMap().isEmpty()) {
+            mthd.generify(generateGenericsString(method.getTypeParamsMap()));
         }
 
         // set body of the method. = return super.method(...);
@@ -207,7 +208,7 @@ public class ExtenderGenerator extends ClassGenerator {
             JClass paramType = getClassRef(param);
             String paramTypeParam = getParamArg(param);
             if (paramTypeParam != null) {
-                if (visitingClass.getGenerics() != null) {
+                if (!visitingClass.getTypeParamsMap().isEmpty()) {
                     paramType = getClassRef(param);
                 } else {
                     paramType = cm.ref(param);
@@ -215,10 +216,10 @@ public class ExtenderGenerator extends ClassGenerator {
 
             } else {
                 if (visitingClass.getTypeParamsMap().containsKey(param)) {
-                    String paramTypeName = visitingClass.getTypeParamsMap().get(param);
+                    String paramTypeName = visitingClass.getTypeParamsMap().get(param)[0];
                     paramType = getClassRef(paramTypeName);
                 } else if (method.getTypeParamsMap().containsKey(param)) {
-                    String paramTypeName = method.getTypeParamsMap().get(param);
+                    String paramTypeName = method.getTypeParamsMap().get(param)[0];
                     paramType = getClassRef(paramTypeName);
                 }
             }

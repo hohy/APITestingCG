@@ -8,9 +8,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.*;
 
 /**
@@ -30,20 +28,22 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
      * Full name of class (contains package name) - expample: java.util.Set
      */
     private String fullName;
-    /**
-     * String representation of generic type declaration.
-     * Example: for class declared as <%code>class Box<T extends List, U></%code> this field
-     * contain value <%code>T extends List, U</%code>.
-     */
-    private String generics;
+
     /**
      * Maps type variables names to names of their bounded types.
-     * Example: T extends Number --> java.lang.Number
-     * U                --> java.lang.Object
+     * Example:
+     * T extends Number --> {java.lang.Number}
+     * U                --> {java.lang.Object}
+     * U extends A & B  --> {A, B}
      */
-    private Map<String, String> typeParamsMap = new HashMap<String, String>();
+    private Map<String, String[]> typeParamsMap = new TreeMap<String, String[]>();
     private List<ElementType> annotationTargets;
 
+    /**
+     * Basic constructor. Can be used for testing.
+     *
+     * @param name
+     */
     public APIClass(String name) {
         if (name.contains(".")) this.name = name.substring(name.lastIndexOf('.') + 1);
         else this.name = name;
@@ -56,15 +56,38 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         modifiers.add(Modifier.PUBLIC);
     }
 
-    public APIClass(JCClassDecl jccd, String packageName) {
+    /**
+     * Constructor creates new instance of class.
+     * Used by source scanner.
+     *
+     * @param jccd Node in AST of API that represents class
+     */
+    public APIClass(JCClassDecl jccd) {
         this.name = jccd.name.toString();
+        // is class generic?
         if (jccd.typarams.size() > 0) {
-            this.generics = jccd.typarams.toString();
+
+            // gets all type params
             for (JCTree.JCTypeParameter par : jccd.typarams) {
-                typeParamsMap.put(par.getName().toString(), par.type.getUpperBound().toString());
+                String typeName = par.getName().toString();
+
+                // and theirs bounds
+                List<String> typeBounds = new ArrayList<String>();
+                for (JCExpression typeBound : par.getBounds()) {
+                    typeBounds.add(typeBound.type.toString());
+                }
+
+                // if type bound is not specified, set default (java.lang.Object)
+                if (typeBounds.isEmpty()) {
+                    typeBounds.add("java.lang.Object");
+                }
+
+                // puts result to typeParams map
+                typeParamsMap.put(typeName, typeBounds.toArray(new String[0]));
             }
         }
-        this.fullName = jccd.type.tsym.toString();//packageName + "." + jccd.getSimpleName();
+
+        this.fullName = jccd.type.tsym.toString();
 
         this.methods = new TreeSet<APIMethod>();
         this.constructors = new TreeSet<APIMethod>();
@@ -83,35 +106,47 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         }
     }
 
+    /**
+     * Constructor creates new instance of class.
+     * Used by bytecode scanner.
+     *
+     * @param cls Node in AST of API that represents class
+     */
     public APIClass(Class cls) {
-        this.name = cls.getSimpleName();
-        this.fullName = cls.getName();
-        this.constructors = new TreeSet<APIMethod>();
+        name = cls.getSimpleName();
+        fullName = cls.getName();
+        // replace '$' character in names of inner classes.
+        fullName.replace('$', '.');
+
+        constructors = new TreeSet<APIMethod>();
         for (Constructor constr : cls.getDeclaredConstructors()) {
             APIMethod apiconstr = new APIMethod(constr, fullName);
             if (apiconstr.getModifiers().contains(Modifier.PUBLIC)
                     || apiconstr.getModifiers().contains(Modifier.PROTECTED))
                 this.constructors.add(apiconstr);
         }
-        this.methods = new TreeSet<APIMethod>();
+
+        methods = new TreeSet<APIMethod>();
         for (Method mth : cls.getDeclaredMethods()) {
             if (!mth.isBridge() && !mth.isSynthetic()) {
                 APIMethod apimth = new APIMethod(mth);
                 if (apimth.getModifiers().contains(Modifier.PUBLIC)
                         || apimth.getModifiers().contains(Modifier.PROTECTED)) {
-                    this.methods.add(apimth);
+                    methods.add(apimth);
                 }
             }
         }
-        this.modifiers = APIModifier.getModifiersSet(cls.getModifiers());
-        this.fields = new TreeSet<APIField>();
+
+        modifiers = APIModifier.getModifiersSet(cls.getModifiers());
+        fields = new TreeSet<APIField>();
         for (Field f : cls.getDeclaredFields()) {
             APIField apifield = new APIField(f);
             if (apifield.getModifiers().contains(Modifier.PUBLIC)
                     || apifield.getModifiers().contains(Modifier.PROTECTED))
-                this.fields.add(new APIField(f));
+                fields.add(new APIField(f));
         }
-        this.kind = getKind(cls);
+
+        kind = getKind(cls);
         if (kind == Kind.ANNOTATION) {
             System.out.println(cls);
             for (Annotation a : cls.getAnnotations()) {
@@ -127,14 +162,29 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
             }
         }
 
-        // Check, if class has some superclass (other than Object)
-        // TODO: predelat porovnavani nazvu na porovnavani trid
-        if (cls.getSuperclass() != null && !cls.getSuperclass().getSimpleName().equals("Object") && !cls.getSuperclass().getSimpleName().equals("Enum"))
-            this.extending = cls.getSuperclass().getName();
-        this.implementing = new LinkedList<String>();
-        for (Class intfc : cls.getInterfaces()) {
-            this.implementing.add(intfc.getName());
+        // Check, if class has some superclass (other than Object or Enum)         
+        if (cls.getSuperclass() != null
+                && !cls.getSuperclass().equals(java.lang.Object.class)
+                && !cls.getSuperclass().equals(java.lang.Enum.class)) {
+            extending = cls.getSuperclass().getName();
         }
+
+        implementing = new LinkedList<String>();
+        for (Class implementedInterface : cls.getInterfaces()) {
+            implementing.add(implementedInterface.getName());
+        }
+
+        // construct typeparams (generics) map
+        for (TypeVariable tp : cls.getTypeParameters()) {
+            String typeName = tp.getName();
+            ArrayList<String> typeBounds = new ArrayList<String>();
+            for (Type type : tp.getBounds()) {
+                Class tcls = (Class) type;
+                typeBounds.add(tcls.getName());
+            }
+            typeParamsMap.put(typeName, typeBounds.toArray(new String[0]));
+        }
+
     }
 
     public void addMethod(APIMethod method) {
@@ -236,11 +286,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         this.extending = extending;
     }
 
-    public String getGenerics() {
-        return generics;
-    }
-
-    public Map<String, String> getTypeParamsMap() {
+    public Map<String, String[]> getTypeParamsMap() {
         return typeParamsMap;
     }
 

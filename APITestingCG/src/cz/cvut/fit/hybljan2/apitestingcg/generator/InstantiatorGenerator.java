@@ -45,8 +45,8 @@ public class InstantiatorGenerator extends ClassGenerator {
             }
 
             // add generics
-            if (apiClass.getGenerics() != null) {
-                cls.generify(apiClass.getGenerics());
+            if (!apiClass.getTypeParamsMap().isEmpty()) {
+                cls.generify(generateGenericsString(apiClass.getTypeParamsMap()));
             }
 
             // genetate test of extending - cant be performed if tested class has no public constructors or is abstract
@@ -90,8 +90,9 @@ public class InstantiatorGenerator extends ClassGenerator {
             if (!apiClass.getFields().isEmpty()) {
                 JMethod fieldsMethod = cls.method(JMod.PUBLIC, cm.VOID, configuration.getFieldTestIdentifier());
                 String instanceClassName = visitingClass.getFullName();
-                if (visitingClass.getGenerics() != null) {
-                    instanceClassName += "<" + visitingClass.getGenerics() + ">";
+
+                if (!visitingClass.getTypeParamsMap().isEmpty()) {
+                    instanceClassName += "<" + generateGenericsString(visitingClass.getTypeParamsMap()) + ">";
                 }
                 JClass instanceClassRef = getGenericsClassRef(instanceClassName);
                 fieldsInstance = fieldsMethod.param(instanceClassRef, configuration.getInstanceIdentifier());
@@ -269,9 +270,9 @@ public class InstantiatorGenerator extends ClassGenerator {
 
         JType returnType = getClassRef(method.getReturnType());
         if (visitingClass.getTypeParamsMap().containsKey(method.getReturnType())) {
-            returnType = getClassRef(visitingClass.getTypeParamsMap().get(method.getReturnType()));
+            returnType = getClassRef(visitingClass.getTypeParamsMap().get(method.getReturnType())[0]);
         } else if (method.getTypeParamsMap().containsKey(method.getReturnType())) {
-            String returnTypeName = method.getTypeParamsMap().get(method.getReturnType());
+            String returnTypeName = method.getTypeParamsMap().get(method.getReturnType())[0];
             returnType = getClassRef(returnTypeName);
         }
 
@@ -282,9 +283,9 @@ public class InstantiatorGenerator extends ClassGenerator {
         JMethod nullCaller = cls.method(methodMods, returnType, nullCallerName);
 
         // add generics
-        if (method.getGenerics() != null) {
-            caller.generify(method.getGenerics());
-            nullCaller.generify(method.getGenerics());
+        if (!method.getTypeParamsMap().isEmpty()) {
+            caller.generify(generateGenericsString(method.getTypeParamsMap()));
+            nullCaller.generify(generateGenericsString(method.getTypeParamsMap()));
         }
 
 
@@ -298,9 +299,6 @@ public class InstantiatorGenerator extends ClassGenerator {
             nullInvocation = getClassRef(visitingClass.getFullName()).staticInvoke(method.getName());
         } else { // instance is first parameter
             String instanceClassName = visitingClass.getFullName();
-//            if (visitingClass.getGenerics() != null) {
-//                instanceClassName += "<" + visitingClass.getGenerics() + ">";
-//            }
             JClass instanceClassRef = getGenericsClassRef(instanceClassName);
             JExpression instance = caller.param(instanceClassRef, configuration.getInstanceIdentifier());
             JExpression nullInstance = nullCaller.param(instanceClassRef, configuration.getInstanceIdentifier());

@@ -134,6 +134,23 @@ public class APIViewForm extends javax.swing.JFrame {
             case INTERFACE:
                 APIClass cls = (APIClass) item;
                 fullNameLabel.setText(cls.getFullName());
+
+                if (cls.getTypeParamsMap() != null) {
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("<");
+                    for (String typeName : cls.getTypeParamsMap().keySet()) {
+                        sb.append(typeName).append(" {");
+                        for (String typeBound : cls.getTypeParamsMap().get(typeName)) {
+                            sb.append(typeBound).append(',');
+                        }
+                        sb.append("}; ");
+                    }
+                    sb.append(">");
+                    JLabel genericsLabel = new JLabel(sb.toString());
+                    contentPanel.add(genericsLabel);
+                }
+
                 if (cls.getExtending() != null) {
                     JLabel extLabel = new JLabel("Extending: " + cls.getExtending());
                     contentPanel.add(extLabel);
@@ -155,6 +172,7 @@ public class APIViewForm extends javax.swing.JFrame {
                         contentPanel.add(new JLabel("  " + f.toString()));
                     }
                 }
+
                 break;
             case METHOD:
             case CONSTRUCTOR:
@@ -177,6 +195,23 @@ public class APIViewForm extends javax.swing.JFrame {
                         contentPanel.add(new JLabel("  " + s));
                     }
                 }
+
+                if (mth.getTypeParamsMap() != null) {
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("<");
+                    for (String typeName : mth.getTypeParamsMap().keySet()) {
+                        sb.append(typeName).append(" {");
+                        for (String typeBound : mth.getTypeParamsMap().get(typeName)) {
+                            sb.append(typeBound).append(',');
+                        }
+                        sb.append("}; ");
+                    }
+                    sb.append(">");
+                    JLabel genericsLabel = new JLabel(sb.toString());
+                    contentPanel.add(genericsLabel);
+                }
+
 
         }
         //contentLabel.setText(item.toString());
