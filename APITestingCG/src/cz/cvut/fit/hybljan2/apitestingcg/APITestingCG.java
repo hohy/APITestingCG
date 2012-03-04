@@ -24,8 +24,12 @@ public class APITestingCG {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-
         String pathToConfigFile = "configuration.xml";
+
+        if (args.length == 1) {
+            pathToConfigFile = args[0];
+        }
+
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("-c")) {  // read path to configuration file
                 pathToConfigFile = args[i + 1];

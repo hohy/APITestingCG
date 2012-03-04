@@ -268,6 +268,13 @@ public class InstantiatorGenerator extends ClassGenerator {
         JTypeVar t = null;
 
         JType returnType = getClassRef(method.getReturnType());
+        if (visitingClass.getTypeParamsMap().containsKey(method.getReturnType())) {
+            returnType = getClassRef(visitingClass.getTypeParamsMap().get(method.getReturnType()));
+        } else if (method.getTypeParamsMap().containsKey(method.getReturnType())) {
+            String returnTypeName = method.getTypeParamsMap().get(method.getReturnType());
+            returnType = getClassRef(returnTypeName);
+        }
+
         String callerName = generateName(configuration.getMethodCallIdentifier(), method.getName());
         String nullCallerName = generateName(configuration.getMethodNullCallIdentifier(), method.getName());
 
@@ -291,9 +298,9 @@ public class InstantiatorGenerator extends ClassGenerator {
             nullInvocation = getClassRef(visitingClass.getFullName()).staticInvoke(method.getName());
         } else { // instance is first parameter
             String instanceClassName = visitingClass.getFullName();
-            if (visitingClass.getGenerics() != null) {
-                instanceClassName += "<" + visitingClass.getGenerics() + ">";
-            }
+//            if (visitingClass.getGenerics() != null) {
+//                instanceClassName += "<" + visitingClass.getGenerics() + ">";
+//            }
             JClass instanceClassRef = getGenericsClassRef(instanceClassName);
             JExpression instance = caller.param(instanceClassRef, configuration.getInstanceIdentifier());
             JExpression nullInstance = nullCaller.param(instanceClassRef, configuration.getInstanceIdentifier());

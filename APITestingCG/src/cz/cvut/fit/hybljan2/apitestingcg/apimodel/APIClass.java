@@ -52,7 +52,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
                 typeParamsMap.put(par.getName().toString(), par.type.getUpperBound().toString());
             }
         }
-        this.fullName = packageName + "." + jccd.getSimpleName();
+        this.fullName = jccd.type.tsym.toString();//packageName + "." + jccd.getSimpleName();
 
         this.methods = new TreeSet<APIMethod>();
         this.constructors = new TreeSet<APIMethod>();
@@ -83,10 +83,13 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         }
         this.methods = new TreeSet<APIMethod>();
         for (Method mth : cls.getDeclaredMethods()) {
-            APIMethod apimth = new APIMethod(mth);
-            if (apimth.getModifiers().contains(Modifier.PUBLIC)
-                    || apimth.getModifiers().contains(Modifier.PROTECTED))
-                this.methods.add(apimth);
+            if (!mth.isBridge() && !mth.isSynthetic()) {
+                APIMethod apimth = new APIMethod(mth);
+                if (apimth.getModifiers().contains(Modifier.PUBLIC)
+                        || apimth.getModifiers().contains(Modifier.PROTECTED)) {
+                    this.methods.add(apimth);
+                }
+            }
         }
         this.modifiers = APIModifier.getModifiersSet(cls.getModifiers());
         this.fields = new TreeSet<APIField>();
@@ -112,7 +115,8 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
             }
         }
 
-        // Check, if class has some superclass (other than Object) 
+        // Check, if class has some superclass (other than Object)
+        // TODO: predelat porovnavani nazvu na porovnavani trid
         if (cls.getSuperclass() != null && !cls.getSuperclass().getSimpleName().equals("Object") && !cls.getSuperclass().getSimpleName().equals("Enum"))
             this.extending = cls.getSuperclass().getName();
         this.implementing = new LinkedList<String>();

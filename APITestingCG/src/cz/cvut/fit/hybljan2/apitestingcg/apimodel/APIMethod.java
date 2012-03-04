@@ -98,7 +98,12 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
     }
 
     public APIMethod(Method mth) {
+
         this.name = mth.getName();
+        if (name.equals("write")) {
+            System.out.println(mth.isBridge());
+            System.out.println(mth.isSynthetic());
+        }
         this.modifiers = APIModifier.getModifiersSet(mth.getModifiers());
         this.thrown = new LinkedList<String>();
         for (java.lang.reflect.Type excType : mth.getExceptionTypes()) {
