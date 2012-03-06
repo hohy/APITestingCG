@@ -1,0 +1,79 @@
+diff -r codemodel-2.5-SNAPSHOT-sources-original/com/sun/codemodel/JDirectClass.java codemodel-2.5-SNAPSHOT-sources/com/sun/codemodel/JDirectClass.java
+43a44
+> import java.util.LinkedList;
+63,65c64,94
+<         int i = fullName.lastIndexOf('.');
+<         if(i>=0)    return fullName.substring(i+1);
+<         return fullName;
+---
+>         return shortName(fullName);
+>     }
+> 
+>     public static String shortName(String rawName) {
+>         rawName = rawName.trim();
+>         int j = rawName.indexOf('<');
+>         if(j>=0) {
+>             String className = shortName(rawName.substring(0,j));
+>             String typeParams = rawName.substring(j+1, rawName.length()-1);
+>             String[] typeParamNames = typeParams.split(",");
+>             List<String> shortTypeParamNames = new LinkedList<String>();
+>             for(String typeParam : typeParamNames) {
+>                 shortTypeParamNames.add(shortName(typeParam));
+>             }
+>             StringBuilder sb = new StringBuilder(className);
+>             sb.append("<");
+>             boolean first = true;
+>             for(String typeParam : shortTypeParamNames) {
+>                 if(first) {
+>                     sb.append(typeParam);
+>                     first = false;
+>                 } else {
+>                     sb.append(", ").append(typeParam);
+>                 }
+>             }
+>             sb.append(">");
+>             return sb.toString();
+>         }
+>         int i = rawName.lastIndexOf('.');
+>         if(i>=0)    return rawName.substring(i+1);
+>         return rawName;
+diff -r codemodel-2.5-SNAPSHOT-sources-original/com/sun/codemodel/JFormatter.java codemodel-2.5-SNAPSHOT-sources/com/sun/codemodel/JFormatter.java
+444,445c444,478
+<                 
+<                 p("import").p(clazz.fullName()).p(';').nl();
+---
+>                 String fullName = clazz.fullName().trim();
+>                 int j = fullName.indexOf('<');
+>                 if(j >= 0) {
+> 		            String cleanName = clazz.fullName().substring(0, j);
+>                     String typeParams = fullName.substring(j+1, fullName.length()-1);
+>                     typeParams = cleanName + "," + typeParams;
+>                     String[] typeParamNames = typeParams.split(",");
+> 
+>                     for(String className : typeParamNames) {
+>                         className = className.trim();
+>                         ReferenceList rl = collectedReferences.get(className);
+>                         boolean alreadyImported = false;
+>                         for(JClass tv : c.typeParams()) {
+>                             if(tv.name().equals(className)) {
+>                                 alreadyImported = true;
+>                                 break;
+>                             }
+>                         }
+>                         if((rl != null && rl.isId()) || className.startsWith("?")) {
+>                             alreadyImported = true;
+>                         }
+>                         for(JClass icls : imports) {
+>                             if(icls.fullName().equals(className)) {
+>                                 alreadyImported = true;
+>                                 break;
+>                             }
+>                         }
+>                         if(!alreadyImported) {
+>                             p("import").p(className).p(';').nl();
+>                         }
+> 
+>                     }
+>                 } else {
+> 		            p("import").p(clazz.fullName()).p(';').nl();
+>                 }
