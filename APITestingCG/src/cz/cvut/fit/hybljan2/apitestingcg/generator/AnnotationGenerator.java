@@ -1,10 +1,7 @@
 package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
 import com.sun.codemodel.*;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIField;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIItem;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIMethod;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 
@@ -36,6 +33,11 @@ public class AnnotationGenerator extends ClassGenerator {
         // check if annotation has specified targets. If it hasn't, targets are all elements.
         if (apiClass.getAnnotationTargets() == null) {
             apiClass.setAnnotationTargets(Arrays.asList(ElementType.values()));
+        }
+
+        // only public classes can be tested.
+        if (!apiClass.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
+            return;
         }
 
         // generate test class

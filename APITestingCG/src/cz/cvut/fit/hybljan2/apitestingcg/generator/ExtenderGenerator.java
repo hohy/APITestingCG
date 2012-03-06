@@ -35,6 +35,11 @@ public class ExtenderGenerator extends ClassGenerator {
             return;
         }
 
+        // code can be generated only for public classes.
+        if (!apiClass.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
+            return;
+        }
+
         // check if extender has at least one protected or public constructor.
         // If it hasn't, extender can't be generated.
         if (apiClass.getConstructors().isEmpty()) {

@@ -28,8 +28,13 @@ public class InstantiatorGenerator extends ClassGenerator {
             return;
         }
 
-        // check if extender for this class is enabled in jobConfiguration.
+        // check if instantiator for this class is enabled in jobConfiguration.
         if (!isEnabled(apiClass.getFullName(), WhitelistRule.RuleItem.INSTANTIATOR)) {
+            return;
+        }
+
+        // only public classes can be tested by instantiator.
+        if (!apiClass.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
             return;
         }
 

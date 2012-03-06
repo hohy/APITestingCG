@@ -4,10 +4,7 @@ import com.sun.codemodel.JClass;
 import com.sun.codemodel.JClassAlreadyExistsException;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIField;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIItem;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIMethod;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 
@@ -30,6 +27,11 @@ public class EnumGenerator extends InstantiatorGenerator {
 
         // check if extender for this class is enabled in jobConfiguration.
         if (!isEnabled(apiClass.getFullName(), WhitelistRule.RuleItem.INSTANTIATOR)) return;
+
+        // only public classes can be tested.
+        if (!apiClass.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
+            return;
+        }
 
         try {
             visitingClass = apiClass;
