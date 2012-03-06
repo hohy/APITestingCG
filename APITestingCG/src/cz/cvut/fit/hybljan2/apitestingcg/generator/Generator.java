@@ -229,7 +229,7 @@ public abstract class Generator implements IAPIVisitor {
             return classMap.get(className);
         } else {
             JClass classReference = cm.ref(className);
-            // classMap.put(className, classReference);
+            classMap.put(className, classReference);
             return classReference;
         }
     }

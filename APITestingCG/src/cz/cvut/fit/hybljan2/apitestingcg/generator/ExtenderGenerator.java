@@ -64,7 +64,14 @@ public class ExtenderGenerator extends ClassGenerator {
             }
 
             if (!apiClass.getTypeParamsMap().isEmpty()) {
-                cls.generify(generateGenericsString(apiClass.getTypeParamsMap()));
+                for (String typeName : apiClass.getTypeParamsMap().keySet()) {
+                    JClass typeBound = getClassRef(apiClass.getTypeParamsMap().get(typeName)[0]);
+                    if (!typeBound.fullName().equals("java.lang.Object")) {
+                        cls.generify(typeName, typeBound);
+                    } else {
+                        cls.generify(typeName);
+                    }
+                }
             }
 
             // visit all constructors
@@ -192,7 +199,14 @@ public class ExtenderGenerator extends ClassGenerator {
         JMethod mthd = cls.method(JMod.PUBLIC, extenderReturnType, method.getName());
 
         if (visitingClass.getTypeParamsMap().isEmpty() && !method.getTypeParamsMap().isEmpty()) {
-            mthd.generify(generateGenericsString(method.getTypeParamsMap()));
+            for (String typeName : method.getTypeParamsMap().keySet()) {
+                JClass typeBound = getClassRef(method.getTypeParamsMap().get(typeName)[0]);
+                if (!typeBound.fullName().equals("java.lang.Object")) {
+                    mthd.generify(typeName, typeBound);
+                } else {
+                    mthd.generify(typeName);
+                }
+            }
         }
 
         // set body of the method. = return super.method(...);

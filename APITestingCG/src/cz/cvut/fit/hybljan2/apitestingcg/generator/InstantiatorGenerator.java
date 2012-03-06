@@ -24,11 +24,14 @@ public class InstantiatorGenerator extends ClassGenerator {
     public void visit(APIClass apiClass) {
 
         // instantiator can be generated for classes and interfaces
-        if ((!apiClass.getType().equals(APIItem.Kind.CLASS)) && (!apiClass.getType().equals(APIItem.Kind.INTERFACE)))
+        if ((!apiClass.getType().equals(APIItem.Kind.CLASS)) && (!apiClass.getType().equals(APIItem.Kind.INTERFACE))) {
             return;
+        }
 
         // check if extender for this class is enabled in jobConfiguration.
-        if (!isEnabled(apiClass.getFullName(), WhitelistRule.RuleItem.INSTANTIATOR)) return;
+        if (!isEnabled(apiClass.getFullName(), WhitelistRule.RuleItem.INSTANTIATOR)) {
+            return;
+        }
 
         try {
             visitingClass = apiClass;
@@ -46,7 +49,14 @@ public class InstantiatorGenerator extends ClassGenerator {
 
             // add generics
             if (!apiClass.getTypeParamsMap().isEmpty()) {
-                cls.generify(generateGenericsString(apiClass.getTypeParamsMap()));
+                for (String typeName : apiClass.getTypeParamsMap().keySet()) {
+                    JClass typeBound = getClassRef(apiClass.getTypeParamsMap().get(typeName)[0]);
+                    if (!typeBound.fullName().equals("java.lang.Object")) {
+                        cls.generify(typeName, typeBound);
+                    } else {
+                        cls.generify(typeName);
+                    }
+                }
             }
 
             // genetate test of extending - cant be performed if tested class has no public constructors or is abstract
@@ -284,8 +294,18 @@ public class InstantiatorGenerator extends ClassGenerator {
 
         // add generics
         if (!method.getTypeParamsMap().isEmpty()) {
-            caller.generify(generateGenericsString(method.getTypeParamsMap()));
-            nullCaller.generify(generateGenericsString(method.getTypeParamsMap()));
+            for (String typeName : method.getTypeParamsMap().keySet()) {
+                JClass typeBound = getClassRef(method.getTypeParamsMap().get(typeName)[0]);
+                if (!typeBound.fullName().equals("java.lang.Object")) {
+                    caller.generify(typeName, typeBound);
+                    nullCaller.generify(typeName, typeBound);
+                } else {
+                    caller.generify(typeName);
+                    nullCaller.generify(typeName);
+                }
+            }
+            //caller.generify(generateGenericsString(method.getTypeParamsMap()));
+            //nullCaller.generify(generateGenericsString(method.getTypeParamsMap()));
         }
 
 
@@ -299,6 +319,19 @@ public class InstantiatorGenerator extends ClassGenerator {
             nullInvocation = getClassRef(visitingClass.getFullName()).staticInvoke(method.getName());
         } else { // instance is first parameter
             String instanceClassName = visitingClass.getFullName();
+            if (!visitingClass.getTypeParamsMap().isEmpty()) {
+                instanceClassName += "<";
+                boolean first = true;
+                for (String typeName : visitingClass.getTypeParamsMap().keySet()) {
+                    if (first) {
+                        instanceClassName += typeName;
+                        first = false;
+                    } else {
+                        instanceClassName += ", " + typeName;
+                    }
+                }
+                instanceClassName += "> ";
+            }
             JClass instanceClassRef = getGenericsClassRef(instanceClassName);
             JExpression instance = caller.param(instanceClassRef, configuration.getInstanceIdentifier());
             JExpression nullInstance = nullCaller.param(instanceClassRef, configuration.getInstanceIdentifier());
@@ -310,8 +343,8 @@ public class InstantiatorGenerator extends ClassGenerator {
         char pName = 'a';
         for (String pType : method.getParameters()) {
             String name = String.valueOf(pName++);
-            JClass type = getClassRef(pType);
-            if (pType.contains("<" + method.getReturnType() + ">")) type = cm.ref(pType);
+            JClass type = getGenericsClassRef(pType);
+            //if (pType.contains("<" + method.getReturnType() + ">")) type = getGenericsClassRef(pType);//cm.ref(pType);
             JVar param = caller.param(type, name);
             nullCaller.param(type, name);
             invocation.arg(param);
