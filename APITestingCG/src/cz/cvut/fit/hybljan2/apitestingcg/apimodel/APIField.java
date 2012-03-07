@@ -1,5 +1,6 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 
@@ -36,8 +37,13 @@ public class APIField extends APIItem implements Comparable<APIField> {
     public APIField(JCVariableDecl jcvd, Map<String, String> genericsMap) {
         this.name = jcvd.name.toString();
         this.varType = findFullClassName(jcvd.type.toString(), genericsMap);
+        Type t = jcvd.type.getEnclosingType();
+        if (t != null && t instanceof Type.ClassType) {
+            varType = jcvd.type.getEnclosingType().toString() + "$" + jcvd.getType().toString();
+        }
         this.modifiers = APIModifier.getModifiersSet(jcvd.getModifiers().getFlags());
         this.kind = getKind(jcvd.getKind());
+
     }
 
     /**

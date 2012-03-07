@@ -8,6 +8,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ScannerConfiguratio
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -58,25 +59,17 @@ public class ByteCodeScanner implements APIScanner {
                 if (!classPath.isEmpty()) {
                     String[] paths = classPath.split(File.pathSeparator);
                     for (String path : paths) {
-                        File jarFile = new File(path);
-                        jis = new JarInputStream(new FileInputStream(jarFile));
-                        URL[] jarUrls = new URL[1];
-                        //jarUrls[0] = jarFile.toURI().toURL();
-                        jarUrlsList.add(jarFile.toURI().toURL());
-//                        urlcl = new URLClassLoader(jarUrls, this.getClass().getClassLoader());
-//
-//                        JarEntry jarEntry;
-//                        while ((jarEntry = jis.getNextJarEntry()) != null) {
-//                            if (jarEntry.getName().endsWith(".class")) {
-//                                String className = jarEntry.getName().replaceAll("/", "\\.");
-//                                className = className.substring(0, className.length() - 6);
-//                                if(className.contains("JMSException"))  {
-//                                    System.out.println(className);
-//                                }
-//                                Class classToLoad = Class.forName(className, true, urlcl);
-//                            }
-//                        }
-
+                        try {
+                            File jarFile = new File(path);
+                            URL u = jarFile.toURI().toURL();
+                            URLClassLoader urlClassLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+                            Class urlClass = URLClassLoader.class;
+                            Method method = urlClass.getDeclaredMethod("addURL", new Class[]{URL.class});
+                            method.setAccessible(true);
+                            method.invoke(urlClassLoader, new Object[]{u});
+                        } catch (Exception e) {
+                            Logger.getLogger(ByteCodeScanner.class.getName()).log(Level.SEVERE, "Can't add \"" + path + "\" jar file to classpath.");
+                        }
                     }
                 }
             }
@@ -126,7 +119,6 @@ public class ByteCodeScanner implements APIScanner {
                     }
                 }
             }
-
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(ByteCodeScanner.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ioex) {

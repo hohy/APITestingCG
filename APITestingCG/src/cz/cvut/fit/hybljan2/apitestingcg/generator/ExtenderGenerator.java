@@ -154,7 +154,11 @@ public class ExtenderGenerator extends ClassGenerator {
         } else {
             // create new field of same type as original
             String fldName = generateName(configuration.getFieldTestVariableIdentifier(), apiField.getName());
-            JVar var = fieldsMethodBlock.decl(getClassRef(apiField.getVarType()), fldName, getPrimitiveValue(apiField.getVarType()));
+            JClass typeRef = getClassRef(apiField.getVarType());
+            if (apiField.getVarType().contains("$")) {
+                typeRef = getClassRef(apiField.getVarType().substring(apiField.getVarType().indexOf('$') + 1));
+            }
+            JVar var = fieldsMethodBlock.decl(typeRef, fldName, getPrimitiveValue(apiField.getVarType()));
             fieldsMethodBlock.assign(JExpr.ref(apiField.getName()), var);
         }
         fieldsMethodBlock.directStatement(" ");
@@ -230,7 +234,7 @@ public class ExtenderGenerator extends ClassGenerator {
                 if (!visitingClass.getTypeParamsMap().isEmpty()) {
                     paramType = getClassRef(param);
                 } else {
-                    paramType = cm.ref(param);
+                    paramType = getGenericsClassRef(param);
                 }
 
             } else {
@@ -240,18 +244,10 @@ public class ExtenderGenerator extends ClassGenerator {
                 } else if (method.getTypeParamsMap().containsKey(param)) {
                     String paramTypeName = method.getTypeParamsMap().get(param)[0];
                     paramType = getClassRef(paramTypeName);
+                    paramType.getTypeParameters().add(paramType);
                 }
             }
-//            if (param.contains("<")) {
-//                String paramTypeArg = param.substring(param.indexOf('<')+1, param.indexOf('>')).trim();
-//                if(paramTypeArg.equals(method.getGenerics().trim())) {
-//                    paramType = cm.ref(param);
-//                } else if(paramTypeArg.equals(visitingClass.getGenerics().trim())) {
-//                    paramType = getClassRef(visitingClass.getTypeParamsMap().get(param));
-//                }
-//            }
-            //if (param.contains("<" + method.getReturnType() + ">")) paramType = cm.ref(param);
-            //if (param.contains("<" + method.getGenerics() + ">")) paramType = cm.ref(param);
+
             if (array) {
                 paramType.array();
             }

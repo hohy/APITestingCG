@@ -116,7 +116,10 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         name = cls.getSimpleName();
         fullName = cls.getName();
         // replace '$' character in names of inner classes.
-        fullName.replace('$', '.');
+        //fullName.replace('$', '.');
+        if (fullName.contains("$")) {
+            fullName = fullName.substring(0, fullName.indexOf('$'));
+        }
 
         constructors = new TreeSet<APIMethod>();
         for (Constructor constr : cls.getDeclaredConstructors()) {
