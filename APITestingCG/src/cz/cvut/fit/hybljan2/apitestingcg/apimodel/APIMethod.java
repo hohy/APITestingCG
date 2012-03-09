@@ -20,8 +20,7 @@ import java.util.*;
  */
 public class APIMethod extends APIItem implements Comparable<APIMethod> {
 
-    private List<String> parameters;
-    private List<String> parametersGenerics;
+    private List<APIMethodParameter> parameters;
     private String returnType;
     private List<String> thrown;
     private String annotationDefaultValue;
@@ -31,12 +30,15 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         this.name = name;
         this.kind = Kind.METHOD;
         this.modifiers = modifiers;
-        this.parameters = params;
+        char pname = 'a';
+        for (String ptype : params) {
+            parameters.add(new APIMethodParameter(String.valueOf(pname++), ptype));
+        }
         this.returnType = returnType;
         this.thrown = thrown;
     }
 
-    public APIMethod(JCMethodDecl jcmd, Map<String, String> genericsMap, JavacTypes types) {
+    public APIMethod(JCMethodDecl jcmd, JavacTypes types) {
 
         boolean constructor = false;
         if (jcmd.name.toString().equals("<init>")) constructor = true;
@@ -96,12 +98,9 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         } else {
             this.returnType = jcmd.sym.owner.toString();
         }
-        this.parameters = new LinkedList<String>();
-        this.parametersGenerics = new LinkedList<String>();
+        this.parameters = new LinkedList<APIMethodParameter>();
         for (JCVariableDecl jcvd : jcmd.getParameters()) {
-            parameters.add(jcvd.type.toString());
-            if (jcvd.type.allparams().size() > 0) parametersGenerics.add(jcvd.type.allparams().toString());
-            else parametersGenerics.add(null);
+            parameters.add(new APIMethodParameter(jcvd));
         }
         if (constructor) this.kind = Kind.CONSTRUCTOR;
         else this.kind = getKind(jcmd.getKind());
@@ -119,9 +118,10 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         for (java.lang.reflect.Type excType : mth.getExceptionTypes()) {
             this.thrown.add(getTypeName(excType));
         }
-        this.parameters = new LinkedList<String>();
+        this.parameters = new LinkedList<APIMethodParameter>();
+        char pname = 'a';
         for (Type t : mth.getGenericParameterTypes()) {
-            this.parameters.add(getTypeName(t));
+            this.parameters.add(new APIMethodParameter(String.valueOf(pname++), getTypeName(t)));
         }
         this.returnType = mth.getReturnType().getName();
         if (returnType.startsWith("[L")) { // if method returns array, scanner gets wrong return class name.
@@ -138,9 +138,10 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         for (java.lang.reflect.Type excType : c.getExceptionTypes()) {
             this.thrown.add(excType.toString().substring(6));
         }
-        this.parameters = new LinkedList<String>();
-        for (Class paramc : c.getParameterTypes()) {
-            this.parameters.add(paramc.getName());
+        this.parameters = new LinkedList<APIMethodParameter>();
+        char pname = 'a';
+        for (Type t : c.getGenericParameterTypes()) {
+            this.parameters.add(new APIMethodParameter(String.valueOf(pname++), getTypeName(t)));
         }
         this.returnType = fullClassName;
         this.kind = Kind.METHOD;
@@ -160,7 +161,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         if (returnType != null) sb.append("method ").append(returnType).append(' ');
         else sb.append("constructor ");
         sb.append(name).append('(');
-        for (String f : parameters) sb.append(f).append(',');
+        for (APIMethodParameter f : parameters) sb.append(f.getType()).append(',');
         if (parameters.size() > 0) sb.deleteCharAt(sb.length() - 1);
         sb.append(')');
         if (thrown != null && thrown.size() > 0) {
@@ -172,14 +173,14 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         return sb.toString();
     }
 
-    public List<String> getParameters() {
+    public List<APIMethodParameter> getParameters() {
         return parameters;
     }
 
     public String getParametersString() {
         StringBuilder sb = new StringBuilder();
-        for (String s : parameters) {
-            sb.append(s).append(',');
+        for (APIMethodParameter s : parameters) {
+            sb.append(s.getName()).append(',');
         }
         if (parameters.size() > 0) return sb.substring(0, sb.length() - 1);
         else return "";
@@ -231,10 +232,6 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
 
     public String getAnnotationDefaultValue() {
         return annotationDefaultValue;
-    }
-
-    public List<String> getParametersGenerics() {
-        return parametersGenerics;
     }
 
     public Map<String, String[]> getTypeParamsMap() {

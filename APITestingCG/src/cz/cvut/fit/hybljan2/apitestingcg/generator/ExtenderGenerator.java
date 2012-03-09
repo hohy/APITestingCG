@@ -117,12 +117,10 @@ public class ExtenderGenerator extends ClassGenerator {
         JInvocation superInv = body.invoke("super");
 
         // define params of the constructor.
-        char paramName = 'a';
-        for (String param : constructor.getParameters()) {
-            JType type = getClassRef(param);
-            constr.param(type, String.valueOf(paramName));
-            superInv.arg(JExpr.ref(String.valueOf(paramName)));
-            paramName++;
+        for (APIMethodParameter param : constructor.getParameters()) {
+            JType type = getClassRef(param.getType());
+            constr.param(type, String.valueOf(param.getName()));
+            superInv.arg(JExpr.ref(String.valueOf(param.getName())));
         }
 
         for (String exception : constructor.getThrown()) {
@@ -222,27 +220,26 @@ public class ExtenderGenerator extends ClassGenerator {
         mthd.body()._throw(JExpr._new(cm.ref(UnsupportedOperationException.class)));
 
         // add params to method. New method has same params as overridden method.
-        char paramName = 'a';
-        for (String param : method.getParameters()) {
+        for (APIMethodParameter param : method.getParameters()) {
             boolean array = false;
-            if (param.endsWith("[]")) {
+            if (param.getType().endsWith("[]")) {   // TODO: add isArray property to the APIMethodParam class
                 array = true;
             }
-            JClass paramType = getClassRef(param);
-            String paramTypeParam = getParamArg(param);
+            JClass paramType = getClassRef(param.getType());
+            String paramTypeParam = getParamArg(param.getType());
             if (paramTypeParam != null) {
                 if (!visitingClass.getTypeParamsMap().isEmpty()) {
-                    paramType = getClassRef(param);
+                    paramType = getClassRef(param.getType());
                 } else {
-                    paramType = getGenericsClassRef(param);
+                    paramType = getGenericsClassRef(param.getType());
                 }
 
             } else {
-                if (visitingClass.getTypeParamsMap().containsKey(param)) {
-                    String paramTypeName = visitingClass.getTypeParamsMap().get(param)[0];
+                if (visitingClass.getTypeParamsMap().containsKey(param.getType())) {
+                    String paramTypeName = visitingClass.getTypeParamsMap().get(param.getType())[0];
                     paramType = getClassRef(paramTypeName);
-                } else if (method.getTypeParamsMap().containsKey(param)) {
-                    String paramTypeName = method.getTypeParamsMap().get(param)[0];
+                } else if (method.getTypeParamsMap().containsKey(param.getType())) {
+                    String paramTypeName = method.getTypeParamsMap().get(param.getType())[0];
                     paramType = getClassRef(paramTypeName);
                     paramType.getTypeParameters().add(paramType);
                 }
@@ -251,9 +248,7 @@ public class ExtenderGenerator extends ClassGenerator {
             if (array) {
                 paramType.array();
             }
-            mthd.param(paramType, String.valueOf(paramName));
-
-            paramName++;
+            mthd.param(paramType, String.valueOf(param.getName()));
         }
 
         // add override annotation to the method.

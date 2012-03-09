@@ -101,7 +101,7 @@ public class SourceTreeScanner extends TreeScanner {
             // if default constructor should not be part of api, uncomment this.
             //if ((ms.flags() & Flags.GENERATEDCONSTR) == 0) {
 
-            APIMethod mth = new APIMethod(jcmd, currentClassImports, types);
+            APIMethod mth = new APIMethod(jcmd, types);
             if (mth.getType() == Kind.CONSTRUCTOR) {
                 mth.setName(currentClass.getName());
                 currentClass.addConstructor(mth);
@@ -115,7 +115,7 @@ public class SourceTreeScanner extends TreeScanner {
     public void visitVarDef(JCVariableDecl jcvd) {
         VarSymbol vs = jcvd.sym;
         if ((vs.flags() & (Flags.PUBLIC | Flags.PROTECTED)) != 0) {
-            currentClass.addField(new APIField(jcvd, currentClassImports));
+            currentClass.addField(new APIField(jcvd, currentClassImports, currentClass.getType().equals(Kind.INTERFACE)));
             super.visitVarDef(jcvd);
         }
     }

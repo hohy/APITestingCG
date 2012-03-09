@@ -224,13 +224,13 @@ public class InstantiatorGenerator extends ClassGenerator {
         addMethodCaller(method, unique);
     }
 
-    private boolean equalsNullParams(List<String> paramsA, List<String> paramsB) {
+    private boolean equalsNullParams(List<APIMethodParameter> paramsA, List<APIMethodParameter> paramsB) {
         if (paramsA.size() != paramsB.size()) return false;
-        Iterator<String> itA = paramsA.iterator();
-        Iterator<String> itB = paramsB.iterator();
+        Iterator<APIMethodParameter> itA = paramsA.iterator();
+        Iterator<APIMethodParameter> itB = paramsB.iterator();
         while (itA.hasNext()) {
-            String paramA = getPrimitiveValueString(itA.next());
-            String paramB = getPrimitiveValueString(itB.next());
+            String paramA = getPrimitiveValueString(itA.next().getType());
+            String paramB = getPrimitiveValueString(itB.next().getType());
             if (!paramA.equals(paramB)) return false;
         }
         return true;
@@ -252,12 +252,10 @@ public class InstantiatorGenerator extends ClassGenerator {
         JClass returnCls = getClassRef(instanceClassName);
         JMethod result = cls.method(JMod.PUBLIC, returnCls, methodName);
         JInvocation newInstance = JExpr._new(getClassRef(visitingClass.getFullName()));
-        char argName = 'a';
-        for (String arg : constructor.getParameters()) {
-            result.param(getClassRef(arg), String.valueOf(argName));
-            if (nullParams) newInstance.arg(getPrimitiveValue(arg));
-            else newInstance.arg(JExpr.ref(String.valueOf(argName)));
-            argName++;
+        for (APIMethodParameter arg : constructor.getParameters()) {
+            result.param(getClassRef(arg.getType()), String.valueOf(arg.getName()));
+            if (nullParams) newInstance.arg(getPrimitiveValue(arg.getType()));
+            else newInstance.arg(JExpr.ref(arg.getName()));
         }
 
         JBlock resultBody = result.body();
@@ -345,15 +343,13 @@ public class InstantiatorGenerator extends ClassGenerator {
         }
 
         // add parameter to the method and invocation - new method has same parameters as original method
-        char pName = 'a';
-        for (String pType : method.getParameters()) {
-            String name = String.valueOf(pName++);
-            JClass type = getGenericsClassRef(pType);
-            //if (pType.contains("<" + method.getReturnType() + ">")) type = getGenericsClassRef(pType);//cm.ref(pType);
-            JVar param = caller.param(type, name);
+        for (APIMethodParameter parameter : method.getParameters()) {
+            String name = parameter.getName();
+            JClass type = getGenericsClassRef(parameter.getType());
+            JVar arg = caller.param(type, name);
             nullCaller.param(type, name);
-            invocation.arg(param);
-            nullInvocation.arg(getPrimitiveValue(pType));
+            invocation.arg(arg);
+            nullInvocation.arg(getPrimitiveValue(parameter.getType()));
         }
 
         JBlock callerBody = caller.body();

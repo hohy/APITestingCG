@@ -46,6 +46,22 @@ public class APIField extends APIItem implements Comparable<APIField> {
 
     }
 
+    public APIField(JCVariableDecl jcvd, Map<String, String> genericsMap, boolean constant) {
+        this.name = jcvd.name.toString();
+        this.varType = jcvd.type.tsym.flatName().toString();//findFullClassName(jcvd.type.toString(), genericsMap);
+/*        Type t = jcvd.type.getEnclosingType();
+        if (t != null && t instanceof Type.ClassType) {
+            varType = jcvd.type.getEnclosingType().toString() + "$" + jcvd.getType().toString();
+        }   */
+        this.modifiers = APIModifier.getModifiersSet(jcvd.getModifiers().getFlags());
+        if (constant) {
+            modifiers.add(Modifier.FINAL);
+            modifiers.add(Modifier.STATIC);
+        }
+        this.kind = getKind(jcvd.getKind());
+
+    }
+
     /**
      * Constructor used by bytecode scanner.
      *
