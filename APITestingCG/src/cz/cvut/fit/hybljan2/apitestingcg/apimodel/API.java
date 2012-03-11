@@ -66,4 +66,32 @@ public class API extends APIItem {
     public void setVersion(String version) {
         this.version = version;
     }
+
+    /**
+     * Finds class with given name in API.
+     * Current version is not nicely implemented - it searches the API sequentially, so it's slow.
+     * But it's best way how it can be done in current APIModel. It would be better, if classes
+     * were been stored in map, where they could be accessed directly by name.
+     *
+     * @param className full class name
+     * @return class with given name
+     */
+    public APIClass findClass(String className) throws ClassNotFoundException {
+        int dotIndex = className.lastIndexOf('.');
+
+        if (dotIndex >= 0) {
+            String packageName = className.substring(0, className.lastIndexOf('.'));
+            for (APIPackage pckg : packages) {
+                if (pckg.getName().equals(packageName)) {
+                    for (APIClass cls : pckg.getClasses()) {
+                        if (cls.getFullName().equals(className)) {
+                            return cls;
+                        }
+                    }
+                }
+            }
+        }
+
+        throw new ClassNotFoundException();
+    }
 }

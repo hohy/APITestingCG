@@ -1,0 +1,16 @@
+<component name="ArtifactManager">
+  <artifact name="APITestingCG:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/APITestingCG_jar</output-path>
+    <root id="root">
+      <element id="archive" name="APITestingCG.jar">
+        <element id="directory" name="META-INF">
+          <element id="file-copy" path="$PROJECT_DIR$/APITestingCG/src/META-INF/MANIFEST.MF" />
+        </element>
+        <element id="module-output" name="APITestingCG" />
+      </element>
+      <element id="library" level="project" name="tools" />
+      <element id="library" level="project" name="junit-addons" />
+      <element id="library" level="project" name="junit:junit:4.10" />
+    </root>
+  </artifact>
+</component>

@@ -22,8 +22,17 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     private SortedSet<APIMethod> constructors;
     private SortedSet<APIMethod> methods;
     private SortedSet<APIField> fields;
+    /**
+     * List of classes that are nested in current class.
+     */
+    private SortedSet<APIClass> nestedClasses = new TreeSet<>();
+
+    /**
+     * Indicates that the class is nested in other class or not.
+     */
+    private boolean nested = false;
     private String extending;
-    private List<String> implementing = new LinkedList<String>();
+    private List<String> implementing = new LinkedList<>();
     /**
      * Full name of class (contains package name) - expample: java.util.Set
      */
@@ -395,6 +404,18 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         this.annotationTargets = annotationTargets;
     }
 
+    public SortedSet<APIClass> getNestedClasses() {
+        return nestedClasses;
+    }
+
+    public boolean isNested() {
+        return nested;
+    }
+
+    public void setNested(boolean nested) {
+        this.nested = nested;
+    }
+
     public static ElementType parseAnnotationTarget(String name) throws Exception {
         if (name.equals("ElementType.ANNOTATION_TYPE")) return ElementType.ANNOTATION_TYPE;
         if (name.equals("ElementType.CONSTRUCTOR")) return ElementType.CONSTRUCTOR;
@@ -405,5 +426,9 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         if (name.equals("ElementType.PACKAGE")) return ElementType.PACKAGE;
         if (name.equals("ElementType.PARAMETER")) return ElementType.PARAMETER;
         throw new Exception("Unknown annotation target \"" + name + "\".");
+    }
+
+    public void addNestedClass(APIClass nestedClass) {
+        nestedClasses.add(nestedClass);
     }
 }

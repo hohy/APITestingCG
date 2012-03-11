@@ -6,7 +6,10 @@ import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.model.JavacTypes;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.*;
+import com.sun.tools.javac.tree.JCTree.JCClassDecl;
+import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
+import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
+import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.tree.TreeScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIItem.Kind;
@@ -21,7 +24,6 @@ import java.util.Stack;
  * @author Jan Hýbl
  */
 public class SourceTreeScanner extends TreeScanner {
-    private Map<String, String> currentClassImports = new HashMap<String, String>();
     private APIPackage currentPackage;
     private APIClass currentClass;
     private Stack<APIClass> classes = new Stack<APIClass>();
@@ -53,14 +55,18 @@ public class SourceTreeScanner extends TreeScanner {
 
     @Override
     public void visitClassDef(JCClassDecl jccd) {
+
         ClassSymbol cs = jccd.sym;
         if ((cs.flags() & (Flags.PUBLIC | Flags.PROTECTED)) != 0) {
-            classes.push(currentClass);
             currentClass = new APIClass(jccd);
+            classes.push(currentClass);
             super.visitClassDef(jccd);
-            currentPackage.addClass(currentClass);
             currentClass = classes.pop();
-            currentClassImports = new HashMap<String, String>();
+            currentPackage.addClass(currentClass);
+            if (!classes.empty()) {
+                currentClass.setNested(true);
+                classes.peek().addNestedClass(currentClass);
+            }
         }
     }
 
@@ -115,18 +121,9 @@ public class SourceTreeScanner extends TreeScanner {
     public void visitVarDef(JCVariableDecl jcvd) {
         VarSymbol vs = jcvd.sym;
         if ((vs.flags() & (Flags.PUBLIC | Flags.PROTECTED)) != 0) {
-            currentClass.addField(new APIField(jcvd, currentClassImports, currentClass.getType().equals(Kind.INTERFACE)));
+            currentClass.addField(new APIField(jcvd, currentClass.getType().equals(Kind.INTERFACE)));
             super.visitVarDef(jcvd);
         }
     }
-
-    @Override
-    public void visitImport(JCImport jci) {
-        String importClassName = jci.getQualifiedIdentifier().toString();
-        String simpleClassName = importClassName.substring(importClassName.lastIndexOf('.') + 1);
-        currentClassImports.put(simpleClassName, importClassName);
-        super.visitImport(jci);
-    }
-
 
 }

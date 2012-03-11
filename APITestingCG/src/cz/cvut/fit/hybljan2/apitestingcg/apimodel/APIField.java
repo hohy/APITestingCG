@@ -6,7 +6,6 @@ import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Jan Hýbl
@@ -32,11 +31,10 @@ public class APIField extends APIItem implements Comparable<APIField> {
      * Constructor used by source scanner.
      *
      * @param jcvd
-     * @param genericsMap
      */
-    public APIField(JCVariableDecl jcvd, Map<String, String> genericsMap) {
+    public APIField(JCVariableDecl jcvd) {
         this.name = jcvd.name.toString();
-        this.varType = findFullClassName(jcvd.type.toString(), genericsMap);
+        this.varType = jcvd.type.toString();
         Type t = jcvd.type.getEnclosingType();
         if (t != null && t instanceof Type.ClassType) {
             varType = jcvd.type.getEnclosingType().toString() + "$" + jcvd.getType().toString();
@@ -46,13 +44,9 @@ public class APIField extends APIItem implements Comparable<APIField> {
 
     }
 
-    public APIField(JCVariableDecl jcvd, Map<String, String> genericsMap, boolean constant) {
+    public APIField(JCVariableDecl jcvd, boolean constant) {
         this.name = jcvd.name.toString();
-        this.varType = jcvd.type.tsym.flatName().toString();//findFullClassName(jcvd.type.toString(), genericsMap);
-/*        Type t = jcvd.type.getEnclosingType();
-        if (t != null && t instanceof Type.ClassType) {
-            varType = jcvd.type.getEnclosingType().toString() + "$" + jcvd.getType().toString();
-        }   */
+        this.varType = jcvd.type.tsym.flatName().toString();
         this.modifiers = APIModifier.getModifiersSet(jcvd.getModifiers().getFlags());
         if (constant) {
             modifiers.add(Modifier.FINAL);
