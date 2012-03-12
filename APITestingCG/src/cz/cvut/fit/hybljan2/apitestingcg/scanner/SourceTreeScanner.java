@@ -62,10 +62,11 @@ public class SourceTreeScanner extends TreeScanner {
             classes.push(currentClass);
             super.visitClassDef(jccd);
             currentClass = classes.pop();
-            currentPackage.addClass(currentClass);
             if (!classes.empty()) {
                 currentClass.setNested(true);
                 classes.peek().addNestedClass(currentClass);
+            } else {
+                currentPackage.addClass(currentClass);
             }
         }
     }

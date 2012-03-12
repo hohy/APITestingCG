@@ -29,6 +29,7 @@ public abstract class Generator implements IAPIVisitor {
 
     protected JCodeModel cm;
     private Map<String, JClass> classMap;
+    private API currentAPI;
 
     // defines package name for currently generated package content
     protected String currentPackageName;
@@ -41,6 +42,7 @@ public abstract class Generator implements IAPIVisitor {
         jobConfiguration = job;
         cm = new JCodeModel();
         classMap = new HashMap<String, JClass>();
+        currentAPI = api;
         // create directory for package
         File outputDir = new File(jobConfiguration.getOutputDir());
         if (!outputDir.exists()) outputDir.mkdirs();
@@ -202,6 +204,20 @@ public abstract class Generator implements IAPIVisitor {
     }
 
     protected JClass getClassRef(String className) {
+
+        try {
+            APIClass cls = currentAPI.findClass(className);
+            System.out.println("Class found: " + className);
+            if (cls.getModifiers().contains(APIModifier.Modifier.PROTECTED)) {
+                className = className.substring(className.lastIndexOf('.') + 1);
+            }
+            if (cls.isNested()) {
+                className.replace('$', '.');
+            }
+        } catch (ClassNotFoundException e) {
+            System.err.println("Class not found: " + className);
+        }
+
         // check if it's array
         if (className.endsWith("[]")) {
             return getClassRef(className.substring(0, className.length() - 2)).array();
@@ -220,6 +236,17 @@ public abstract class Generator implements IAPIVisitor {
     }
 
     protected JClass getGenericsClassRef(String className) {
+
+        try {
+            APIClass cls = currentAPI.findClass(className);
+            System.out.println("Class found: " + className);
+            if (cls.getModifiers().contains(APIModifier.Modifier.PROTECTED)) {
+                className = className.substring(className.lastIndexOf('.') + 1);
+            }
+        } catch (ClassNotFoundException e) {
+            System.err.println("Class not found: " + className);
+        }
+
         // check if it's array
         if (className.endsWith("[]")) {
             return getClassRef(className.substring(0, className.length() - 2)).array();

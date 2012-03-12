@@ -82,16 +82,28 @@ public class API extends APIItem {
         if (dotIndex >= 0) {
             String packageName = className.substring(0, className.lastIndexOf('.'));
             for (APIPackage pckg : packages) {
-                if (pckg.getName().equals(packageName)) {
-                    for (APIClass cls : pckg.getClasses()) {
-                        if (cls.getFullName().equals(className)) {
-                            return cls;
-                        }
+                for (APIClass cls : pckg.getClasses()) {
+                    if (cls.getFullName().equals(className)) {
+                        return cls;
+                    } else {
+                        APIClass result = findNestedClass(className, cls);
+                        if (result != null) return result;
                     }
                 }
             }
         }
 
         throw new ClassNotFoundException();
+    }
+
+    public APIClass findNestedClass(String className, APIClass cls) {
+        for (APIClass nestedClass : cls.getNestedClasses()) {
+            if (nestedClass.getFullName().equals(className)) {
+                return nestedClass;
+            } else {
+                findNestedClass(className, nestedClass);
+            }
+        }
+        return null;
     }
 }

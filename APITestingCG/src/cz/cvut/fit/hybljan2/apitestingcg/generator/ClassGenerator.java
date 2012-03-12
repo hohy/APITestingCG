@@ -1,13 +1,11 @@
 package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
-import com.sun.codemodel.JBlock;
-import com.sun.codemodel.JClass;
-import com.sun.codemodel.JDefinedClass;
-import com.sun.codemodel.JExpression;
+import com.sun.codemodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 
 import java.util.Map;
+import java.util.Stack;
 
 /**
  * Created by IntelliJ IDEA.
@@ -18,12 +16,24 @@ import java.util.Map;
 public abstract class ClassGenerator extends Generator {
 
     protected JDefinedClass cls;
+    protected Stack<JDefinedClass> classStack = new Stack<>();
     protected APIClass visitingClass;
     protected JBlock fieldsMethodBlock;
     protected JExpression fieldsInstance;
 
     public ClassGenerator(GeneratorConfiguration configuration) {
         super(configuration);
+    }
+
+    public JDefinedClass declareNewClass(int classMods, String packageName, String className, boolean nested) throws JClassAlreadyExistsException {
+        JDefinedClass result;
+        System.out.println("Declaring new class: " + className);
+        if (nested) {
+            result = classStack.peek()._class(classMods, className, ClassType.CLASS);
+        } else {
+            result = cm._class(classMods, packageName + '.' + className, ClassType.CLASS);
+        }
+        return result;
     }
 
     public String generateGenericsString(Map<String, String[]> typeParamsMap) {

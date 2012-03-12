@@ -35,10 +35,10 @@ public class ExtenderGenerator extends ClassGenerator {
             return;
         }
 
-        // code can be generated only for public classes.
-        if (!apiClass.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
-            return;
-        }
+//        // code can be generated only for public classes.
+//        if (!apiClass.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
+//            return;
+//        }
 
         // check if extender has at least one protected or public constructor.
         // If it hasn't, extender can't be generated.
@@ -48,23 +48,22 @@ public class ExtenderGenerator extends ClassGenerator {
 
         try {
             visitingClass = apiClass;
-            int classMods;
+            int classMods = 0;
             if (visitingClass.getModifiers().contains(APIModifier.Modifier.ABSTRACT)
                     || apiClass.getType() == APIItem.Kind.INTERFACE) {
                 classMods = JMod.PUBLIC | JMod.ABSTRACT;
-            } else {
+            } else if (!visitingClass.isNested()) {
                 classMods = JMod.PUBLIC;
             }
 
             // if tested item is interface, create Implementator, otherwise Extender
-            String pattern = null;
-            if (apiClass.getType() == APIItem.Kind.INTERFACE) {
+            if (visitingClass.getType() == APIItem.Kind.INTERFACE) {
                 String className = generateName(configuration.getImplementerClassIdentifier(), apiClass.getName());
-                cls = cm._class(classMods, currentPackageName + '.' + className, ClassType.CLASS);
+                cls = declareNewClass(classMods, currentPackageName, className, visitingClass.isNested());
                 cls._implements(getClassRef(apiClass.getFullName()));
             } else {
                 String className = generateName(configuration.getExtenderClassIdentifier(), apiClass.getName());
-                cls = cm._class(classMods, currentPackageName + '.' + className, ClassType.CLASS);
+                cls = declareNewClass(classMods, currentPackageName, className, visitingClass.isNested());
                 cls._extends(getClassRef(apiClass.getFullName()));
             }
 
@@ -99,6 +98,14 @@ public class ExtenderGenerator extends ClassGenerator {
                 field.accept(this);
             }
 
+            classStack.push(cls);
+
+            // visit all nested classes
+            for (APIClass nestedClass : apiClass.getNestedClasses()) {
+                nestedClass.accept(this);
+            }
+
+            cls = classStack.pop();
         } catch (JClassAlreadyExistsException e) {
             e.printStackTrace();
         }

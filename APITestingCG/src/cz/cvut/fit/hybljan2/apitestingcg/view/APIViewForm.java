@@ -165,7 +165,15 @@ public class APIViewForm extends javax.swing.JFrame {
                     contentPanel.add(contentPanel.add(Box.createVerticalStrut(10)));
                 }
 
-                // TODO: zobrazovat tady fields, nebo je dat do stromu?
+                if (cls.getNestedClasses() != null && cls.getNestedClasses().size() > 0) {
+                    contentPanel.add(new JLabel("Nested classes:"));
+                    for (APIClass nestedClass : cls.getNestedClasses()) {
+                        JLabel ncLabel = new JLabel(" " + nestedClass.getFullName().toString());
+                        contentPanel.add(ncLabel);
+                    }
+                    contentPanel.add(contentPanel.add(Box.createVerticalStrut(10)));
+                }
+
                 if (cls.getFields() != null && cls.getFields().size() > 0) {
                     contentPanel.add(new JLabel("Fields:"));
                     for (APIField f : cls.getFields()) {
