@@ -34,4 +34,21 @@ public class APIMethodParameter {
     public String getType() {
         return type;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof APIMethodParameter)) return false;
+
+        APIMethodParameter that = (APIMethodParameter) o;
+
+        if (type != null ? !type.equals(that.type) : that.type != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return type != null ? type.hashCode() : 0;
+    }
 }

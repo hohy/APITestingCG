@@ -112,7 +112,9 @@ public class SourceTreeScanner extends TreeScanner {
             if (mth.getType() == Kind.CONSTRUCTOR) {
                 mth.setName(currentClass.getName());
                 currentClass.addConstructor(mth);
-            } else currentClass.addMethod(mth);
+            } else {
+                currentClass.addMethod(mth);
+            }
             super.visitMethodDef(jcmd);
             //}
         }

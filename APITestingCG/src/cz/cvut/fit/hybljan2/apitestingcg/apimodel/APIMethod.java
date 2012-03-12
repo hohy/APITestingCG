@@ -180,7 +180,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
     public String getParametersString() {
         StringBuilder sb = new StringBuilder();
         for (APIMethodParameter s : parameters) {
-            sb.append(s.getName()).append(',');
+            sb.append(s.getType()).append(',');
         }
         if (parameters.size() > 0) return sb.substring(0, sb.length() - 1);
         else return "";
