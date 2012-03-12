@@ -5,6 +5,8 @@ import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.List;
 
@@ -42,8 +44,8 @@ public class InstantiatorGenerator extends ClassGenerator {
             visitingClass = apiClass;
 
             // declare new class
-            String clsName = generateName(configuration.getInstantiatorClassIdentifier(), apiClass.getName());
-            cls = cm._class(currentPackageName + '.' + clsName);
+            String className = generateName(configuration.getInstantiatorClassIdentifier(), apiClass.getName());
+            cls = declareNewClass(0, currentPackageName, className, visitingClass.isNested());
 
             // visit all constructors, if class isn't abstract
             if (!visitingClass.getModifiers().contains(APIModifier.Modifier.ABSTRACT)) {
@@ -94,7 +96,6 @@ public class InstantiatorGenerator extends ClassGenerator {
                         break;
                     }
                 }
-
             }
 
             // visit all methods
@@ -118,6 +119,15 @@ public class InstantiatorGenerator extends ClassGenerator {
             for (APIField field : apiClass.getFields()) {
                 field.accept(this);
             }
+
+            classStack.push(cls);
+
+            // visit all nested classes
+            for (APIClass nestedClass : apiClass.getNestedClasses()) {
+                nestedClass.accept(this);
+            }
+
+            cls = classStack.pop();
 
         } catch (JClassAlreadyExistsException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
@@ -170,7 +180,14 @@ public class InstantiatorGenerator extends ClassGenerator {
      */
     @Override
     public void visit(APIField apiField) {
+        // field has to be public
         if (apiField.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
+            // type of the field has to be public class
+            if (!isClassPublic(apiField.getVarType())) {
+                return;
+            }
+
+            // Check if field is constant or variable
             if (apiField.getModifiers().contains(APIModifier.Modifier.FINAL)) {
                 // original field
                 JFieldRef fld;
@@ -201,6 +218,18 @@ public class InstantiatorGenerator extends ClassGenerator {
         // only public method can be tested by instantiator
         if (!method.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
             return;
+        }
+
+        // return type have to be public class
+        if (!isClassPublic(method.getReturnType())) {
+            return;
+        }
+
+        // all methods params has to be public classes
+        for (APIMethodParameter paramType : method.getParameters()) {
+            if (!isClassPublic(paramType.getType())) {
+                return;
+            }
         }
 
         // if it is possible, create null version of previous method caller
@@ -250,15 +279,42 @@ public class InstantiatorGenerator extends ClassGenerator {
      */
     private void addCreateInstanceMethod(String instanceClassName, String methodName, APIMethod constructor, boolean nullParams) {
         JClass returnCls = getClassRef(instanceClassName);
-        JMethod result = cls.method(JMod.PUBLIC, returnCls, methodName);
-        JInvocation newInstance = JExpr._new(getClassRef(visitingClass.getFullName()));
-        for (APIMethodParameter arg : constructor.getParameters()) {
-            result.param(getClassRef(arg.getType()), String.valueOf(arg.getName()));
-            if (nullParams) newInstance.arg(getPrimitiveValue(arg.getType()));
-            else newInstance.arg(JExpr.ref(arg.getName()));
+
+        // checks if class is inner. - Inner classes has different constructors.
+        boolean innerClass = false;
+        try {
+            APIClass c = findClass(instanceClassName);
+            if (c.isNested() && !c.getModifiers().contains(APIModifier.Modifier.STATIC)) {
+                innerClass = true;
+            }
+        } catch (ClassNotFoundException e) {
         }
 
+        // declare new createInstance method
+        JMethod result = cls.method(JMod.PUBLIC, returnCls, methodName);
+        JInvocation newInstance;
+        if (innerClass) {
+            String outerClassName = instanceClassName.substring(0, instanceClassName.lastIndexOf('.'));
+            result.param(getClassRef(outerClassName), configuration.getInstanceIdentifier());
+            newInstance = JExpr._new(cm.ref(visitingClass.getName()));
+        } else {
+            newInstance = JExpr._new(getClassRef(visitingClass.getFullName()));
+        }
+
+        // add params to the method
+        for (APIMethodParameter arg : constructor.getParameters()) {
+            result.param(getClassRef(arg.getType()), String.valueOf(arg.getName()));
+            if (nullParams) {
+                newInstance.arg(getPrimitiveValue(arg.getType()));
+            } else {
+                newInstance.arg(JExpr.ref(arg.getName()));
+            }
+        }
+
+        // create body of the method
         JBlock resultBody = result.body();
+
+        // add try-catch block if constructor throws some exceptions
         if (!constructor.getThrown().isEmpty()) {
             JTryBlock tryBlock = result.body()._try();
             resultBody = tryBlock.body();
@@ -268,11 +324,26 @@ public class InstantiatorGenerator extends ClassGenerator {
                 String exceptionParam = "ex" + String.valueOf(eName++);
                 tryBlock._catch(exception).param(exceptionParam);
             }
-
+            // add return null after catch block.
             result.body()._return(getPrimitiveValue(constructor.getReturnType()));
         }
 
-        resultBody._return(newInstance);
+        // add return statement to the method body.
+        if (innerClass) {
+            //StringBuilder returnStatement = new StringBuilder();
+            StringWriter returnStatement = new StringWriter();
+            returnStatement.append("return ");
+            returnStatement.append(configuration.getInstanceIdentifier());
+            returnStatement.append(".");
+
+            newInstance.generate(new JFormatter(new PrintWriter(returnStatement)));
+            returnStatement.append(';');
+            resultBody.directStatement(returnStatement.toString());
+        } else {
+            resultBody._return(newInstance);
+        }
+
+
     }
 
 
