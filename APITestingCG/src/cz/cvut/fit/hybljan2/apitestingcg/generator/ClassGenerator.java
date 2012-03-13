@@ -27,7 +27,6 @@ public abstract class ClassGenerator extends Generator {
 
     public JDefinedClass declareNewClass(int classMods, String packageName, String className, boolean nested) throws JClassAlreadyExistsException {
         JDefinedClass result;
-        System.out.println("Declaring new class: " + className);
         if (nested) {
             result = classStack.peek()._class(classMods, className, ClassType.CLASS);
         } else {
