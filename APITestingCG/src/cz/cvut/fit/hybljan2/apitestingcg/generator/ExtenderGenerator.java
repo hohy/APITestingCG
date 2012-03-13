@@ -146,6 +146,16 @@ public class ExtenderGenerator extends ClassGenerator {
     @Override
     public void visit(APIField apiField) {
 
+        // Type of the field has to be public or protected class
+        try {
+            APIClass type = findClass(apiField.getVarType());
+            if (!(type.getModifiers().contains(APIModifier.Modifier.PUBLIC)
+                    || type.getModifiers().contains(APIModifier.Modifier.PROTECTED))) {
+                return;
+            }
+        } catch (ClassNotFoundException e) {
+        }
+
         if (apiField.getModifiers().contains(APIModifier.Modifier.FINAL)) { // Final fields
             // original field
             JFieldRef fld;

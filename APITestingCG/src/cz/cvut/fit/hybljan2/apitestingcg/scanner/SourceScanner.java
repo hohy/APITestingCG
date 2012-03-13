@@ -74,7 +74,9 @@ public class SourceScanner implements APIScanner {
             }
 
             JavacTool tool = JavacTool.create();
-            List<String> options = Arrays.asList("-cp", classPath);
+            String cp = getClassPathJarFilesList(classPath.trim());
+            System.out.println(cp);
+            List<String> options = Arrays.asList("-cp", cp);
             JavacTaskImpl javacTaskImpl = (JavacTaskImpl) tool.getTask(null, fileManager, null, options, null, fileObjects);
             javacTaskImpl.updateContext(ctx);
             Iterable<? extends CompilationUnitTree> units = javacTaskImpl.parse();
@@ -95,6 +97,26 @@ public class SourceScanner implements APIScanner {
         }
     }
 
+    public static String getClassPathJarFilesList(String classPath) throws FileNotFoundException {
+        StringBuilder sb = new StringBuilder();
+        String[] pathItems = classPath.split(File.pathSeparator);
+        for (String pathItem : pathItems) {
+            File f = new File(pathItem);
+            if (f.isDirectory()) {
+                List<String> jarFiles = listFiles(pathItem, ".jar");
+                for (String jarFilePath : jarFiles) {
+                    sb.append(jarFilePath).append(File.pathSeparator);
+                }
+            } else {
+                sb.append(pathItem).append(File.pathSeparator);
+            }
+        }
+        // delete last pathSeparator
+        if (sb.length() > 0) {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+        return sb.toString();
+    }
 
     /**
      * Gets list of java files in directory with given path.

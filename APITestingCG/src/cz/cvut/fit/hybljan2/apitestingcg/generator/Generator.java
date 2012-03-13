@@ -239,15 +239,15 @@ public abstract class Generator implements IAPIVisitor {
 
         try {
             APIClass cls = currentAPI.findClass(className);
-            System.out.println("Class found: " + className);
+            //System.out.println("Class found: " + className);
             if (cls.getModifiers().contains(APIModifier.Modifier.PROTECTED)) {
                 className = className.substring(className.lastIndexOf('.') + 1);
             }
         } catch (ClassNotFoundException e) {
-            System.err.println("Class not found: " + className);
+            //System.err.println("Class not found: " + className);
         }
 
-        // check if it's array
+        // check if it's arra<y
         if (className.endsWith("[]")) {
             return getClassRef(className.substring(0, className.length() - 2)).array();
         }

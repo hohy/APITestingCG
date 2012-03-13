@@ -57,14 +57,15 @@ public class SourceTreeScanner extends TreeScanner {
     public void visitClassDef(JCClassDecl jccd) {
 
         ClassSymbol cs = jccd.sym;
-        if ((cs.flags() & (Flags.PUBLIC | Flags.PROTECTED)) != 0) {
+        if (((cs.flags() & (Flags.PUBLIC | Flags.PROTECTED)) != 0) || ((cs.flags() & Flags.PRIVATE) == 0)) {
             currentClass = new APIClass(jccd);
             classes.push(currentClass);
             super.visitClassDef(jccd);
-            currentClass = classes.pop();
+            classes.pop();
             if (!classes.empty()) {
                 currentClass.setNested(true);
                 classes.peek().addNestedClass(currentClass);
+                currentClass = classes.peek();
             } else {
                 currentPackage.addClass(currentClass);
             }
