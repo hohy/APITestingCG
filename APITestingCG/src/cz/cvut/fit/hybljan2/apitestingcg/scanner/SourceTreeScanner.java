@@ -15,10 +15,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIItem.Kind;
 
 import java.lang.annotation.ElementType;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * @author Jan Hýbl
@@ -78,7 +75,6 @@ public class SourceTreeScanner extends TreeScanner {
         if (jcca.annotationType.type.toString().equals("java.lang.annotation.Target")) {
             for (JCTree.JCExpression e : jcca.getArguments()) {
                 JCTree.JCAssign a = (JCTree.JCAssign) e;
-                System.out.println(a);
                 if (a.rhs instanceof JCTree.JCFieldAccess) {
                     currentClass.setAnnotationTargets(new LinkedList<ElementType>());
                     try {
@@ -97,6 +93,18 @@ public class SourceTreeScanner extends TreeScanner {
                             System.err.println(e1.getMessage());
                         }
                     }
+                } else if (a.rhs instanceof JCTree.JCIdent) {
+                    try {
+                        JCTree.JCIdent i = (JCTree.JCIdent) a.rhs;
+                        String s = i.type.toString().substring(21) + "." + i.getName();
+                        ElementType target = APIClass.parseAnnotationTarget(s);
+                        List<ElementType> targetsList = new LinkedList<>();
+                        targetsList.add(target);
+                        currentClass.setAnnotationTargets(targetsList);
+                    } catch (Exception e1) {
+                        System.err.println(e1.getMessage());
+                    }
+
                 }
             }
         }
