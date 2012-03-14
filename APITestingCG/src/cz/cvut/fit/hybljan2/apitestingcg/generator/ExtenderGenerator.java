@@ -35,10 +35,11 @@ public class ExtenderGenerator extends ClassGenerator {
             return;
         }
 
-//        // code can be generated only for public classes.
-//        if (!apiClass.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
-//            return;
-//        }
+        // code can be generated only for public or protected classes.
+        if (!(apiClass.getModifiers().contains(APIModifier.Modifier.PUBLIC)
+                || apiClass.getModifiers().contains(APIModifier.Modifier.PROTECTED))) {
+            return;
+        }
 
         // check if extender has at least one protected or public constructor.
         // If it hasn't, extender can't be generated.
@@ -197,6 +198,24 @@ public class ExtenderGenerator extends ClassGenerator {
             return;
         }
 
+        // only public or protected method can be tested by extender
+        if (!(method.getModifiers().contains(APIModifier.Modifier.PUBLIC)
+                || method.getModifiers().contains(APIModifier.Modifier.PROTECTED))) {
+            return;
+        }
+
+        // return type have to be public or protected class
+        if (!isClassPublicOrProtected(method.getReturnType())) {
+            return;
+        }
+
+        // all methods params has to be public or protected classes
+        for (APIMethodParameter paramType : method.getParameters()) {
+            if (!isClassPublicOrProtected(paramType.getType())) {
+                return;
+            }
+        }
+
         JClass extenderReturnType = getClassRef(method.getReturnType());
         String returnTypeParam = getParamArg(method.getReturnType());
         if (returnTypeParam != null) {
@@ -258,7 +277,7 @@ public class ExtenderGenerator extends ClassGenerator {
                 } else if (method.getTypeParamsMap().containsKey(param.getType())) {
                     String paramTypeName = method.getTypeParamsMap().get(param.getType())[0];
                     paramType = getClassRef(paramTypeName);
-                    paramType.getTypeParameters().add(paramType);
+                    //paramType.getTypeParameters().add(paramType);
                 }
             }
 

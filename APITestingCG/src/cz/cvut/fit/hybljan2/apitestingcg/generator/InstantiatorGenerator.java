@@ -282,13 +282,22 @@ public class InstantiatorGenerator extends ClassGenerator {
 
         // checks if class is inner. - Inner classes has different constructors.
         boolean innerClass = false;
-        APIClass c = visitingClass;//findClass(instanceClassName);
+
         // only constructors of public class can be generated in instantiator.
-        if (!c.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
+        if (!visitingClass.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
             return;
         }
-        if (c.isNested() && !c.getModifiers().contains(APIModifier.Modifier.STATIC)) {
+        if (visitingClass.isNested() && !visitingClass.getModifiers().contains(APIModifier.Modifier.STATIC)) {
             innerClass = true;
+        }
+
+        // new instance has to be public class
+        try {
+            APIClass c = findClass(instanceClassName);
+            if (!c.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
+                return;
+            }
+        } catch (ClassNotFoundException e) {
         }
 
         // declare new createInstance method
