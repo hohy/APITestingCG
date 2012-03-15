@@ -72,6 +72,9 @@ public class API extends APIItem {
      * Current version is not nicely implemented - it searches the API sequentially, so it's slow.
      * But it's best way how it can be done in current APIModel. It would be better, if classes
      * were been stored in map, where they could be accessed directly by name.
+     * <p/>
+     * If wanted class is not part of an API, method try to load the class with class loader.
+     * It loading is successful, loaded class converted to APIClass object using ByteCode scanner.
      *
      * @param className full class name
      * @return class with given name
@@ -79,21 +82,20 @@ public class API extends APIItem {
     public APIClass findClass(String className) throws ClassNotFoundException {
         int dotIndex = className.lastIndexOf('.');
 
-        if (dotIndex >= 0) {
-            String packageName = className.substring(0, className.lastIndexOf('.'));
-            for (APIPackage pckg : packages) {
-                for (APIClass cls : pckg.getClasses()) {
-                    if (cls.getFullName().equals(className)) {
-                        return cls;
-                    } else {
-                        APIClass result = findNestedClass(className, cls);
-                        if (result != null) return result;
-                    }
+        for (APIPackage pckg : packages) {
+            for (APIClass cls : pckg.getClasses()) {
+                if (cls.getFullName().equals(className)) {
+                    return cls;
+                } else {
+                    APIClass result = findNestedClass(className, cls);
+                    if (result != null) return result;
                 }
             }
         }
 
-        throw new ClassNotFoundException();
+        // class is not part of API, try load it with class loader.
+        Class loadedClass = Class.forName(className);
+        return new APIClass(loadedClass);
     }
 
     public APIClass findNestedClass(String className, APIClass cls) {

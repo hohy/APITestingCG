@@ -236,24 +236,46 @@ public class InstantiatorGenerator extends ClassGenerator {
         // method without parameters cant be called with null parameters.
 
         // Check if there is no other same method caller
-        boolean unique = true;
+        boolean unique = false;
 
-        if (method.getParameters().isEmpty()) {
-            unique = false;
-        } else {
-            for (APIMethod m : visitingClass.getMethods()) {
-                // if the tested method is equal to m method, it's not unique.
-                if (!method.equals(m)) { // don't compare object to itself
-                    unique = !((method.getName().equals(m.getName())) && (equalsNullParams(m.getParameters(), method.getParameters())));
-                    if (!unique) break;
-                }
-            }
+        if (!method.getParameters().isEmpty()) {
+            unique = checkNullCollision(method, visitingClass);
         }
 
         addMethodCaller(method, unique);
     }
 
-    private boolean equalsNullParams(List<APIMethodParameter> paramsA, List<APIMethodParameter> paramsB) {
+    private boolean checkNullCollision(APIMethod method, String clsName) {
+        APIClass cls = null;
+        try {
+            cls = findClass(clsName);
+            return checkNullCollision(method, cls);
+        } catch (ClassNotFoundException e) {
+            System.err.println("Can't find class " + cls);
+        }
+        return false;
+    }
+
+    private boolean checkNullCollision(APIMethod method, APIClass cls) {
+        boolean unique = true;
+        // check collision in current class
+        for (APIMethod m : cls.getMethods()) {
+            // if the tested method is equal to m method, it's not unique.
+            if (!method.equals(m)) { // don't compare object to itself
+                unique = !((method.getName().equals(m.getName())) && (equalsNullParams(m.getParameters(), method.getParameters())));
+                if (!unique) return false;
+            }
+        }
+
+        // check collision in super class
+        if (cls.getExtending() != null) {
+            return checkNullCollision(method, cls.getExtending());
+        }
+
+        return unique;
+    }
+
+    private static boolean equalsNullParams(List<APIMethodParameter> paramsA, List<APIMethodParameter> paramsB) {
         if (paramsA.size() != paramsB.size()) return false;
         Iterator<APIMethodParameter> itA = paramsA.iterator();
         Iterator<APIMethodParameter> itB = paramsB.iterator();

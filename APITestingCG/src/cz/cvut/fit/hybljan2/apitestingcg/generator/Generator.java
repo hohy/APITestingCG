@@ -191,7 +191,7 @@ public abstract class Generator implements IAPIVisitor {
      * @param name
      * @return
      */
-    public String getPrimitiveValueString(String name) {
+    public static String getPrimitiveValueString(String name) {
         if (name.equals("byte")) return "0";
         if (name.equals("short")) return "0";
         if (name.equals("int")) return "0";
