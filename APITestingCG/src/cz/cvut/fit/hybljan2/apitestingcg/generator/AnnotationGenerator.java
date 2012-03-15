@@ -111,13 +111,17 @@ public class AnnotationGenerator extends ClassGenerator {
         JAnnotationUse result = item.annotate(getClassRef(annotation.getFullName()));
         for (APIMethod method : annotation.getMethods()) {
             if (setDefaults || method.getAnnotationDefaultValue() == null) {
-                result.param(method.getName(), getDefaultAnotationParamValue(method.getReturnType()));
+                try {
+                    result.param(method.getName(), getAnotationParamValue(method.getReturnType()));
+                } catch (Exception e) {
+                    System.err.println("Cant set param value." + e.getMessage());
+                }
             }
         }
         return result;
     }
 
-    public JExpression getDefaultAnotationParamValue(String name) {
+    public JExpression getAnotationParamValue(String name) throws Exception {
         name = name.trim();
         if (name.equals("byte")) return JExpr.lit(0);
         if (name.equals("short")) return JExpr.lit(0);
@@ -131,9 +135,19 @@ public class AnnotationGenerator extends ClassGenerator {
         if (name.equals("java.lang.Class")) return JExpr.dotclass(getClassRef("java.io.File"));
         if (name.endsWith("]")) {
             String arrayType = name.substring(0, name.indexOf("["));
-            return JExpr.newArray(getClassRef(arrayType)).add(getDefaultAnotationParamValue(arrayType));
+            return JExpr.newArray(getClassRef(arrayType)).add(getAnotationParamValue(arrayType));
         }
-        return JExpr.lit(3);
+
+        APIClass paramType = findClass(name);
+        if (paramType.getType().equals(APIItem.Kind.ENUM)) {
+            // visit all fields
+            for (APIField field : paramType.getFields()) {
+                if (field.getVarType().equals(paramType.getFullName())) { // test if field is enum field or just variable
+                    return getClassRef(paramType.getFullName()).staticRef(field.getName());
+                }
+            }
+        }
+        throw new Exception("Unknown annotation parameter type: " + name);
     }
 
     @Override
