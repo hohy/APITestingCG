@@ -5,7 +5,6 @@ import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -42,34 +41,6 @@ public abstract class APIItem {
 
     public Kind getType() {
         return kind;
-    }
-
-    /**
-     * Method adds to class simple name package name. Example: File -> java.io.File
-     *
-     * @param simpleName Simple class name - without package name
-     * @param importsMap Maps simple names to full names.
-     * @return fulll class name
-     */
-    protected static String findFullClassName(String simpleName, Map<String, String> importsMap) {
-        // if class name doesn't contains dot, 
-        // it's not full class name with package name
-        // have to try to add it.
-        if (!simpleName.contains(".")) {
-            // if class is generics, we have to get full name for both classes
-            if (!simpleName.contains("<")) {
-                if (importsMap.containsKey(simpleName)) {
-                    return importsMap.get(simpleName);
-                }
-            } else {
-                String firstName = simpleName.substring(0, simpleName.indexOf('<'));
-                String secondName = simpleName.substring(simpleName.indexOf('<') + 1, simpleName.length() - 1);
-                if (importsMap.containsKey(firstName)) firstName = importsMap.get(firstName);
-                secondName = findFullClassName(secondName, importsMap);
-                return firstName + '<' + secondName + '>';
-            }
-        }
-        return simpleName;
     }
 
     @Override
