@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 /**
  * Class contains some useful methods for testing.
+ *
  * @author Jan Hýbl
  */
 public class TestUtils {
@@ -17,7 +18,7 @@ public class TestUtils {
         try {
             br = new BufferedReader(new FileReader(fileName));
             String line;
-            while((line = br.readLine()) != null) {
+            while ((line = br.readLine()) != null) {
                 sb.append('\n').append(line);
             }
         } catch (IOException ex) {
@@ -33,7 +34,7 @@ public class TestUtils {
     }
 
     public static void delete(File f) throws IOException {
-        if(f.exists()) {
+        if (f.exists()) {
             if (f.isDirectory()) {
                 for (File c : f.listFiles())
                     delete(c);
@@ -42,4 +43,6 @@ public class TestUtils {
                 throw new FileNotFoundException("Failed to delete file: " + f);
         }
     }
+
+
 }

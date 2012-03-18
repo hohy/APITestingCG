@@ -30,6 +30,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         this.name = name;
         this.kind = Kind.METHOD;
         this.modifiers = modifiers;
+        parameters = new LinkedList<>();
         char pname = 'a';
         for (String ptype : params) {
             parameters.add(new APIMethodParameter(String.valueOf(pname++), ptype));

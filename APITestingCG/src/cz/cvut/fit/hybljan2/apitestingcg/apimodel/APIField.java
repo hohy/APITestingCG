@@ -59,7 +59,6 @@ public class APIField extends APIItem implements Comparable<APIField> {
     public APIField(Field f) {
         this.name = f.getName();
         this.varType = getTypeName(f.getGenericType());
-        //if(f.getGenericType() != null) this.varType = this.varType + '<' +f.getGenericType().toString() + '>'; 
         this.modifiers = APIModifier.getModifiersSet(f.getModifiers());
         this.kind = Kind.VARIABLE;
     }
