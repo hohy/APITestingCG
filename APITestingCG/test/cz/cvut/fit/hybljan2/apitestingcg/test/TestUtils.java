@@ -21,6 +21,8 @@ public class TestUtils {
             while ((line = br.readLine()) != null) {
                 sb.append('\n').append(line);
             }
+        } catch (FileNotFoundException fnfe) {
+            System.err.println("Cant read file: " + fileName);
         } catch (IOException ex) {
             Logger.getLogger(APIClassTest.class.getName()).log(Level.SEVERE, null, ex);
         } finally {

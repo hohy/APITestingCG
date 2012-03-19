@@ -216,7 +216,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         publicmodifier.add(Modifier.PUBLIC);
         LinkedList<String> params = new LinkedList<String>();
         List<String> thrown = new LinkedList<String>();
-        APIMethod constr = new APIMethod(fullName, publicmodifier, params, null, thrown);
+        APIMethod constr = new APIMethod(name, publicmodifier, params, fullName, thrown);
         constr.kind = Kind.CONSTRUCTOR;
         this.constructors.add(constr);
     }
@@ -242,8 +242,24 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(APIModifier.modifiersToString(modifiers));
+        if (nested) sb.append("nested ");
         sb.append(kind.toString().toLowerCase()).append(' ');
         sb.append(fullName);
+
+        if (typeParamsMap.size() > 0) {
+            sb.append(" <");
+            for (String key : typeParamsMap.keySet()) {
+                sb.append(key).append(' ');
+                for (String typeBound : typeParamsMap.get(key)) {
+                    sb.append(typeBound).append(" & ");
+                }
+                sb.delete(sb.length() - 3, sb.length());
+                sb.append(", ");
+            }
+            sb.delete(sb.length() - 2, sb.length());
+            sb.append(">");
+        }
+
         if (extending != null) {
             sb.append(" extends ").append(extending);
         }
@@ -266,6 +282,12 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         if (methods != null) {
             for (APIMethod m : methods) {
                 sb.append("\n ").append(m.toString());
+            }
+        }
+
+        if (nestedClasses != null) {
+            for (APIClass nestedClass : nestedClasses) {
+                sb.append("\n\n").append(nestedClass);
             }
         }
         return sb.toString();
@@ -378,6 +400,9 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
             return false;
         }
         if ((this.fullName == null) ? (other.fullName != null) : !this.fullName.equals(other.fullName)) {
+            return false;
+        }
+        if (this.nestedClasses != other.nestedClasses && (this.nestedClasses == null || !this.nestedClasses.equals(other.nestedClasses))) {
             return false;
         }
         return true;

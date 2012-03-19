@@ -41,8 +41,12 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
 
     public APIMethod(JCMethodDecl jcmd, JavacTypes types) {
 
-        boolean constructor = false;
-        if (jcmd.name.toString().equals("<init>")) constructor = true;
+        // constructor or method?
+        if (jcmd.name.toString().equals("<init>")) {
+            kind = Kind.CONSTRUCTOR;
+        } else {
+            kind = getKind(jcmd.getKind());
+        }
 
         name = jcmd.name.toString();
 
@@ -70,8 +74,9 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
 
         modifiers = APIModifier.getModifiersSet(jcmd.getModifiers().getFlags());
 
-        thrown = new LinkedList<String>();
-        LinkedList<com.sun.tools.javac.code.Type> thrownTypes = new LinkedList<com.sun.tools.javac.code.Type>();
+        // cretate list of exceptions thrown by method
+        thrown = new LinkedList<>();
+        LinkedList<com.sun.tools.javac.code.Type> thrownTypes = new LinkedList<>();
         if (jcmd.getThrows() != null) {
             for (JCExpression e : jcmd.getThrows()) {
                 boolean alreadyThrown = false;
@@ -83,7 +88,9 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
                         it.remove();
                     }
                 }
-                if (!alreadyThrown) thrownTypes.add(e.type);
+                if (!alreadyThrown) {
+                    thrownTypes.add(e.type);
+                }
             }
             for (com.sun.tools.javac.code.Type t : thrownTypes) {
                 thrown.add(t.getModelType().toString());
@@ -92,20 +99,23 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
 
         // Constructor should return type fullclassname. Void method returns "void"
         // and other methods return full name of Class from jcmd.getReturnType()
-        if (!constructor) {
-            if (jcmd.getReturnType() == null) this.returnType = "void";
-            else
-                this.returnType = jcmd.restype.type.toString();
+        if (!kind.equals(Kind.CONSTRUCTOR)) {
+            if (jcmd.getReturnType() == null) {
+                returnType = "void";
+            } else {
+                returnType = jcmd.restype.type.toString();
+            }
         } else {
-            this.returnType = jcmd.sym.owner.toString();
+            returnType = jcmd.sym.owner.toString();
         }
-        this.parameters = new LinkedList<APIMethodParameter>();
+
+        // method parameters
+        parameters = new LinkedList<>();
         for (JCVariableDecl jcvd : jcmd.getParameters()) {
             parameters.add(new APIMethodParameter(jcvd));
         }
-        if (constructor) this.kind = Kind.CONSTRUCTOR;
-        else this.kind = getKind(jcmd.getKind());
 
+        // default value of annotation params.
         if (jcmd.defaultValue != null) {
             annotationDefaultValue = jcmd.defaultValue.toString();
         }
@@ -150,7 +160,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
 
     /**
      * Return string representation of APIMethod.
-     * Format is [Modifiers] method [Name] [ReturnType] ([Parameteres])
+     * Format is [Modifiers] [TypeParams] method [Name] [ReturnType] ([Parameteres])
      * Example: public static doSomething Object (int, double)
      *
      * @return
@@ -158,13 +168,42 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+
         for (Modifier m : modifiers) sb.append(m).append(' ');
-        if (returnType != null) sb.append("method ").append(returnType).append(' ');
-        else sb.append("constructor ");
-        sb.append(name).append('(');
-        for (APIMethodParameter f : parameters) sb.append(f.getType()).append(',');
-        if (parameters.size() > 0) sb.deleteCharAt(sb.length() - 1);
+
+        if (!kind.equals(Kind.CONSTRUCTOR)) {
+            sb.append("method ");
+        } else {
+            sb.append("constructor ");
+        }
+
+        if (typeParamsMap.size() > 0) {
+            sb.append('<');
+            for (String key : typeParamsMap.keySet()) {
+                sb.append(key).append(' ');
+                for (String typeBound : typeParamsMap.get(key)) {
+                    sb.append(typeBound).append(" & ");
+                }
+                sb.delete(sb.length() - 3, sb.length());
+                sb.append(", ");
+            }
+            sb.delete(sb.length() - 2, sb.length());
+            sb.append("> ");
+        }
+
+        sb.append(returnType).append(' ');
+
+        sb.append(name);
+
+        sb.append('(');
+        for (APIMethodParameter f : parameters) {
+            sb.append(f.getType()).append(',');
+        }
+        if (parameters.size() > 0) {
+            sb.deleteCharAt(sb.length() - 1);
+        }
         sb.append(')');
+
         if (thrown != null && thrown.size() > 0) {
             sb.append(" throws");
             for (String ex : thrown) {

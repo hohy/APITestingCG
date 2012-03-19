@@ -20,6 +20,6 @@ public abstract class TestAPIMethod {
     public void methodD() throws IOException, Exception {
     }
 
-    public abstract <G, H extends List> Set<G> write4(List<H> a);
+    public abstract <G, H extends List & Number> Set<G> write4(List<H> a);
 
 }

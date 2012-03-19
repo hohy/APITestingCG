@@ -1,6 +1,8 @@
-public class testAPIClassRes.TestAPIClassB extends javax.swing.JFrame implements Runnable
+public class testAPIClassRes.TestAPIClassB extends javax.swing.JFrame implements java.lang.Runnable
  public static final int SIZE
  protected java.io.File source
- public constructor testAPIClassRes.TestAPIClassB()
- protected method java.util.List<Integer> getList(String,int) throws java.io.IOException
+ public constructor testAPIClassRes.TestAPIClassB TestAPIClassB(int)
+ public constructor testAPIClassRes.TestAPIClassB TestAPIClassB(java.io.File,int)
+ public constructor testAPIClassRes.TestAPIClassB TestAPIClassB()
+ protected method java.util.List<java.lang.Integer> getList(java.lang.String,int) throws java.io.IOException
  public method void run()

@@ -48,7 +48,7 @@ public class APIMethodTest {
                 "public static final method int methodB(int,int)",
                 "protected method java.io.File methodC(java.util.List,float,java.util.Queue)",
                 "public method void methodD() throws java.lang.Exception",
-                "abstract public method java.util.Set<G> write4(java.util.List<H>)"
+                "abstract public method <G java.lang.Object, H java.util.List & java.lang.Number> java.util.Set<G> write4(java.util.List<H>)"
         };
         for (int i = 0; i < expResults.length; i++) {
             String expResult = expResults[i];
