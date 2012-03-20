@@ -153,11 +153,11 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         for (Type t : mth.getGenericParameterTypes()) {
             this.parameters.add(new APIMethodParameter(String.valueOf(pname++), getTypeName(t)));
         }
-        this.returnType = mth.getReturnType().getName();
-        if (returnType.startsWith("[L")) { // if method returns array, scanner gets wrong return class name.
+        this.returnType = getTypeName(mth.getReturnType());
+        /*if (returnType.startsWith("[L")) { // if method returns array, scanner gets wrong return class name.
             // This fix this error
             returnType = returnType.substring(2, returnType.length() - 1) + "[]";
-        }
+        } */
 
         if (mth.getDefaultValue() != null) {
             this.annotationDefaultValue = mth.getDefaultValue().toString();

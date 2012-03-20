@@ -90,6 +90,13 @@ public abstract class APIItem {
         if (t instanceof Class) {
             Class c = (Class) t;
             rawName = c.getName();
+            if (rawName.startsWith("[L")) { // if method returns array, scanner gets wrong return class name.
+                // This fix this error
+                rawName = rawName.substring(2, rawName.length() - 1);
+            }
+            if (c.isMemberClass()) {
+                rawName = getTypeName(c.getEnclosingClass()) + '.' + c.getSimpleName();
+            }
             if (c.isArray()) {
                 rawName += "[]";
             }
