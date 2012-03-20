@@ -19,6 +19,13 @@ public class APIModifier {
         }
     }
 
+    public static List<Modifier> getInterfaceMethodModifierList() {
+        List<Modifier> result = new LinkedList<>();
+        result.add(Modifier.PUBLIC);
+        result.add(Modifier.ABSTRACT);
+        return result;
+    }
+
     /**
      * Method that translate java.lang.reflect.Modifier to our APIModifier.
      *

@@ -113,11 +113,14 @@ public class SourceTreeScanner extends TreeScanner {
     @Override
     public void visitMethodDef(JCMethodDecl jcmd) {
         MethodSymbol ms = jcmd.sym;
-        if ((ms.flags() & (Flags.PUBLIC | Flags.PROTECTED)) != 0) {
+        if ((ms.flags() & (Flags.PUBLIC | Flags.PROTECTED)) != 0 || currentClass.getType().equals(Kind.INTERFACE)) {
             // if default constructor should not be part of api, uncomment this.
             //if ((ms.flags() & Flags.GENERATEDCONSTR) == 0) {
 
             APIMethod mth = new APIMethod(jcmd, types);
+            if (currentClass.getType().equals(Kind.INTERFACE)) {
+                mth.setModifiers(APIModifier.getInterfaceMethodModifierList());
+            }
             if (mth.getType() == Kind.CONSTRUCTOR) {
                 mth.setName(currentClass.getName());
                 currentClass.addConstructor(mth);
