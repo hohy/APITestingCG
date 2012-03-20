@@ -15,7 +15,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class APIClassTest {
 
-    private static APIClass[] testInstances = new APIClass[4];
+    private static APIClass[] testInstances = new APIClass[5];
 
     public APIClassTest() {
     }

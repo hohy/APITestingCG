@@ -154,12 +154,12 @@ public abstract class Generator implements IAPIVisitor {
         else sb.append(method.getName());
         sb.append('(');
         // list of Params
-        Iterator iter = method.getParameters().iterator();
+        Iterator<APIMethodParameter> iter = method.getParameters().iterator();
         if (iter.hasNext()) {
-            sb.append(iter.next());
+            sb.append(iter.next().getType());
             while (iter.hasNext()) {
                 sb.append(", ");
-                sb.append(iter.next());
+                sb.append(iter.next().getType());
             }
         }
         sb.append(')');

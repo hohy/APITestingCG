@@ -4,32 +4,22 @@
  */
 package cz.cvut.fit.hybljan2.apitestingcg.scanner;
 
-import java.util.List;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIField;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIPackage;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ScannerConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
+import org.junit.*;
+
 import java.io.File;
-import java.util.LinkedList;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertEquals;
 
 /**
- *
  * @author hohy
  */
 public class SourceScannerTest {
-    
+
     private static ScannerConfiguration testLibCfg;
-    
+
     public SourceScannerTest() {
     }
 
@@ -47,26 +37,13 @@ public class SourceScannerTest {
     @AfterClass
     public static void tearDownClass() throws Exception {
     }
-    
+
     @Before
     public void setUp() {
     }
-    
+
     @After
     public void tearDown() {
-    }
-
-    /**
-     * Test of setConfiguration method, of class SourceScanner.
-     */
-    @Test
-    public void testSetConfiguration() {
-        System.out.println("setConfiguration");
-        ScannerConfiguration sc = null;
-        SourceScanner instance = new SourceScanner();
-        instance.setConfiguration(sc);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -79,7 +56,7 @@ public class SourceScannerTest {
         instance.setConfiguration(testLibCfg);
         String expResult = TestUtils.readFileToString("testres/testScannerLib.string");
         API result = instance.scan();
-        System.out.println("Expected:\n" + expResult); 
+        System.out.println("Expected:\n" + expResult);
         System.out.println("\n\nResult: \n" + result.toString());
         assertEquals(expResult, result.toString());
     }

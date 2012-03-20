@@ -87,34 +87,43 @@ public class ByteCodeScanner implements APIScanner {
             }
 
             // Load every jar file in the list.
-//            for(File jarFile : jarFiles) {
             URL[] urlArray = new URL[jarUrlsList.size()];
             urlArray = jarUrlsList.toArray(urlArray);
             for (URL jarFileUrl : jarUrlsList) {
-                //jis = new JarInputStream(new FileInputStream(jarFile));
                 jis = new JarInputStream(new FileInputStream(jarFileUrl.getFile()));
-                URL[] jarUrls = new URL[1];
-                //jarUrls[0] = jarFile.toURI().toURL();
                 urlcl = new URLClassLoader(urlArray, this.getClass().getClassLoader());
 
                 JarEntry jarEntry;
                 while ((jarEntry = jis.getNextJarEntry()) != null) {
+
+                    // find java class files in jar
                     if (jarEntry.getName().endsWith(".class")) {
+
+                        // get name of class
                         String className = jarEntry.getName().replaceAll("/", "\\.");
                         className = className.substring(0, className.length() - 6);
+
+                        // load the class
                         Class classToLoad = Class.forName(className, true, urlcl);
-                        if (Modifier.isPublic(classToLoad.getModifiers()) || Modifier.isProtected(classToLoad.getModifiers())) {
-                            APIClass apicls = new APIClass(classToLoad);
+
+                        if ((Modifier.isPublic(classToLoad.getModifiers())              // class has to be Public
+                                || Modifier.isProtected(classToLoad.getModifiers()))    // or protected
+                                && !classToLoad.isMemberClass()) {                      // and must not be nested.
+
+                            APIClass apiClass = new APIClass(classToLoad);
+
+                            // put class to right package, if package doesn't exist, create it.
                             if (classToLoad.getPackage() != null) {
                                 String packageName = classToLoad.getPackage().getName();
                                 if (pkgMap.containsKey(packageName)) {
-                                    pkgMap.get(packageName).addClass(apicls);
+                                    pkgMap.get(packageName).addClass(apiClass);
                                 } else {
                                     APIPackage pkg = new APIPackage(packageName);
-                                    pkg.addClass(apicls);
+                                    pkg.addClass(apiClass);
                                     pkgMap.put(pkg.getName(), pkg);
                                 }
                             }
+
                         }
                     }
                 }
@@ -131,7 +140,9 @@ public class ByteCodeScanner implements APIScanner {
             }
         }
         API api = new API(apiName, apiVersion);
-        for (APIPackage pkg : pkgMap.values()) api.addPackage(pkg);
+        for (APIPackage pkg : pkgMap.values()) {
+            api.addPackage(pkg);
+        }
         return api;
     }
 

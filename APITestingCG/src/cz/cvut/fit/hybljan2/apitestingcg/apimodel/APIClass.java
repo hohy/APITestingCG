@@ -124,13 +124,12 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     public APIClass(Class cls) {
         name = cls.getSimpleName();
         fullName = cls.getName();
-        // replace '$' character in names of inner classes.
-        //fullName.replace('$', '.');
-        if (fullName.contains("$")) {
-            fullName = fullName.substring(0, fullName.indexOf('$'));
+
+        if (cls.isMemberClass()) {
+            fullName = cls.getEnclosingClass().getName() + '.' + name;
         }
 
-        constructors = new TreeSet<APIMethod>();
+        constructors = new TreeSet<>();
         for (Constructor constr : cls.getDeclaredConstructors()) {
             APIMethod apiconstr = new APIMethod(constr, fullName);
             if (apiconstr.getModifiers().contains(Modifier.PUBLIC)
@@ -138,7 +137,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
                 this.constructors.add(apiconstr);
         }
 
-        methods = new TreeSet<APIMethod>();
+        methods = new TreeSet<>();
         for (Method mth : cls.getDeclaredMethods()) {
             if (!mth.isBridge() && !mth.isSynthetic()) {
                 APIMethod apimth = new APIMethod(mth);
@@ -150,7 +149,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         }
 
         modifiers = APIModifier.getModifiersSet(cls.getModifiers());
-        fields = new TreeSet<APIField>();
+        fields = new TreeSet<>();
         for (Field f : cls.getDeclaredFields()) {
             APIField apifield = new APIField(f);
             if (apifield.getModifiers().contains(Modifier.PUBLIC)
@@ -165,7 +164,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
                 System.out.println(a.annotationType());
 
                 if (a instanceof java.lang.annotation.Target) {
-                    annotationTargets = new LinkedList<ElementType>();
+                    annotationTargets = new LinkedList<>();
                     Target annotationTarget = (Target) a;
                     for (ElementType elementType : annotationTarget.value()) {
                         annotationTargets.add(elementType);
@@ -181,7 +180,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
             extending = cls.getSuperclass().getName();
         }
 
-        implementing = new LinkedList<String>();
+        implementing = new LinkedList<>();
         for (Class implementedInterface : cls.getInterfaces()) {
             implementing.add(implementedInterface.getName());
         }
@@ -189,7 +188,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         // construct typeparams (generics) map
         for (TypeVariable tp : cls.getTypeParameters()) {
             String typeName = tp.getName();
-            ArrayList<String> typeBounds = new ArrayList<String>();
+            ArrayList<String> typeBounds = new ArrayList<>();
             for (Type type : tp.getBounds()) {
                 Class tcls = (Class) type;
                 typeBounds.add(tcls.getName());
@@ -197,6 +196,15 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
             typeParamsMap.put(typeName, typeBounds.toArray(new String[0]));
         }
 
+        // add nested classes
+        for (Class nestedClass : cls.getDeclaredClasses()) {
+            nestedClasses.add(new APIClass(nestedClass));
+        }
+
+        // set nested flag if this class is nested
+        if (cls.isMemberClass()) {
+            nested = true;
+        }
     }
 
     public void addMethod(APIMethod method) {
@@ -267,6 +275,11 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
             sb.append(" implements");
             for (String i : implementing) {
                 sb.append(' ').append(i);
+            }
+        }
+        if (annotationTargets != null && annotationTargets.size() > 0) {
+            for (ElementType et : annotationTargets) {
+                sb.append("\n @AnnotationTarget ").append(et);
             }
         }
         if (fields != null) {
@@ -403,6 +416,12 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
             return false;
         }
         if (this.nestedClasses != other.nestedClasses && (this.nestedClasses == null || !this.nestedClasses.equals(other.nestedClasses))) {
+            return false;
+        }
+        if (this.annotationTargets != other.annotationTargets && (this.annotationTargets == null || !this.annotationTargets.equals(other.annotationTargets))) {
+            return false;
+        }
+        if (this.typeParamsMap != other.typeParamsMap && (this.typeParamsMap == null || !this.typeParamsMap.equals(other.typeParamsMap))) {
             return false;
         }
         return true;

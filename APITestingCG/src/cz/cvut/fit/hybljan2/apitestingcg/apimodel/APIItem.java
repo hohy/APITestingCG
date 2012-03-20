@@ -87,6 +87,14 @@ public abstract class APIItem {
 
     protected String getTypeName(Type t) {
         String rawName = t.toString();
+        if (t instanceof Class) {
+            Class c = (Class) t;
+            rawName = c.getName();
+            if (c.isArray()) {
+                rawName += "[]";
+            }
+            return rawName;
+        }
         if (rawName.contains("class")) rawName = rawName.substring(6);
         if (rawName.contains("interface")) rawName = rawName.substring(10);
 

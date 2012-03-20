@@ -4,44 +4,39 @@
  */
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
-import java.util.TreeSet;
-import java.util.Set;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
-import java.util.LinkedList;
-import java.util.List;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.*;
+
+import java.util.Set;
+import java.util.TreeSet;
+
+import static org.junit.Assert.assertEquals;
 
 /**
- *
  * @author hohy
  */
-public class APITest {        
-    
+public class APITest {
+
     private static API testInstance;
-    
+
     public APITest() {
     }
 
     @BeforeClass
     public static void setUpClass() throws Exception {
         SourceScanner sc = new SourceScanner("testres/testAPIPackageRes/", "", "1.7");
-        testInstance = sc.scan();  
+        testInstance = sc.scan();
         testInstance.name = "testapi";
     }
 
     @AfterClass
     public static void tearDownClass() throws Exception {
     }
-    
+
     @Before
     public void setUp() {
     }
-    
+
     @After
     public void tearDown() {
     }
@@ -56,7 +51,7 @@ public class APITest {
         API instance = new API("test api");
         instance.addPackage(pkg);
         assertEquals(pkg, instance.getPackages().first());
-    }    
+    }
 
     /**
      * Test of toString method, of class API.
@@ -67,9 +62,9 @@ public class APITest {
         API instance = testInstance;
         String expResult = "testapi null:\n\npackage testres.testAPIPackageRes\n\n" +
                 "public class testres.testAPIPackageRes.TestClassA\n" +
-                " public constructor testres.testAPIPackageRes.TestClassA()\n" +
+                " public constructor testres.testAPIPackageRes.TestClassA TestClassA()\n" +
                 "public class testres.testAPIPackageRes.TestClassB\n" +
-                " public constructor testres.testAPIPackageRes.TestClassB()";
+                " public constructor testres.testAPIPackageRes.TestClassB TestClassB()";
         String result = instance.toString();
         assertEquals(expResult, result);
     }

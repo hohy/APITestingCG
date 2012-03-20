@@ -126,9 +126,28 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         this.name = mth.getName();
         this.modifiers = APIModifier.getModifiersSet(mth.getModifiers());
         this.thrown = new LinkedList<String>();
+
+        thrown = new LinkedList<>();
+        LinkedList<Class> thrownTypes = new LinkedList<>();
         for (java.lang.reflect.Type excType : mth.getExceptionTypes()) {
-            this.thrown.add(getTypeName(excType));
+            Class c = (Class) excType;
+            boolean alreadyThrown = false;
+            for (Iterator<Class> it = thrownTypes.iterator(); it.hasNext(); ) {
+                Class type = it.next();
+                if (type.isAssignableFrom(c)) {
+                    alreadyThrown = true;
+                } else if (c.isAssignableFrom(type)) {
+                    it.remove();
+                }
+            }
+            if (!alreadyThrown) {
+                thrownTypes.add(c);
+            }
         }
+        for (Class c : thrownTypes) {
+            thrown.add(c.getName());
+        }
+
         this.parameters = new LinkedList<APIMethodParameter>();
         char pname = 'a';
         for (Type t : mth.getGenericParameterTypes()) {
@@ -139,23 +158,43 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
             // This fix this error
             returnType = returnType.substring(2, returnType.length() - 1) + "[]";
         }
+
+        if (mth.getDefaultValue() != null) {
+            this.annotationDefaultValue = mth.getDefaultValue().toString();
+        }
         this.kind = Kind.METHOD;
     }
 
     public APIMethod(Constructor c, String fullClassName) {
-        this.name = c.getName();
+        this.name = c.getDeclaringClass().getSimpleName();
+
         this.modifiers = APIModifier.getModifiersSet(c.getModifiers());
-        this.thrown = new LinkedList<String>();
+        this.thrown = new LinkedList<>();
         for (java.lang.reflect.Type excType : c.getExceptionTypes()) {
             this.thrown.add(excType.toString().substring(6));
         }
-        this.parameters = new LinkedList<APIMethodParameter>();
+        this.parameters = new LinkedList<>();
         char pname = 'a';
+
+
+        // if declaring class is inner class ( = nested non-static class), javac adds to costructor
+        // parameter of outer class instance. But in generated code, original constructor without
+        // this added parameter have to be use. So this added parameter should be filtered.
+        boolean filterFirstParam = false;
+        if (c.getDeclaringClass().isMemberClass()
+                && !java.lang.reflect.Modifier.isStatic(c.getDeclaringClass().getModifiers())) {
+            filterFirstParam = true;
+        }
+
         for (Type t : c.getGenericParameterTypes()) {
-            this.parameters.add(new APIMethodParameter(String.valueOf(pname++), getTypeName(t)));
+            if (!filterFirstParam) {
+                this.parameters.add(new APIMethodParameter(String.valueOf(pname++), getTypeName(t)));
+            } else {
+                filterFirstParam = false;
+            }
         }
         this.returnType = fullClassName;
-        this.kind = Kind.METHOD;
+        this.kind = Kind.CONSTRUCTOR;
     }
 
     /**
@@ -209,6 +248,10 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
             for (String ex : thrown) {
                 sb.append(" ").append(ex);
             }
+        }
+
+        if (annotationDefaultValue != null) {
+            sb.append(" value: " + annotationDefaultValue);
         }
         return sb.toString();
     }

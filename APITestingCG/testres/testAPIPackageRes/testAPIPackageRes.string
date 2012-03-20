@@ -2,6 +2,6 @@
 package testres.testAPIPackageRes
 
 public class testres.testAPIPackageRes.TestClassA
- public constructor testres.testAPIPackageRes.TestClassA()
+ public constructor testres.testAPIPackageRes.TestClassA TestClassA()
 public class testres.testAPIPackageRes.TestClassB
- public constructor testres.testAPIPackageRes.TestClassB()
+ public constructor testres.testAPIPackageRes.TestClassB TestClassB()

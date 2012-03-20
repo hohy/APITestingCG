@@ -3,15 +3,15 @@ Test APIScanner Library v0.1:
 package testScannerLib.pkga
 
 public abstract class testScannerLib.pkga.AbstractClass
- public constructor testScannerLib.pkga.AbstractClass()
+ public constructor testScannerLib.pkga.AbstractClass AbstractClass()
 public class testScannerLib.pkga.BasicClass
  public static final int CONST
  protected static final int PROTECTED_CONST
- protected static final java.util.List<Character> PROTECTED_WORD
- public static final java.util.List<Character> WORD
+ protected static final java.util.List<java.lang.Character> PROTECTED_WORD
+ public static final java.util.List<java.lang.Character> WORD
  public java.util.List<java.io.File> files
  protected final java.util.List<java.io.File> protectedFiles
- public constructor testScannerLib.pkga.BasicClass()
+ public constructor testScannerLib.pkga.BasicClass BasicClass()
  public method void methodA()
  public static method void methodB()
  public method int methodC()
@@ -19,26 +19,69 @@ public class testScannerLib.pkga.BasicClass
  public method void methodE(int)
  public method void methodF(java.io.File)
  protected method void methodG()
- public method void methodH(int,int,float,double,java.io.File,java.util.List<Integer>)
+ public method void methodH(int,int,float,double,java.io.File,java.util.List<java.lang.Integer>)
  public method void methodI() throws java.io.IOException
- public method void methodJ() throws Exception java.io.IOException
-public class testScannerLib.pkga.BasicClassExtender extends BasicClass
- public constructor testScannerLib.pkga.BasicClassExtender()
-public class testScannerLib.pkga.BasicClassExtenderExtender extends BasicClassExtender
- public constructor testScannerLib.pkga.BasicClassExtenderExtender()
-public enum testScannerLib.pkga.BasicEnum
- public static final BasicEnum VALA
- public static final BasicEnum VALB
- public static final BasicEnum VALC
+ public method void methodJ() throws java.lang.Exception
+public class testScannerLib.pkga.BasicClassExtender extends testScannerLib.pkga.BasicClass
+ public constructor testScannerLib.pkga.BasicClassExtender BasicClassExtender()
+public class testScannerLib.pkga.BasicClassExtenderExtender extends testScannerLib.pkga.BasicClassExtender
+ public constructor testScannerLib.pkga.BasicClassExtenderExtender BasicClassExtenderExtender()
+public final enum testScannerLib.pkga.BasicEnum
+ public static final testScannerLib.pkga.BasicEnum VALA
+ public static final testScannerLib.pkga.BasicEnum VALB
+ public static final testScannerLib.pkga.BasicEnum VALC
  public method void doSomething()
  public method int getIntValue()
 public interface testScannerLib.pkga.BasicInterface
-public class testScannerLib.pkga.BasicInterfaceImplementator implements BasicInterface
- public constructor testScannerLib.pkga.BasicInterfaceImplementator()
+public class testScannerLib.pkga.BasicInterfaceImplementator implements testScannerLib.pkga.BasicInterface
+ public constructor testScannerLib.pkga.BasicInterfaceImplementator BasicInterfaceImplementator()
 public final class testScannerLib.pkga.FinalClass
- public constructor testScannerLib.pkga.FinalClass()
+ public constructor testScannerLib.pkga.FinalClass FinalClass()
 
 package testScannerLib.pkgb
 
 public class testScannerLib.pkgb.PkgBClass
- public constructor testScannerLib.pkgb.PkgBClass()
+ public constructor testScannerLib.pkgb.PkgBClass PkgBClass()
+
+package testScannerLib.pkgc
+
+public annotation testScannerLib.pkgc.AnotationTest
+ @AnnotationTarget TYPE
+ @AnnotationTarget METHOD
+ method int number()
+ method java.lang.String text() value: "Hello"
+public abstract class testScannerLib.pkgc.NestedClasses
+ public testScannerLib.pkgc.NestedClasses.ProtectedInnerClass prot
+ public testScannerLib.pkgc.NestedClasses.PublicInnerClass pub
+ public testScannerLib.pkgc.NestedClasses.PublicStaticNestedClass pubStat
+ public constructor testScannerLib.pkgc.NestedClasses NestedClasses()
+ public method testScannerLib.pkgc.NestedClasses.ProtectedInnerClass protectedMethod()
+ public method testScannerLib.pkgc.NestedClasses.PublicInnerClass publicMethod()
+
+protected nested class testScannerLib.pkgc.NestedClasses.ProtectedInnerClass
+ protected int protectedInt
+ public int publicInt
+ public constructor testScannerLib.pkgc.NestedClasses.ProtectedInnerClass ProtectedInnerClass(int)
+ protected method void protectedMethod()
+ public method void publicMethod()
+
+protected static nested class testScannerLib.pkgc.NestedClasses.ProtectedStaticNestedClass
+ protected int protectedInt
+ public int publicInt
+ public constructor testScannerLib.pkgc.NestedClasses.ProtectedStaticNestedClass ProtectedStaticNestedClass(int)
+ protected method void protectedMethod()
+ public method void publicMethod()
+
+public nested class testScannerLib.pkgc.NestedClasses.PublicInnerClass
+ protected int protectedInt
+ public int publicInt
+ public constructor testScannerLib.pkgc.NestedClasses.PublicInnerClass PublicInnerClass(int)
+ protected method void protectedMethod()
+ public method void publicMethod()
+
+public static nested class testScannerLib.pkgc.NestedClasses.PublicStaticNestedClass
+ protected int protectedInt
+ public int publicInt
+ public constructor testScannerLib.pkgc.NestedClasses.PublicStaticNestedClass PublicStaticNestedClass(int)
+ protected method void protectedMethod()
+ public method void publicMethod()
