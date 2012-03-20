@@ -22,8 +22,12 @@ public class APIMethodParameter {
         this.type = type;
     }
 
-    public APIMethodParameter(JCTree.JCVariableDecl jcvd) {
-        name = jcvd.name.toString();
+    public APIMethodParameter(String name, JCTree.JCVariableDecl jcvd) {
+        if (name == null) {
+            this.name = jcvd.name.toString();
+        } else {
+            this.name = name;
+        }
         type = jcvd.type.toString();
     }
 

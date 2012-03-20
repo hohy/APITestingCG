@@ -190,8 +190,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
             String typeName = tp.getName();
             ArrayList<String> typeBounds = new ArrayList<>();
             for (Type type : tp.getBounds()) {
-                Class tcls = (Class) type;
-                typeBounds.add(tcls.getName());
+                typeBounds.add(getTypeName(type));
             }
             typeParamsMap.put(typeName, typeBounds.toArray(new String[0]));
         }

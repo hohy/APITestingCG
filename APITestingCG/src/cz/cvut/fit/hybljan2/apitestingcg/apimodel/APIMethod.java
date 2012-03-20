@@ -10,6 +10,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.*;
 
 
@@ -109,10 +110,14 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
             returnType = jcmd.sym.owner.toString();
         }
 
+        boolean readParamNames = false;  // TODO: put this to the configuration
+
         // method parameters
         parameters = new LinkedList<>();
+        char pname = 'a';
         for (JCVariableDecl jcvd : jcmd.getParameters()) {
-            parameters.add(new APIMethodParameter(jcvd));
+            String parname = readParamNames ? null : String.valueOf(pname++);
+            parameters.add(new APIMethodParameter(parname, jcvd));
         }
 
         // default value of annotation params.
@@ -123,9 +128,9 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
 
     public APIMethod(Method mth) {
 
-        this.name = mth.getName();
-        this.modifiers = APIModifier.getModifiersSet(mth.getModifiers());
-        this.thrown = new LinkedList<String>();
+        name = mth.getName();
+        modifiers = APIModifier.getModifiersSet(mth.getModifiers());
+        thrown = new LinkedList<String>();
 
         thrown = new LinkedList<>();
         LinkedList<Class> thrownTypes = new LinkedList<>();
@@ -148,21 +153,28 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
             thrown.add(c.getName());
         }
 
-        this.parameters = new LinkedList<APIMethodParameter>();
+        parameters = new LinkedList<>();
         char pname = 'a';
         for (Type t : mth.getGenericParameterTypes()) {
-            this.parameters.add(new APIMethodParameter(String.valueOf(pname++), getTypeName(t)));
+            parameters.add(new APIMethodParameter(String.valueOf(pname++), getTypeName(t)));
         }
-        this.returnType = getTypeName(mth.getReturnType());
-        /*if (returnType.startsWith("[L")) { // if method returns array, scanner gets wrong return class name.
-            // This fix this error
-            returnType = returnType.substring(2, returnType.length() - 1) + "[]";
-        } */
+
+        returnType = getTypeName(mth.getGenericReturnType());
+
+        // construct typeparams (generics) map
+        for (TypeVariable tp : mth.getTypeParameters()) {
+            String typeName = tp.getName();
+            ArrayList<String> typeBounds = new ArrayList<>();
+            for (Type type : tp.getBounds()) {
+                typeBounds.add(getTypeName(type));
+            }
+            typeParamsMap.put(typeName, typeBounds.toArray(new String[0]));
+        }
 
         if (mth.getDefaultValue() != null) {
-            this.annotationDefaultValue = mth.getDefaultValue().toString();
+            annotationDefaultValue = mth.getDefaultValue().toString();
         }
-        this.kind = Kind.METHOD;
+        kind = Kind.METHOD;
     }
 
     public APIMethod(Constructor c, String fullClassName) {
