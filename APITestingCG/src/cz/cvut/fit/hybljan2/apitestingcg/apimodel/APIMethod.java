@@ -130,7 +130,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
 
         name = mth.getName();
         modifiers = APIModifier.getModifiersSet(mth.getModifiers());
-        thrown = new LinkedList<String>();
+        thrown = new LinkedList<>();
 
         thrown = new LinkedList<>();
         LinkedList<Class> thrownTypes = new LinkedList<>();
@@ -150,7 +150,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
             }
         }
         for (Class c : thrownTypes) {
-            thrown.add(c.getName());
+            thrown.add(getTypeName(c));
         }
 
         parameters = new LinkedList<>();
@@ -177,6 +177,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         kind = Kind.METHOD;
     }
 
+    // TODO: odstranit fullClassName parametr, je zbytecny a mel by jit nahradit pomoci c.getDeclaringClass().
     public APIMethod(Constructor c, String fullClassName) {
         this.name = c.getDeclaringClass().getSimpleName();
 

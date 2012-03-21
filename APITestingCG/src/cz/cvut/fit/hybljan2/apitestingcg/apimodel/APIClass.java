@@ -177,7 +177,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         if (cls.getSuperclass() != null
                 && !cls.getSuperclass().equals(java.lang.Object.class)
                 && !cls.getSuperclass().equals(java.lang.Enum.class)) {
-            extending = cls.getSuperclass().getName();
+            extending = getTypeName(cls.getSuperclass());//.getName();
         }
 
         implementing = new LinkedList<>();
