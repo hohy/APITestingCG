@@ -26,15 +26,16 @@ public class SourceTreeScanner extends TreeScanner {
     private Stack<APIClass> classes = new Stack<APIClass>();
     private Map<String, APIPackage> pkgs = new HashMap<String, APIPackage>();
     private JavacTypes types;
+    private API api = new API("");
 
     SourceTreeScanner(JavacTypes types) {
         this.types = types;
     }
 
     public API getAPI() {
-        API api = new API("");
+        //API api = new API("");
         // Add all packages to API. We don't want default package in API, we can't import it!
-        for (APIPackage p : pkgs.values()) if (!p.getName().equals("")) api.addPackage(p);
+        //for (APIPackage p : pkgs.values()) if (!p.getName().equals("")) api.addPackage(p);
         return api;
     }
 
@@ -45,6 +46,9 @@ public class SourceTreeScanner extends TreeScanner {
         if (currentPackage == null) {
             currentPackage = new APIPackage(n);
             pkgs.put(n, currentPackage);
+            if (!currentPackage.getName().equals("")) {
+                api.addPackage(currentPackage);
+            }
         }
         super.visitTopLevel(jccu);
         currentPackage = null;
@@ -54,19 +58,20 @@ public class SourceTreeScanner extends TreeScanner {
     public void visitClassDef(JCClassDecl jccd) {
 
         ClassSymbol cs = jccd.sym;
-        if (((cs.flags() & (Flags.PUBLIC | Flags.PROTECTED)) != 0) || ((cs.flags() & Flags.PRIVATE) == 0)) {
-            currentClass = new APIClass(jccd);
-            classes.push(currentClass);
-            super.visitClassDef(jccd);
-            classes.pop();
-            if (!classes.empty()) {
-                currentClass.setNested(true);
-                classes.peek().addNestedClass(currentClass);
-                currentClass = classes.peek();
-            } else {
-                currentPackage.addClass(currentClass);
-            }
+        //if (((cs.flags() & (Flags.PUBLIC | Flags.PROTECTED)) != 0) || ((cs.flags() & Flags.PRIVATE) == 0)) {
+        currentClass = new APIClass(jccd);
+        classes.push(currentClass);
+        super.visitClassDef(jccd);
+        classes.pop();
+        if (!classes.empty()) {
+            currentClass.setNested(true);
+            classes.peek().addNestedClass(currentClass);
+            currentClass = classes.peek();
+        } else {
+            currentPackage.addClass(currentClass);
+            api.addAPIClass(currentClass);
         }
+        //}
     }
 
     @Override

@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.LinkedList;
@@ -106,9 +105,9 @@ public class ByteCodeScanner implements APIScanner {
                         // load the class
                         Class classToLoad = Class.forName(className, true, urlcl);
 
-                        if ((Modifier.isPublic(classToLoad.getModifiers())              // class has to be Public
-                                || Modifier.isProtected(classToLoad.getModifiers()))    // or protected
-                                && !classToLoad.isMemberClass()) {                      // and must not be nested.
+                        //if ((Modifier.isPublic(classToLoad.getModifiers())              // class has to be Public
+                        //        || Modifier.isProtected(classToLoad.getModifiers()))    // or protected
+                        if (!classToLoad.isMemberClass()) {                      // and must not be nested.
 
                             APIClass apiClass = new APIClass(classToLoad);
 

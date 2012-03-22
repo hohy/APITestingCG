@@ -314,12 +314,8 @@ public class InstantiatorGenerator extends ClassGenerator {
         }
 
         // new instance has to be public class
-        try {
-            APIClass c = findClass(instanceClassName);
-            if (!c.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
-                return;
-            }
-        } catch (ClassNotFoundException e) {
+        if (!isClassPublic(instanceClassName)) {
+            return;
         }
 
         // declare new createInstance method

@@ -68,7 +68,7 @@ public class API extends APIItem {
     }
 
     /**
-     * Finds class with given name in API.
+     * Finds class with given name in API or classpath.
      * Current version is not nicely implemented - it searches the API sequentially, so it's slow.
      * But it's best way how it can be done in current APIModel. It would be better, if classes
      * were been stored in map, where they could be accessed directly by name.
@@ -80,7 +80,11 @@ public class API extends APIItem {
      * @return class with given name
      */
     public APIClass findClass(String className) throws ClassNotFoundException {
-        int dotIndex = className.lastIndexOf('.');
+
+        try {
+            return findPrimitive(className);
+        } catch (ClassNotFoundException e) {
+        }
 
         for (APIPackage pckg : packages) {
             for (APIClass cls : pckg.getClasses()) {
@@ -108,4 +112,29 @@ public class API extends APIItem {
         }
         return null;
     }
+
+    public APIClass findPrimitive(String name) throws ClassNotFoundException {
+        switch (name) {
+            case "byte":
+                return new APIClass(byte.class);
+            case "short":
+                return new APIClass(short.class);
+            case "int":
+                return new APIClass(int.class);
+            case "long":
+                return new APIClass(long.class);
+            case "float":
+                return new APIClass(float.class);
+            case "double":
+                return new APIClass(double.class);
+            case "boolean":
+                return new APIClass(boolean.class);
+            case "char":
+                return new APIClass(char.class);
+            case "void":
+                return new APIClass(Void.class);
+        }
+        throw new ClassNotFoundException("Not a primitive type");
+    }
+
 }

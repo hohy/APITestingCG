@@ -263,14 +263,17 @@ public abstract class Generator implements IAPIVisitor {
      * Finds class with given name and checks if the class has public modifier.
      *
      * @param name full class name
-     * @return true or false if class is public or not. If class is not found (it's not part of API), returns true
+     * @return true or false if class is public or not. If class is not found (it's not part of API), returns false
      */
     protected boolean isClassPublic(String name) {
+        if (name.contains("[")) {
+            return isClassPublic(name.substring(0, name.lastIndexOf('[')));
+        }
         try {
             APIClass c = currentAPI.findClass(name);
             return c.getModifiers().contains(APIModifier.Modifier.PUBLIC);
         } catch (ClassNotFoundException e) {
-            return true;
+            return false;
         }
     }
 
@@ -278,15 +281,18 @@ public abstract class Generator implements IAPIVisitor {
      * Finds class with given name and checks if the class has public modifier.
      *
      * @param name full class name
-     * @return true or false if class is public or not. If class is not found (it's not part of API), returns true
+     * @return true or false if class is public or not. If class is not found (it's not part of API), returns false
      */
     protected boolean isClassPublicOrProtected(String name) {
+        if (name.contains("[")) {
+            return isClassPublicOrProtected(name.substring(0, name.lastIndexOf('[')));
+        }
         try {
             APIClass c = currentAPI.findClass(name);
             return (c.getModifiers().contains(APIModifier.Modifier.PUBLIC)
                     || (c.getModifiers().contains(APIModifier.Modifier.PROTECTED)));
         } catch (ClassNotFoundException e) {
-            return true;
+            return false;
         }
     }
 
