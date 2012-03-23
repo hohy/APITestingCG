@@ -44,6 +44,7 @@ public class APIField extends APIItem implements Comparable<APIField> {
         this.varType = jcvd.type.toString();//.tsym.flatName().toString();
         this.modifiers = APIModifier.getModifiersSet(jcvd.getModifiers().getFlags());
         if (constant) {
+            modifiers.add(Modifier.PUBLIC);
             modifiers.add(Modifier.FINAL);
             modifiers.add(Modifier.STATIC);
         }

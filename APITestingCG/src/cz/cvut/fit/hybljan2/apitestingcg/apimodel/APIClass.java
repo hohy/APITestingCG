@@ -110,8 +110,10 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
             this.extending = jccd.extending.type.toString();
         if (jccd.getImplementsClause() != null) {
             this.implementing = new LinkedList<String>();
-            for (JCExpression e : jccd.getImplementsClause())
+            for (JCExpression e : jccd.getImplementsClause()) {
                 this.implementing.add(e.type.toString());
+            }
+
         }
     }
 

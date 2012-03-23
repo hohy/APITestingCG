@@ -2,6 +2,7 @@ package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.List;
@@ -101,6 +102,16 @@ public abstract class APIItem {
                 rawName = getTypeName(c.getComponentType()) + "[]";
             }
             return rawName;
+        } else if (t instanceof ParameterizedType) {
+            ParameterizedType pt = (ParameterizedType) t;
+            StringBuilder sb = new StringBuilder(getTypeName(pt.getRawType()));
+            sb.append('<');
+            for (Type typeArgument : pt.getActualTypeArguments()) {
+                sb.append(getTypeName(typeArgument)).append(',');
+            }
+            sb.deleteCharAt(sb.length() - 1);
+            sb.append('>');
+            rawName = sb.toString();
         }
         if (rawName.contains("class")) rawName = rawName.substring(6);
         if (rawName.contains("interface")) rawName = rawName.substring(10);

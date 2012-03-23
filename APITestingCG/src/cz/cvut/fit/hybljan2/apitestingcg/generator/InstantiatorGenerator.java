@@ -192,16 +192,16 @@ public class InstantiatorGenerator extends ClassGenerator {
                 // original field
                 JFieldRef fld;
                 if (apiField.getModifiers().contains(APIModifier.Modifier.STATIC)) {
-                    fld = getClassRef(visitingClass.getFullName()).staticRef(apiField.getName());
+                    fld = getGenericsClassRef(visitingClass.getFullName()).staticRef(apiField.getName());
                 } else {
                     fld = fieldsInstance.ref(apiField.getName());
                 }
                 // create new local variable and assing original value to it
-                fieldsMethodBlock.decl(getClassRef(apiField.getVarType()), apiField.getName(), fld);
+                fieldsMethodBlock.decl(getGenericsClassRef(apiField.getVarType()), apiField.getName(), fld);
             } else {
                 // create new field of same type as original
                 String fldName = generateName(configuration.getFieldTestVariableIdentifier(), apiField.getName());
-                JVar var = fieldsMethodBlock.decl(getClassRef(apiField.getVarType()), fldName, getPrimitiveValue(apiField.getVarType()));
+                JVar var = fieldsMethodBlock.decl(getGenericsClassRef(apiField.getVarType()), fldName, getPrimitiveValue(apiField.getVarType()));
                 fieldsMethodBlock.assign(fieldsInstance.ref(apiField.getName()), var);
 
             }

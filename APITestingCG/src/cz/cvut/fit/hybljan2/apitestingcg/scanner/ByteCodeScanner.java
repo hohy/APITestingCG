@@ -54,7 +54,7 @@ public class ByteCodeScanner implements APIScanner {
         try {
             // Load classes set defined in class path (If there is anything to load).
             if (classPath != null) {
-                classPath = classPath.trim();
+                classPath = SourceScanner.getClassPathJarFilesList(classPath);
                 if (!classPath.isEmpty()) {
                     String[] paths = classPath.split(File.pathSeparator);
                     for (String path : paths) {

@@ -69,7 +69,6 @@ public class SourceTreeScanner extends TreeScanner {
             currentClass = classes.peek();
         } else {
             currentPackage.addClass(currentClass);
-            api.addAPIClass(currentClass);
         }
         //}
     }

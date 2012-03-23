@@ -161,19 +161,19 @@ public class ExtenderGenerator extends ClassGenerator {
             // original field
             JFieldRef fld;
             if (apiField.getModifiers().contains(APIModifier.Modifier.STATIC)) {
-                fld = getClassRef(visitingClass.getFullName()).staticRef(apiField.getName());
+                fld = getGenericsClassRef(visitingClass.getFullName()).staticRef(apiField.getName());
             } else {
                 fld = JExpr._super().ref(apiField.getName());
             }
             // create new local variable and assing original value to it
-            fieldsMethodBlock.decl(getClassRef(apiField.getVarType()), apiField.getName(), fld);
+            fieldsMethodBlock.decl(getGenericsClassRef(apiField.getVarType()), apiField.getName(), fld);
         } else {
             // create new field of same type as original
             String fldName = generateName(configuration.getFieldTestVariableIdentifier(), apiField.getName());
-            JClass typeRef = getClassRef(apiField.getVarType());
-            if (apiField.getVarType().contains("$")) {
+            JClass typeRef = getGenericsClassRef(apiField.getVarType());
+            /*if (apiField.getVarType().contains("$")) {
                 typeRef = getClassRef(apiField.getVarType().substring(apiField.getVarType().indexOf('$') + 1));
-            }
+            } */
             JVar var = fieldsMethodBlock.decl(typeRef, fldName, getPrimitiveValue(apiField.getVarType()));
             fieldsMethodBlock.assign(JExpr.ref(apiField.getName()), var);
         }
