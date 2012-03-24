@@ -185,7 +185,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
 
         implementing = new LinkedList<>();
         for (Class implementedInterface : cls.getInterfaces()) {
-            implementing.add(implementedInterface.getName());
+            implementing.add(getTypeName(implementedInterface));
         }
 
         // construct typeparams (generics) map
