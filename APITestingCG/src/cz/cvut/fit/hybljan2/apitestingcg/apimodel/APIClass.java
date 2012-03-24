@@ -106,12 +106,13 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
             modifiers.add(Modifier.FINAL);
         }
         this.fields = new TreeSet<APIField>();
-        if (jccd.getExtendsClause() != null)
-            this.extending = jccd.extending.type.toString();
+        if (jccd.getExtendsClause() != null) {
+            this.extending = jccd.extending.type.tsym.getQualifiedName().toString();
+        }
         if (jccd.getImplementsClause() != null) {
             this.implementing = new LinkedList<String>();
             for (JCExpression e : jccd.getImplementsClause()) {
-                this.implementing.add(e.type.toString());
+                this.implementing.add(e.type.tsym.getQualifiedName().toString());
             }
 
         }
