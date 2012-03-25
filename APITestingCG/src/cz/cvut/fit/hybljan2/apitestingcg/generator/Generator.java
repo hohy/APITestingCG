@@ -1,9 +1,6 @@
 package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
-import com.sun.codemodel.JClass;
-import com.sun.codemodel.JCodeModel;
-import com.sun.codemodel.JExpr;
-import com.sun.codemodel.JExpression;
+import com.sun.codemodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.BlacklistRule;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
@@ -15,6 +12,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
@@ -266,15 +264,20 @@ public abstract class Generator implements IAPIVisitor {
      * @return true or false if class is public or not. If class is not found (it's not part of API), returns false
      */
     protected boolean isClassPublic(String name) {
-        if (name.contains("[")) {
-            return isClassPublic(name.substring(0, name.lastIndexOf('[')));
+        Set<String> classNames = JFormatter.getTypesList(name);
+        for (String className : classNames) {
+            try {
+                APIClass c = currentAPI.findClass(className);
+                if (!c.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
+                    return false;
+                }
+            } catch (ClassNotFoundException e) {
+                System.err.println("Class not found: " + className + " - " + e.getMessage());
+                return true;
+            }
         }
-        try {
-            APIClass c = currentAPI.findClass(name);
-            return c.getModifiers().contains(APIModifier.Modifier.PUBLIC);
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
+
+        return true;
     }
 
     /**

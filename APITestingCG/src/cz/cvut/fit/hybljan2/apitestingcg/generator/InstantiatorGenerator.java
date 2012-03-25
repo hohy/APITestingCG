@@ -380,12 +380,12 @@ public class InstantiatorGenerator extends ClassGenerator {
         int methodMods = JMod.PUBLIC;
         JTypeVar t = null;
 
-        JType returnType = getClassRef(method.getReturnType());
+        JType returnType = getGenericsClassRef(method.getReturnType());
         if (visitingClass.getTypeParamsMap().containsKey(method.getReturnType())) {
-            returnType = getClassRef(visitingClass.getTypeParamsMap().get(method.getReturnType())[0]);
+            returnType = getGenericsClassRef(visitingClass.getTypeParamsMap().get(method.getReturnType())[0]);
         } else if (method.getTypeParamsMap().containsKey(method.getReturnType())) {
             String returnTypeName = method.getTypeParamsMap().get(method.getReturnType())[0];
-            returnType = getClassRef(returnTypeName);
+            returnType = getGenericsClassRef(returnTypeName);
         }
 
         String callerName = generateName(configuration.getMethodCallIdentifier(), method.getName());

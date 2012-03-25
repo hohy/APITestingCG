@@ -15,7 +15,7 @@ import java.util.*;
  * Represent java class. Store information about it. Contains list of class
  * methods.
  *
- * @author hohy
+ * @author Jan Hýbl
  */
 public class APIClass extends APIItem implements Comparable<APIClass> {
 
