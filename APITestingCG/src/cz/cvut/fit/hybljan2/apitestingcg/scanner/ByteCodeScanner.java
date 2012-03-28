@@ -128,7 +128,7 @@ public class ByteCodeScanner implements APIScanner {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(ByteCodeScanner.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Class not found: " + classPath);
         } catch (IOException ioex) {
             Logger.getLogger(ByteCodeScanner.class.getName()).log(Level.SEVERE, null, ioex);
         } finally {

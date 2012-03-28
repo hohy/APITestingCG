@@ -138,6 +138,18 @@ public class AnnotationGenerator extends ClassGenerator {
             return JExpr.newArray(getClassRef(arrayType)).add(getAnotationParamValue(arrayType));
         }
 
+        // generic class
+        int idx = name.indexOf('<');
+        if (name.startsWith("java.lang.Class") && idx >= 0) {
+            String typeParam = name.substring(idx + 1, name.lastIndexOf('>'));
+            return getAnotationParamValue(typeParam);
+        }
+
+        idx = name.indexOf("extends");
+        if (idx >= 0) {
+            return getAnotationParamValue(name.substring(idx + 8));
+        }
+
         APIClass paramType = findClass(name);
         if (paramType.getType().equals(APIItem.Kind.ENUM)) {
             // visit all fields
@@ -146,6 +158,8 @@ public class AnnotationGenerator extends ClassGenerator {
                     return getClassRef(paramType.getFullName()).staticRef(field.getName());
                 }
             }
+        } else {
+            return JExpr.dotclass(getClassRef(paramType.getFullName()));
         }
         throw new Exception("Unknown annotation parameter type: " + name);
     }

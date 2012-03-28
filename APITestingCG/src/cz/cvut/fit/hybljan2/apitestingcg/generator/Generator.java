@@ -272,7 +272,7 @@ public abstract class Generator implements IAPIVisitor {
                     return false;
                 }
             } catch (ClassNotFoundException e) {
-                System.err.println("Class not found: " + className + " - " + e.getMessage());
+                System.err.println("Class not found: " + className);
                 return true;
             }
         }

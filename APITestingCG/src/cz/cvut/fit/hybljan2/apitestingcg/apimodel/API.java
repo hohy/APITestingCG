@@ -133,6 +133,8 @@ public class API extends APIItem {
                 return new APIClass(char.class);
             case "void":
                 return new APIClass(Void.class);
+            case "null":
+                return new APIClass("null");
         }
         throw new ClassNotFoundException("Not a primitive type");
     }

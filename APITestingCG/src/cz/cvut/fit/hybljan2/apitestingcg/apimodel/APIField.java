@@ -4,6 +4,7 @@ import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.GenericSignatureFormatError;
 import java.util.List;
 
 /**
@@ -59,7 +60,12 @@ public class APIField extends APIItem implements Comparable<APIField> {
      */
     public APIField(Field f) {
         this.name = f.getName();
-        this.varType = getTypeName(f.getGenericType());
+        try {
+            this.varType = getTypeName(f.getGenericType());
+        } catch (GenericSignatureFormatError x) {
+            System.err.println(x);
+            this.varType = f.getType().getCanonicalName();
+        }
         this.modifiers = APIModifier.getModifiersSet(f.getModifiers());
         this.kind = Kind.VARIABLE;
     }
