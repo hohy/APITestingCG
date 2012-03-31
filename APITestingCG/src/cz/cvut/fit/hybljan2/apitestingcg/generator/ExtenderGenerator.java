@@ -156,7 +156,6 @@ public class ExtenderGenerator extends ClassGenerator {
             }
         } catch (ClassNotFoundException e) {
         }
-
         if (apiField.getModifiers().contains(APIModifier.Modifier.FINAL)) { // Final fields
             // original field
             JFieldRef fld;

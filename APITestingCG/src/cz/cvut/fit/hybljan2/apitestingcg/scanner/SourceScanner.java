@@ -18,6 +18,9 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -75,7 +78,7 @@ public class SourceScanner implements APIScanner {
 
             JavacTool tool = JavacTool.create();
             String cp = getClassPathJarFilesList(classPath.trim());
-            System.out.println(cp);
+            loadJarFiles(cp);
             List<String> options = Arrays.asList("-cp", cp);
             JavacTaskImpl javacTaskImpl = (JavacTaskImpl) tool.getTask(null, fileManager, null, options, null, fileObjects);
             javacTaskImpl.updateContext(ctx);
@@ -94,6 +97,23 @@ public class SourceScanner implements APIScanner {
         } catch (IOException ex) {
             Logger.getLogger(SourceScanner.class.getName()).log(Level.SEVERE, null, ex);
             return null;
+        }
+    }
+
+    public void loadJarFiles(String cp) {
+        System.out.println("Loading classpath jar files: " + cp);
+        for (String jarPath : cp.split(File.pathSeparator)) {
+            try {
+                File jarFile = new File(jarPath);
+                URL u = jarFile.toURI().toURL();
+                URLClassLoader urlClassLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+                Class urlClass = URLClassLoader.class;
+                Method method = urlClass.getDeclaredMethod("addURL", new Class[]{URL.class});
+                method.setAccessible(true);
+                method.invoke(urlClassLoader, new Object[]{u});
+            } catch (Exception e) {
+                Logger.getLogger(ByteCodeScanner.class.getName()).log(Level.SEVERE, "Can't add \"" + jarPath + "\" jar file to classpath.");
+            }
         }
     }
 

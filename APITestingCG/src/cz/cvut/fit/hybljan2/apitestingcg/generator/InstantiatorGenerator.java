@@ -251,7 +251,7 @@ public class InstantiatorGenerator extends ClassGenerator {
             cls = findClass(clsName);
             return checkNullCollision(method, cls);
         } catch (ClassNotFoundException e) {
-            System.err.println("Can't find class " + cls);
+            System.err.println("Can't find class with name: \"" + clsName + "\"");
         }
         return false;
     }
