@@ -18,6 +18,7 @@ public class GeneratorJobConfiguration {
     private String outputPackage = "test.%s";
     private List<WhitelistRule> whitelistRules = new LinkedList<WhitelistRule>();
     private List<BlacklistRule> blacklistRules = new LinkedList<BlacklistRule>();
+    private boolean skipDeprecated = false;
 
     @XmlElement(name = "id", required = true)
     public String getApiId() {
@@ -70,5 +71,14 @@ public class GeneratorJobConfiguration {
 
     public void addBlackListRule(BlacklistRule rule) {
         blacklistRules.add(rule);
+    }
+
+    @XmlElement(name = "skip-deprecated")
+    public boolean isSkipDeprecated() {
+        return skipDeprecated;
+    }
+
+    public void setSkipDeprecated(boolean skipDeprecated) {
+        this.skipDeprecated = skipDeprecated;
     }
 }

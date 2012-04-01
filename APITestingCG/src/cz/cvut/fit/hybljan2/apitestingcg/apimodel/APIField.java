@@ -80,6 +80,9 @@ public class APIField extends APIItem implements Comparable<APIField> {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        if (isDepreacated()) {
+            sb.append("Deprecated").append(' ');
+        }
         for (Modifier m : modifiers) sb.append(m).append(' ');
         sb.append(varType).append(' ');
         sb.append(name);

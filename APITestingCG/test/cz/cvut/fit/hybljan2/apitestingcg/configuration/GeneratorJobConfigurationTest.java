@@ -36,6 +36,7 @@ public class GeneratorJobConfigurationTest {
         TestUtils.delete(new File("output/tests/configuration"));
         TestUtils.delete(new File("output/tests/configuration2"));
         TestUtils.delete(new File("output/tests/configuration3"));
+        TestUtils.delete(new File("output/tests/deprecated"));
     }
 
 
@@ -115,6 +116,32 @@ public class GeneratorJobConfigurationTest {
         File fb = new File("output/tests/configuration3/lib/ClassBExtender.java");
         assertFalse(fa.exists());
         assertTrue(fb.exists());
+    }
+
+    @Test
+    public void deprecatedTest() {
+        Configuration configuration = reader.parseConfiguration("testres/configuration/deprecated.xml");
+        APIScanner scanner = new SourceScanner();
+        scanner.setConfiguration(configuration.getApiConfigurations().get(0));
+        API api = scanner.scan();
+
+        Generator generator = new ExtenderGenerator(configuration.getGeneratorConfiguration());
+        generator.generate(api, configuration.getGeneratorJobConfigurations().get(0));
+
+        File fa = new File("output/tests/deprecated/all/lib/ClassAExtender.java");
+        File fb = new File("output/tests/deprecated/all/lib/ClassBExtender.java");
+        assertTrue(fa.exists());
+        assertTrue(fb.exists());
+
+        generator.generate(api, configuration.getGeneratorJobConfigurations().get(1));
+
+        fa = new File("output/tests/deprecated/nodeprecated/lib/ClassAExtender.java");
+        fb = new File("output/tests/deprecated/nodeprecated/lib/ClassBExtender.java");
+        assertFalse(fa.exists());
+        assertTrue(fb.exists());
+
+        File fe = new File("testres/configuration/lib-deprecated-expected/ClassBExtender.java");
+        FileAssert.assertEquals(fe, fb);
     }
 
 }

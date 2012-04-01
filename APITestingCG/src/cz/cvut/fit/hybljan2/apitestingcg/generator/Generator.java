@@ -74,7 +74,9 @@ public abstract class Generator implements IAPIVisitor {
     @Override
     public void visit(APIPackage apiPackage) {
         currentPackageName = jobConfiguration.getOutputPackage().replaceAll("%s", apiPackage.getName());
-
+        if (!isEnabled(apiPackage.getName(), WhitelistRule.RuleItem.ALL) || (jobConfiguration.isSkipDeprecated() && apiPackage.isDepreacated())) {
+            return;
+        }
         for (APIClass cls : apiPackage.getClasses()) {
             cls.accept(this);
         }

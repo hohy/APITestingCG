@@ -35,6 +35,12 @@ public class ExtenderGenerator extends ClassGenerator {
             return;
         }
 
+        // check if class is not deprecated. If it does and in job configuration
+        // are deprecated items disabled, this class is skipped.
+        if (apiClass.isDepreacated() && jobConfiguration.isSkipDeprecated()) {
+            return;
+        }
+
         // code can be generated only for public or protected classes.
         if (!(apiClass.getModifiers().contains(APIModifier.Modifier.PUBLIC)
                 || apiClass.getModifiers().contains(APIModifier.Modifier.PROTECTED))) {
@@ -118,6 +124,10 @@ public class ExtenderGenerator extends ClassGenerator {
             return;
         }
 
+        if (constructor.isDepreacated() && jobConfiguration.isSkipDeprecated()) {
+            return;
+        }
+
         // create new constructor
         JMethod constr = cls.constructor(JMod.PUBLIC);
         // define body of the constructor. Body contains only super(...) call.
@@ -146,6 +156,10 @@ public class ExtenderGenerator extends ClassGenerator {
      */
     @Override
     public void visit(APIField apiField) {
+
+        if (apiField.isDepreacated() && jobConfiguration.isSkipDeprecated()) {
+            return;
+        }
 
         // Type of the field has to be public or protected class
         try {
@@ -213,6 +227,10 @@ public class ExtenderGenerator extends ClassGenerator {
             if (!isClassPublicOrProtected(paramType.getType())) {
                 return;
             }
+        }
+
+        if (method.isDepreacated() && jobConfiguration.isSkipDeprecated()) {
+            return;
         }
 
         JClass extenderReturnType = getClassRef(method.getReturnType());

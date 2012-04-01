@@ -122,6 +122,9 @@ public class APIViewForm extends javax.swing.JFrame {
         contentPanel.add(itemTypeLabel);
         contentPanel.add(nameLabel);
         contentPanel.add(fullNameLabel);
+        if (item.isDepreacated()) {
+            contentPanel.add(new JLabel("Deprecated"));
+        }
         contentPanel.add(Box.createVerticalStrut(10));
         contentPanel.add(modifiersLabel);
         contentPanel.add(contentPanel.add(Box.createVerticalStrut(10)));

@@ -30,6 +30,13 @@ public class AnnotationGenerator extends ClassGenerator {
         // check if this annotation is enabled in jobConfiguration.
         if (!isEnabled(apiClass.getFullName(), WhitelistRule.RuleItem.ANNOTATION)) return;
 
+        // check if class is not deprecated. If it does and in job configuration
+        // are deprecated items disabled, this class is skipped.
+        if (apiClass.isDepreacated() && jobConfiguration.isSkipDeprecated()) {
+            return;
+        }
+
+
         // check if annotation has specified targets. If it hasn't, targets are all elements.
         if (apiClass.getAnnotationTargets() == null) {
             apiClass.setAnnotationTargets(Arrays.asList(ElementType.values()));

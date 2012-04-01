@@ -14,7 +14,7 @@ import java.util.Set;
 public abstract class APIItem {
     protected String name;
     protected List<Modifier> modifiers;
-
+    protected boolean depreacated;
     protected Kind kind;
 
     /**
@@ -42,6 +42,14 @@ public abstract class APIItem {
 
     public Kind getType() {
         return kind;
+    }
+
+    public boolean isDepreacated() {
+        return depreacated;
+    }
+
+    public void setDepreacated(boolean depreacated) {
+        this.depreacated = depreacated;
     }
 
     @Override

@@ -40,6 +40,12 @@ public class InstantiatorGenerator extends ClassGenerator {
             return;
         }
 
+        // check if class is not deprecated. If it does and in job configuration
+        // are deprecated items disabled, this class is skipped.
+        if (apiClass.isDepreacated() && jobConfiguration.isSkipDeprecated()) {
+            return;
+        }
+
         try {
             visitingClass = apiClass;
 
@@ -156,7 +162,13 @@ public class InstantiatorGenerator extends ClassGenerator {
 
         // if it is possible, create null version of previous constructor
         // nonparam constructor can't be tested with null values.
-        if (constructor.getParameters().isEmpty()) return;
+        if (constructor.getParameters().isEmpty()) {
+            return;
+        }
+
+        if (constructor.isDepreacated() && jobConfiguration.isSkipDeprecated()) {
+            return;
+        }
 
         // Check if there is no other same constructor
         boolean unique = true;
@@ -180,6 +192,10 @@ public class InstantiatorGenerator extends ClassGenerator {
      */
     @Override
     public void visit(APIField apiField) {
+        if (apiField.isDepreacated() && jobConfiguration.isSkipDeprecated()) {
+            return;
+        }
+
         // field has to be public
         if (apiField.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
             // type of the field has to be public class
@@ -230,6 +246,10 @@ public class InstantiatorGenerator extends ClassGenerator {
             if (!isClassPublic(paramType.getType())) {
                 return;
             }
+        }
+
+        if (method.isDepreacated() && jobConfiguration.isSkipDeprecated()) {
+            return;
         }
 
         // if it is possible, create null version of previous method caller

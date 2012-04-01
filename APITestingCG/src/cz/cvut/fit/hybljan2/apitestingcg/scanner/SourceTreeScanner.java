@@ -1,5 +1,6 @@
 package cz.cvut.fit.hybljan2.apitestingcg.scanner;
 
+import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
@@ -62,6 +63,13 @@ public class SourceTreeScanner extends TreeScanner {
         currentClass = new APIClass(jccd);
         classes.push(currentClass);
         super.visitClassDef(jccd);
+
+        for (Attribute.Compound compound : cs.getAnnotationMirrors()) {
+            if (compound.type.toString().equals("java.lang.Deprecated")) {
+                currentClass.setDepreacated(true);
+            }
+        }
+
         classes.pop();
         if (!classes.empty()) {
             currentClass.setNested(true);
@@ -75,7 +83,7 @@ public class SourceTreeScanner extends TreeScanner {
 
     @Override
     public void visitAnnotation(JCTree.JCAnnotation jcca) {
-        super.visitAnnotation(jcca);    //To change body of overridden methods use File | Settings | File Templates.
+        super.visitAnnotation(jcca);
         if (jcca.annotationType.type.toString().equals("java.lang.annotation.Target")) {
             for (JCTree.JCExpression e : jcca.getArguments()) {
                 JCTree.JCAssign a = (JCTree.JCAssign) e;
@@ -131,7 +139,15 @@ public class SourceTreeScanner extends TreeScanner {
             } else {
                 currentClass.addMethod(mth);
             }
+
             super.visitMethodDef(jcmd);
+
+            for (Attribute.Compound compound : ms.getAnnotationMirrors()) {
+                if (compound.type.toString().equals("java.lang.Deprecated")) {
+                    mth.setDepreacated(true);
+                }
+            }
+
             //}
         }
     }
@@ -140,8 +156,18 @@ public class SourceTreeScanner extends TreeScanner {
     public void visitVarDef(JCVariableDecl jcvd) {
         VarSymbol vs = jcvd.sym;
         if ((vs.flags() & (Flags.PUBLIC | Flags.PROTECTED)) != 0) {
-            currentClass.addField(new APIField(jcvd, currentClass.getType().equals(Kind.INTERFACE)));
+
+            APIField fld = new APIField(jcvd, currentClass.getType().equals(Kind.INTERFACE));
+
+            currentClass.addField(fld);
             super.visitVarDef(jcvd);
+
+            for (Attribute.Compound compound : vs.getAnnotationMirrors()) {
+                if (compound.type.toString().equals("java.lang.Deprecated")) {
+                    fld.setDepreacated(true);
+                }
+            }
+
         }
     }
 

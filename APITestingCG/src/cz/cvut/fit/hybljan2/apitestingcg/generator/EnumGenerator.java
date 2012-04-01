@@ -33,6 +33,12 @@ public class EnumGenerator extends InstantiatorGenerator {
             return;
         }
 
+        // check if class is not deprecated. If it does and in job configuration
+        // are deprecated items disabled, this class is skipped.
+        if (apiClass.isDepreacated() && jobConfiguration.isSkipDeprecated()) {
+            return;
+        }
+
         try {
             visitingClass = apiClass;
 
