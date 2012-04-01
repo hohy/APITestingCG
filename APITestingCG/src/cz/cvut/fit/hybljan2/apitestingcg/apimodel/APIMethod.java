@@ -175,6 +175,10 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
             annotationDefaultValue = mth.getDefaultValue().toString();
         }
         kind = Kind.METHOD;
+
+        if (mth.getAnnotation(java.lang.Deprecated.class) != null) {
+            setDepreacated(true);
+        }
     }
 
     // TODO: odstranit fullClassName parametr, je zbytecny a mel by jit nahradit pomoci c.getDeclaringClass().

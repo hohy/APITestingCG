@@ -68,6 +68,9 @@ public class APIField extends APIItem implements Comparable<APIField> {
         }
         this.modifiers = APIModifier.getModifiersSet(f.getModifiers());
         this.kind = Kind.VARIABLE;
+        if (f.getAnnotation(java.lang.Deprecated.class) != null) {
+            setDepreacated(true);
+        }
     }
 
     /**

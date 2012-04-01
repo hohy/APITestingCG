@@ -205,7 +205,11 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
 
         // set nested flag if this class is nested
         if (cls.isMemberClass()) {
-            nested = true;
+            setNested(true);
+        }
+
+        if (cls.getAnnotation(java.lang.Deprecated.class) != null) {
+            setDepreacated(true);
         }
     }
 

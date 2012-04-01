@@ -1,6 +1,5 @@
 package cz.cvut.fit.hybljan2.apitestingcg.scanner;
 
-import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
@@ -64,10 +63,8 @@ public class SourceTreeScanner extends TreeScanner {
         classes.push(currentClass);
         super.visitClassDef(jccd);
 
-        for (Attribute.Compound compound : cs.getAnnotationMirrors()) {
-            if (compound.type.toString().equals("java.lang.Deprecated")) {
-                currentClass.setDepreacated(true);
-            }
+        if ((cs.flags() & Flags.DEPRECATED) != 0) {
+            currentClass.setDepreacated(true);
         }
 
         classes.pop();
@@ -141,11 +138,8 @@ public class SourceTreeScanner extends TreeScanner {
             }
 
             super.visitMethodDef(jcmd);
-
-            for (Attribute.Compound compound : ms.getAnnotationMirrors()) {
-                if (compound.type.toString().equals("java.lang.Deprecated")) {
-                    mth.setDepreacated(true);
-                }
+            if ((ms.flags() & Flags.DEPRECATED) != 0) {
+                mth.setDepreacated(true);
             }
 
             //}
@@ -162,10 +156,8 @@ public class SourceTreeScanner extends TreeScanner {
             currentClass.addField(fld);
             super.visitVarDef(jcvd);
 
-            for (Attribute.Compound compound : vs.getAnnotationMirrors()) {
-                if (compound.type.toString().equals("java.lang.Deprecated")) {
-                    fld.setDepreacated(true);
-                }
+            if ((vs.flags() & Flags.DEPRECATED) != 0) {
+                fld.setDepreacated(true);
             }
 
         }
