@@ -262,7 +262,9 @@ public class InstantiatorGenerator extends ClassGenerator {
             unique = checkNullCollision(method, visitingClass);
         }
 
-        addMethodCaller(method, unique);
+        boolean nullParamsEnabled = isEnabled(methodSignature(method, visitingClass.getFullName()), WhitelistRule.RuleItem.NULLCALL);
+
+        addMethodCaller(method, unique && nullParamsEnabled);
     }
 
     private boolean checkNullCollision(APIMethod method, String clsName) {

@@ -23,7 +23,9 @@ public class WhitelistRule {
         @XmlEnumValue("annotation")
         ANNOTATION,
         @XmlEnumValue("all")
-        ALL
+        ALL,
+        @XmlEnumValue("null-call")
+        NULLCALL
     }
 
     @XmlAttribute

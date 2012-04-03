@@ -129,7 +129,7 @@ public abstract class Generator implements IAPIVisitor {
         } else enabled = true;  // if there is no rules for whitelist, enable all items.
 
         for (BlacklistRule rule : jobConfiguration.getBlacklistRules()) {
-            if ((rule.getRule().contains(itemSignature) || (itemSignature.contains(rule.getRule()))) && (rule.getItem().equals(target) || rule.getItem().equals(WhitelistRule.RuleItem.ALL))) {
+            if ((rule.getRule().equals(itemSignature) || (itemSignature.contains(rule.getRule()))) && (rule.getItem().equals(target) || rule.getItem().equals(WhitelistRule.RuleItem.ALL))) {
                 enabled = false;    // disable item if there is blacklist rule for it.
                 break;
             }
@@ -267,19 +267,20 @@ public abstract class Generator implements IAPIVisitor {
      */
     protected boolean isClassPublic(String name) {
         Set<String> classNames = JFormatter.getTypesList(name);
+        boolean result = true;
         for (String className : classNames) {
             try {
                 APIClass c = currentAPI.findClass(className);
                 if (!c.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
-                    return false;
+                    result = false;
                 }
             } catch (ClassNotFoundException e) {
                 System.err.println("Class not found: " + className);
-                return true;
+                //return true;
             }
         }
 
-        return true;
+        return result;
     }
 
     /**
@@ -289,16 +290,22 @@ public abstract class Generator implements IAPIVisitor {
      * @return true or false if class is public or not. If class is not found (it's not part of API), returns false
      */
     protected boolean isClassPublicOrProtected(String name) {
-        if (name.contains("[")) {
-            return isClassPublicOrProtected(name.substring(0, name.lastIndexOf('[')));
+
+        Set<String> classNames = JFormatter.getTypesList(name);
+        boolean result = true;
+        for (String className : classNames) {
+            try {
+                APIClass c = currentAPI.findClass(className);
+                if (!c.getModifiers().contains(APIModifier.Modifier.PUBLIC)
+                        && !(c.getModifiers().contains(APIModifier.Modifier.PROTECTED))) {
+                    result = false;
+                }
+            } catch (ClassNotFoundException e) {
+                System.err.println("Class not found: " + className);
+                //return true;
+            }
         }
-        try {
-            APIClass c = currentAPI.findClass(name);
-            return (c.getModifiers().contains(APIModifier.Modifier.PUBLIC)
-                    || (c.getModifiers().contains(APIModifier.Modifier.PROTECTED)));
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
+        return result;
     }
 
     /**

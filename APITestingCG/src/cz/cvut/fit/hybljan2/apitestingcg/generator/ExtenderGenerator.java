@@ -237,7 +237,7 @@ public class ExtenderGenerator extends ClassGenerator {
         String returnTypeParam = getParamArg(method.getReturnType());
         if (returnTypeParam != null) {
             if (!visitingClass.getTypeParamsMap().isEmpty()) {
-                extenderReturnType = getClassRef(method.getReturnType());
+                extenderReturnType = getGenericsClassRef(method.getReturnType());
                 /*
                 TODO: v nekterych pripadech je mozne pouzit genericky navratovy typ,
                     viz metody write7 a 8 v testovacim souboru. Pouziti gt ale neni
