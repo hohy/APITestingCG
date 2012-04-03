@@ -501,7 +501,7 @@ public class InstantiatorGenerator extends ClassGenerator {
             nullCallerBody.add(nullInvocation);
         } else {
             callerBody._return(invocation);
-            nullCallerBody._return(invocation);
+            nullCallerBody._return(nullInvocation);
         }
 
 
