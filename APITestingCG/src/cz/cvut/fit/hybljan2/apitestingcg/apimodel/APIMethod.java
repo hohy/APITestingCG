@@ -110,7 +110,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
             returnType = jcmd.sym.owner.toString();
         }
 
-        boolean readParamNames = false;  // TODO: put this to the configuration
+        boolean readParamNames = true;  // TODO: put this to the configuration
 
         // method parameters
         parameters = new LinkedList<>();

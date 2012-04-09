@@ -121,7 +121,8 @@ public abstract class Generator implements IAPIVisitor {
         boolean enabled = false;
         if (jobConfiguration.getWhitelistRules().size() > 0) {
             for (WhitelistRule rule : jobConfiguration.getWhitelistRules()) {
-                if ((rule.getRule().contains(itemSignature) || (itemSignature.contains(rule.getRule()))) && (rule.getItem().equals(target) || rule.getItem().equals(WhitelistRule.RuleItem.ALL))) {
+                if ((rule.getRule().contains(itemSignature) || (itemSignature.contains(rule.getRule())))
+                        && (rule.getItem().equals(target) || rule.getItem().equals(WhitelistRule.RuleItem.ALL))) {
                     enabled = true;
                     break;
                 }
@@ -174,12 +175,12 @@ public abstract class Generator implements IAPIVisitor {
      * @return
      */
     public JExpression getPrimitiveValue(String name) {
-        if (name.equals("byte")) return JExpr.lit(0);
-        if (name.equals("short")) return JExpr.lit(0);
+        if (name.equals("byte")) return JExpr.cast(cm.BYTE, JExpr.lit(0));
+        if (name.equals("short")) return JExpr.cast(cm.SHORT, JExpr.lit(0));
         if (name.equals("int")) return JExpr.lit(0);
-        if (name.equals("long")) return JExpr.lit(0);
-        if (name.equals("float")) return JExpr.lit(0.0);
-        if (name.equals("double")) return JExpr.lit(0.0);
+        if (name.equals("long")) return JExpr.lit(0L);
+        if (name.equals("float")) return JExpr.lit(0.0F);
+        if (name.equals("double")) return JExpr.lit(0.0D);
         if (name.equals("boolean")) return JExpr.lit(false);
         if (name.equals("char")) return JExpr.lit('a');
         return JExpr._null();

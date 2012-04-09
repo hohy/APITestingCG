@@ -8,6 +8,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
+import junitx.framework.FileAssert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -114,7 +115,7 @@ public class InstantiatorGeneratorTest {
         job.setOutputDir("output/tests/instantiator");
         job.setOutputPackage("test.%s");
         WhitelistRule r = new WhitelistRule();
-        r.setItem(WhitelistRule.RuleItem.INSTANTIATOR);
+        r.setItem(WhitelistRule.RuleItem.ALL);
         r.setRule("lib.Methods");
         job.addWhitelistRule(r);
         generator.generate(api, job);
@@ -145,9 +146,9 @@ public class InstantiatorGeneratorTest {
         File resultFile = new File("output/tests/instantiator/test/lib/FieldsInstantiator.java");
         assertTrue(resultFile.exists());
 
-        //File expected = new File("testres/extender_exp/ClassAExtender.java");
+        File expected = new File("testres/instantiator_exp/ClassAExtender.java");
 
-        //FileAssert.assertEquals(expected, resultFile);
+        FileAssert.assertEquals(expected, resultFile);
 
     }
 

@@ -60,4 +60,21 @@ public class APIMethodParameter {
     public String toString() {
         return type + " " + name;
     }
+
+    public boolean isPrimitive() {
+        switch (getType()) {
+            case "byte":
+            case "short":
+            case "int":
+            case "long":
+            case "float":
+            case "double":
+            case "boolean":
+            case "char":
+                return true;
+            default:
+                return false;
+        }
+
+    }
 }

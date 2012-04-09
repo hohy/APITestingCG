@@ -228,7 +228,8 @@ public class InstantiatorGenerator extends ClassGenerator {
     @Override
     public void visit(APIMethod method) {
         // is method enabled in configuration
-        if (!isEnabled(methodSignature(method, visitingClass.getFullName()), WhitelistRule.RuleItem.INSTANTIATOR))
+        String signature = methodSignature(method, visitingClass.getFullName());
+        if (!isEnabled(signature, WhitelistRule.RuleItem.INSTANTIATOR))
             return;
 
         // only public method can be tested by instantiator
@@ -255,16 +256,34 @@ public class InstantiatorGenerator extends ClassGenerator {
         // if it is possible, create null version of previous method caller
         // method without parameters cant be called with null parameters.
 
-        // Check if there is no other same method caller
-        boolean unique = false;
+        boolean generateNullCaller = isEnabled(signature, WhitelistRule.RuleItem.NULLCALL);
 
-        if (!method.getParameters().isEmpty()) {
-            unique = checkNullCollision(method, visitingClass);
+        // Check if method has some non-primitive parameters. If not, null caller won't be generated.
+        if (generateNullCaller) {
+            generateNullCaller = checkPrimitiveParams(method);
         }
 
-        boolean nullParamsEnabled = isEnabled(methodSignature(method, visitingClass.getFullName()), WhitelistRule.RuleItem.NULLCALL);
+        // Check if there is no other same method caller
+        if (generateNullCaller) {
+            generateNullCaller = checkNullCollision(method, visitingClass);
+            ;
+        }
 
-        addMethodCaller(method, unique && nullParamsEnabled);
+        addMethodCaller(method, generateNullCaller);
+    }
+
+    /**
+     * Check if method has some non-primitive parameters. Return true if it has, false if method has only primitive
+     * params.
+     *
+     * @param method Checked method
+     * @return
+     */
+    private boolean checkPrimitiveParams(APIMethod method) {
+        for (APIMethodParameter parameter : method.getParameters()) {
+            if (!parameter.isPrimitive()) return true;
+        }
+        return false;
     }
 
     private boolean checkNullCollision(APIMethod method, String clsName) {
@@ -298,13 +317,17 @@ public class InstantiatorGenerator extends ClassGenerator {
     }
 
     private static boolean equalsNullParams(List<APIMethodParameter> paramsA, List<APIMethodParameter> paramsB) {
-        if (paramsA.size() != paramsB.size()) return false;
+        if (paramsA.size() != paramsB.size()) {
+            return false;
+        }
         Iterator<APIMethodParameter> itA = paramsA.iterator();
         Iterator<APIMethodParameter> itB = paramsB.iterator();
         while (itA.hasNext()) {
             String paramA = getPrimitiveValueString(itA.next().getType());
             String paramB = getPrimitiveValueString(itB.next().getType());
-            if (!paramA.equals(paramB)) return false;
+            if (!paramA.equals(paramB)) {
+                return false;
+            }
         }
         return true;
     }
@@ -485,7 +508,7 @@ public class InstantiatorGenerator extends ClassGenerator {
             char eName = 'E';
             for (String exceptionType : method.getThrown()) {
                 JClass exception = getClassRef(exceptionType);
-                String exceptionParam = "ex" + String.valueOf(eName++);
+                String exceptionParam = "e";
                 tryBlock._catch(exception).param(exceptionParam);
                 nullTryBlock._catch(exception).param(exceptionParam);
             }
