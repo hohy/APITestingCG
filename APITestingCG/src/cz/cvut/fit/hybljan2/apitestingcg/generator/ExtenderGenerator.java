@@ -218,13 +218,13 @@ public class ExtenderGenerator extends ClassGenerator {
         }
 
         // return type have to be public or protected class
-        if (!isClassPublicOrProtected(method.getReturnType())) {
+        if (!isClassPublicOrProtected(method.getReturnType(), visitingClass)) {
             return;
         }
 
         // all methods params has to be public or protected classes
         for (APIMethodParameter paramType : method.getParameters()) {
-            if (!isClassPublicOrProtected(paramType.getType())) {
+            if (!isClassPublicOrProtected(paramType.getType(), visitingClass)) {
                 return;
             }
         }

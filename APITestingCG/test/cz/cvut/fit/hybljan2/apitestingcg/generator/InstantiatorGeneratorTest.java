@@ -103,9 +103,6 @@ public class InstantiatorGeneratorTest {
         assertEquals("Set", cz.cvut.fit.hybljan2.apitestingcg.generator.Generator.simplifyName("Set"));
     }
 
-    /**
-     * Test of generating simple constructor for extender class
-     */
     @Test
     public void TestMethods() {
 
@@ -123,9 +120,9 @@ public class InstantiatorGeneratorTest {
         File resultFile = new File("output/tests/instantiator/test/lib/MethodsInstantiator.java");
         assertTrue(resultFile.exists());
 
-        //File expected = new File("testres/extender_exp/ClassAExtender.java");
+        File expected = new File("testres/instantiator_exp/MethodsInstantiator.java");
 
-        //FileAssert.assertEquals(expected, resultFile);
+        FileAssert.assertEquals(expected, resultFile);
 
     }
 
@@ -145,10 +142,6 @@ public class InstantiatorGeneratorTest {
 
         File resultFile = new File("output/tests/instantiator/test/lib/FieldsInstantiator.java");
         assertTrue(resultFile.exists());
-
-        File expected = new File("testres/instantiator_exp/ClassAExtender.java");
-
-        FileAssert.assertEquals(expected, resultFile);
 
     }
 

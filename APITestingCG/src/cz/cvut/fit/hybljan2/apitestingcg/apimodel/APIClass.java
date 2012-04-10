@@ -481,4 +481,25 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     public void addNestedClass(APIClass nestedClass) {
         nestedClasses.add(nestedClass);
     }
+
+    /**
+     * Finds class with given name nested in this class.
+     *
+     * @param name name of the nested class
+     * @return nested class
+     * @throws ClassNotFoundException if class does not contains class with given name
+     */
+    public APIClass getNestedClass(String name) throws ClassNotFoundException {
+        if (getFullName().equals(name)) {
+            return this;
+        }
+        for (APIClass nc : getNestedClasses()) {
+            try {
+                return nc.getNestedClass(name);
+            } catch (ClassNotFoundException e) {
+                // this exception is ok, maybe the class is nested in different nested class.
+            }
+        }
+        throw new ClassNotFoundException();
+    }
 }

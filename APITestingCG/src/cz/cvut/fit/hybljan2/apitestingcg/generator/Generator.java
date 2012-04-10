@@ -266,7 +266,7 @@ public abstract class Generator implements IAPIVisitor {
      * @param name full class name
      * @return true or false if class is public or not. If class is not found (it's not part of API), returns false
      */
-    protected boolean isClassPublic(String name) {
+    protected boolean isClassPublic(String name, APIClass currentClass) {
         Set<String> classNames = JFormatter.getTypesList(name);
         boolean result = true;
         for (String className : classNames) {
@@ -276,8 +276,12 @@ public abstract class Generator implements IAPIVisitor {
                     result = false;
                 }
             } catch (ClassNotFoundException e) {
-                System.err.println("Class not found: " + className);
-                //return true;
+                try {
+                    APIClass nc = currentClass.getNestedClass(name);
+                    return nc.getModifiers().contains(APIModifier.Modifier.PUBLIC);
+                } catch (ClassNotFoundException e1) {
+                    System.err.println("isClassPublic() - Class not found: " + className);
+                }
             }
         }
 
@@ -290,7 +294,7 @@ public abstract class Generator implements IAPIVisitor {
      * @param name full class name
      * @return true or false if class is public or not. If class is not found (it's not part of API), returns false
      */
-    protected boolean isClassPublicOrProtected(String name) {
+    protected boolean isClassPublicOrProtected(String name, APIClass currentClass) {
 
         Set<String> classNames = JFormatter.getTypesList(name);
         boolean result = true;
@@ -302,8 +306,12 @@ public abstract class Generator implements IAPIVisitor {
                     result = false;
                 }
             } catch (ClassNotFoundException e) {
-                System.err.println("Class not found: " + className);
-                //return true;
+                try {
+                    APIClass nc = currentClass.getNestedClass(name);
+                    return nc.getModifiers().contains(APIModifier.Modifier.PUBLIC);
+                } catch (ClassNotFoundException e1) {
+                    System.err.println("isClassPublicOrProtected() - Class not found: " + className);
+                }
             }
         }
         return result;

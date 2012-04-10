@@ -199,7 +199,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         // field has to be public
         if (apiField.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
             // type of the field has to be public class
-            if (!isClassPublic(apiField.getVarType())) {
+            if (!isClassPublic(apiField.getVarType(), visitingClass)) {
                 return;
             }
 
@@ -238,13 +238,13 @@ public class InstantiatorGenerator extends ClassGenerator {
         }
 
         // return type have to be public class
-        if (!isClassPublic(method.getReturnType())) {
+        if (!isClassPublic(method.getReturnType(), visitingClass)) {
             return;
         }
 
         // all methods params has to be public classes
         for (APIMethodParameter paramType : method.getParameters()) {
-            if (!isClassPublic(paramType.getType())) {
+            if (!isClassPublic(paramType.getType(), visitingClass)) {
                 return;
             }
         }
@@ -266,7 +266,6 @@ public class InstantiatorGenerator extends ClassGenerator {
         // Check if there is no other same method caller
         if (generateNullCaller) {
             generateNullCaller = checkNullCollision(method, visitingClass);
-            ;
         }
 
         addMethodCaller(method, generateNullCaller);
@@ -359,7 +358,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         }
 
         // new instance has to be public class
-        if (!isClassPublic(instanceClassName)) {
+        if (!isClassPublic(instanceClassName, visitingClass)) {
             return;
         }
 
