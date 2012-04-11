@@ -61,45 +61,59 @@ public class AnnotationGenerator extends ClassGenerator {
 
     }
 
+    private void initClass(String className) throws JClassAlreadyExistsException {
+        if (cls == null) {
+            cls = cm._class(currentPackageName + '.' + className);
+        }
+    }
+
     private void generateTestClass(APIClass apiClass, boolean setDefaultValues) {
         // declare new class
         try {
-            String className = setDefaultValues ? generateName(configuration.getAnnotationClassIdentifier(), apiClass.getName()) + "DV" : generateName(configuration.getAnnotationClassIdentifier(), apiClass.getName());
-            cls = cm._class(currentPackageName + '.' + className);
+            String className = currentPackageName + '.';
+            className += setDefaultValues
+                    ? generateName(configuration.getAnnotationClassIdentifier(), apiClass.getName()) + "DV"
+                    : generateName(configuration.getAnnotationClassIdentifier(), apiClass.getName());
             if (apiClass.getAnnotationTargets().contains(ElementType.TYPE)) {
+                initClass(className);
                 annotate(cls, apiClass, setDefaultValues);
             }
 
             if (apiClass.getAnnotationTargets().contains(ElementType.FIELD)) {
+                initClass(className);
                 JFieldVar fld = cls.field(JMod.NONE, cm.INT, "annotatedField");
                 annotate(fld, apiClass, setDefaultValues);
             }
 
             if (apiClass.getAnnotationTargets().contains(ElementType.LOCAL_VARIABLE)) {
+                initClass(className);
                 JMethod method = cls.method(JMod.NONE, cm.VOID, "localVarMethod");
                 JVar localVar = method.body().decl(cm.INT, "localVariable");
                 annotate(localVar, apiClass, setDefaultValues);
             }
 
             if (apiClass.getAnnotationTargets().contains(ElementType.METHOD)) {
+                initClass(className);
                 JMethod method = cls.method(JMod.NONE, cm.VOID, "annotatedMethod");
                 annotate(method, apiClass, setDefaultValues);
             }
 
             if (apiClass.getAnnotationTargets().contains(ElementType.PARAMETER)) {
+                initClass(className);
                 JMethod method = cls.method(JMod.NONE, cm.VOID, "parameterMethod");
                 JVar param = method.param(cm.INT, "param");
                 annotate(param, apiClass, setDefaultValues);
             }
 
             if (apiClass.getAnnotationTargets().contains(ElementType.CONSTRUCTOR)) {
+                initClass(className);
                 JMethod method = cls.constructor(JMod.NONE);
                 annotate(method, apiClass, setDefaultValues);
             }
 
             if (apiClass.getAnnotationTargets().contains(ElementType.ANNOTATION_TYPE)) {
                 String name = setDefaultValues ? "AnnotationTypeDV" : "AnnotationType";
-                JDefinedClass annotation = cm._class(name, ClassType.ANNOTATION_TYPE_DECL);
+                JDefinedClass annotation = cm._class(currentPackageName + '.' + name, ClassType.ANNOTATION_TYPE_DECL);
                 annotate(annotation, apiClass, setDefaultValues);
             }
 
