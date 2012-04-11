@@ -363,6 +363,19 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         return fullName;
     }
 
+    public String getFullNameWithTypeParams() {
+        StringBuilder sb = new StringBuilder(fullName);
+        if (!typeParamsMap.isEmpty()) {
+            sb.append('<');
+            for (String tp : typeParamsMap.keySet()) {
+                sb.append(tp).append(", ");
+            }
+            sb.delete(sb.length() - 2, sb.length());
+            sb.append('>');
+        }
+        return sb.toString();
+    }
+
     /**
      * Parse name of package from full name of class.
      *

@@ -67,11 +67,11 @@ public class ExtenderGenerator extends ClassGenerator {
             if (visitingClass.getType() == APIItem.Kind.INTERFACE) {
                 String className = generateName(configuration.getImplementerClassIdentifier(), apiClass.getName());
                 cls = declareNewClass(classMods, currentPackageName, className, visitingClass.isNested());
-                cls._implements(getClassRef(apiClass.getFullName()));
+                cls._implements(getGenericsClassRef(apiClass.getFullNameWithTypeParams()));
             } else {
                 String className = generateName(configuration.getExtenderClassIdentifier(), apiClass.getName());
                 cls = declareNewClass(classMods, currentPackageName, className, visitingClass.isNested());
-                cls._extends(getClassRef(apiClass.getFullName()));
+                cls._extends(getGenericsClassRef(apiClass.getFullNameWithTypeParams()));
             }
 
             if (!apiClass.getTypeParamsMap().isEmpty()) {
@@ -288,14 +288,14 @@ public class ExtenderGenerator extends ClassGenerator {
                 }
 
             } else {
-                if (visitingClass.getTypeParamsMap().containsKey(param.getType())) {
-                    String paramTypeName = visitingClass.getTypeParamsMap().get(param.getType())[0];
-                    paramType = getClassRef(paramTypeName);
-                } else if (method.getTypeParamsMap().containsKey(param.getType())) {
-                    String paramTypeName = method.getTypeParamsMap().get(param.getType())[0];
-                    paramType = getClassRef(paramTypeName);
-                    //paramType.getTypeParameters().add(paramType);
-                }
+                //if (visitingClass.getTypeParamsMap().containsKey(param.getType())) {
+                //    String paramTypeName = visitingClass.getTypeParamsMap().get(param.getType())[0];
+                //    paramType = getClassRef(paramTypeName);
+                //} else if (method.getTypeParamsMap().containsKey(param.getType())) {
+                //    String paramTypeName = method.getTypeParamsMap().get(param.getType())[0];
+                //paramType = getClassRef(paramTypeName);
+                //paramType.getTypeParameters().add(paramType);
+                //}
             }
 
             if (array) {
