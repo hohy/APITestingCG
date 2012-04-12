@@ -54,18 +54,28 @@ public class GenericsTypesTest {
         job.setApiId("annotations");
         job.setOutputDir("output/tests/generics");
         job.setOutputPackage("test.%s");
-//        WhitelistRule r = new WhitelistRule();
-//        r.setItem(WhitelistRule.RuleItem.ALL);
-//        r.setRule("lib.PackageAnnotation");
-//        job.addWhitelistRule(r);
         igenerator.generate(api, job);
         egenerator.generate(api, job);
 
-        File resultFile = new File("output/tests/generics/test/lib/Generics1Instantiator.java");
+        File resultFile = new File("output/tests/generics/test/lib/Generic1Instantiator.java");
         assertTrue(resultFile.exists());
+        File expected = new File("testres/generics_exp/test/lib/Generic1Instantiator.java");
+        FileAssert.assertEquals(expected, resultFile);
 
-        File expected = new File("testres/generics_exp/test/lib/Generics1Instantiator.java");
+        resultFile = new File("output/tests/generics/test/lib/Generic1Extender.java");
+        assertTrue(resultFile.exists());
+        expected = new File("testres/generics_exp/test/lib/Generic1Extender.java");
+        FileAssert.assertEquals(expected, resultFile);
 
+        resultFile = new File("output/tests/generics/test/lib/Generic2Instantiator.java");
+        assertTrue(resultFile.exists());
+        expected = new File("testres/generics_exp/test/lib/Generic2Instantiator.java");
+        FileAssert.assertEquals(expected, resultFile);
+
+
+        resultFile = new File("output/tests/generics/test/lib/Generic2Extender.java");
+        assertTrue(resultFile.exists());
+        expected = new File("testres/generics_exp/test/lib/Generic2Extender.java");
         FileAssert.assertEquals(expected, resultFile);
 
     }

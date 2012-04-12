@@ -190,7 +190,7 @@ public class ExtenderGenerator extends ClassGenerator {
             JVar var = fieldsMethodBlock.decl(typeRef, fldName, getPrimitiveValue(apiField.getVarType()));
             fieldsMethodBlock.assign(JExpr.ref(apiField.getName()), var);
         }
-        fieldsMethodBlock.directStatement(" ");
+        //fieldsMethodBlock.directStatement(" ");
 
     }
 

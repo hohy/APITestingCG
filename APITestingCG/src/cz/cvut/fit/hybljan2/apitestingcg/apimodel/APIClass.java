@@ -45,7 +45,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
      * U                --> {java.lang.Object}
      * U extends A & B  --> {A, B}
      */
-    private Map<String, String[]> typeParamsMap = new TreeMap<String, String[]>();
+    private Map<String, String[]> typeParamsMap = new LinkedHashMap<>();
     private List<ElementType> annotationTargets;
 
     /**

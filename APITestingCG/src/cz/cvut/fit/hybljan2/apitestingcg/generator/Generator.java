@@ -22,6 +22,8 @@ import java.util.Set;
  */
 public abstract class Generator implements IAPIVisitor {
 
+    protected static final char CLOSE_TYPE_ARGS = '\uFFFF';
+
     protected GeneratorConfiguration configuration;
     protected GeneratorJobConfiguration jobConfiguration;
 

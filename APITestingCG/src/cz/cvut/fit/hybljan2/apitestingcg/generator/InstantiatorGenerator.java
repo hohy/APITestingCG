@@ -7,8 +7,10 @@ import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -21,6 +23,8 @@ public class InstantiatorGenerator extends ClassGenerator {
     public InstantiatorGenerator(GeneratorConfiguration configuration) {
         super(configuration);
     }
+
+    Map<String, JClass> instantiatorTypeParamsMap = null;
 
     @Override
     public void visit(APIClass apiClass) {
@@ -53,22 +57,25 @@ public class InstantiatorGenerator extends ClassGenerator {
             String className = generateName(configuration.getInstantiatorClassIdentifier(), apiClass.getName());
             cls = declareNewClass(0, currentPackageName, className, visitingClass.isNested());
 
+            // add generics
+            if (!apiClass.getTypeParamsMap().isEmpty()) {
+                instantiatorTypeParamsMap = new HashMap<>();
+                for (String typeName : apiClass.getTypeParamsMap().keySet()) {
+                    JClass typeBound = getClassRef(apiClass.getTypeParamsMap().get(typeName)[0]);
+                    if (!typeBound.fullName().equals("java.lang.Object")) {
+                        //cls.generify(typeName, typeBound);
+                        instantiatorTypeParamsMap.put(typeName, typeBound);
+                    } else {
+                        //cls.generify(typeName);
+                        instantiatorTypeParamsMap.put(typeName, null);
+                    }
+                }
+            }
+
             // visit all constructors, if class isn't abstract
             if (!visitingClass.getModifiers().contains(APIModifier.Modifier.ABSTRACT)) {
                 for (APIMethod constructor : apiClass.getConstructors()) {
                     visitConstructor(constructor);
-                }
-            }
-
-            // add generics
-            if (!apiClass.getTypeParamsMap().isEmpty()) {
-                for (String typeName : apiClass.getTypeParamsMap().keySet()) {
-                    JClass typeBound = getClassRef(apiClass.getTypeParamsMap().get(typeName)[0]);
-                    if (!typeBound.fullName().equals("java.lang.Object")) {
-                        cls.generify(typeName, typeBound);
-                    } else {
-                        cls.generify(typeName);
-                    }
                 }
             }
 
@@ -111,6 +118,9 @@ public class InstantiatorGenerator extends ClassGenerator {
 
             if (!apiClass.getFields().isEmpty()) {
                 JMethod fieldsMethod = cls.method(JMod.PUBLIC, cm.VOID, configuration.getFieldTestIdentifier());
+                // add generics of the instantiator to the method
+                addGenerics(fieldsMethod);
+
                 String instanceClassName = visitingClass.getFullName();
 
                 if (!visitingClass.getTypeParamsMap().isEmpty()) {
@@ -158,7 +168,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         if (!constructor.getModifiers().contains(APIModifier.Modifier.PUBLIC)) return;
 
         // create basic create new instance method
-        addCreateInstanceMethod(visitingClass.getFullName(), generateName(configuration.getCreateInstanceIdentifier(), constructor.getName()), constructor, false);
+        addCreateInstanceMethod(visitingClass.getFullNameWithTypeParams(), generateName(configuration.getCreateInstanceIdentifier(), constructor.getName()), constructor, false);
 
         // if it is possible, create null version of previous constructor
         // nonparam constructor can't be tested with null values.
@@ -179,7 +189,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         }
 
         // generate null constructor (same as previous, but params are NULLs).
-        addCreateInstanceMethod(constructor.getReturnType(), generateName(configuration.getCreateNullInstanceIdentifier(), constructor.getName()), constructor, true);
+        addCreateInstanceMethod(visitingClass.getFullNameWithTypeParams(), generateName(configuration.getCreateNullInstanceIdentifier(), constructor.getName()), constructor, true);
     }
 
     /**
@@ -219,9 +229,7 @@ public class InstantiatorGenerator extends ClassGenerator {
                 String fldName = generateName(configuration.getFieldTestVariableIdentifier(), apiField.getName());
                 JVar var = fieldsMethodBlock.decl(getGenericsClassRef(apiField.getVarType()), fldName, getPrimitiveValue(apiField.getVarType()));
                 fieldsMethodBlock.assign(fieldsInstance.ref(apiField.getName()), var);
-
             }
-            fieldsMethodBlock.directStatement(" ");
         }
     }
 
@@ -331,6 +339,19 @@ public class InstantiatorGenerator extends ClassGenerator {
         return true;
     }
 
+    private void addGenerics(JGenerifiable item) {
+        if (instantiatorTypeParamsMap != null) {
+            for (String typeName : instantiatorTypeParamsMap.keySet()) {
+                JClass typeBound = instantiatorTypeParamsMap.get(typeName);
+                if (typeBound != null) {
+                    item.generify(typeName, typeBound);
+                } else {
+                    item.generify(typeName);
+                }
+            }
+        }
+    }
+
     /**
      * Create new metod like this template:
      * <p/>
@@ -344,7 +365,8 @@ public class InstantiatorGenerator extends ClassGenerator {
      * @param nullParams
      */
     private void addCreateInstanceMethod(String instanceClassName, String methodName, APIMethod constructor, boolean nullParams) {
-        JClass returnCls = getClassRef(instanceClassName);
+
+        JClass returnCls = getGenericsClassRef(instanceClassName);
 
         // checks if class is inner. - Inner classes has different constructors.
         boolean innerClass = false;
@@ -365,13 +387,18 @@ public class InstantiatorGenerator extends ClassGenerator {
         // declare new createInstance method
         JMethod result = cls.method(JMod.PUBLIC, returnCls, methodName);
         JInvocation newInstance;
+
+        String typeParam = visitingClass.getTypeParamsMap().isEmpty() ? "" : "< >";
         if (innerClass) {
             String outerClassName = instanceClassName.substring(0, instanceClassName.lastIndexOf('.'));
             result.param(getClassRef(outerClassName), configuration.getInstanceIdentifier());
-            newInstance = JExpr._new(cm.ref(visitingClass.getName()));
+            newInstance = JExpr._new(cm.ref(visitingClass.getName() + typeParam));
         } else {
-            newInstance = JExpr._new(getClassRef(visitingClass.getFullName()));
+            newInstance = JExpr._new(getGenericsClassRef(visitingClass.getFullName() + typeParam));
         }
+
+        // add generics of the instantiator to the method
+        addGenerics(result);
 
         // add params to the method
         for (APIMethodParameter arg : constructor.getParameters()) {
@@ -425,18 +452,22 @@ public class InstantiatorGenerator extends ClassGenerator {
         JTypeVar t = null;
 
         JType returnType = getGenericsClassRef(method.getReturnType());
-        if (visitingClass.getTypeParamsMap().containsKey(method.getReturnType())) {
-            returnType = getGenericsClassRef(visitingClass.getTypeParamsMap().get(method.getReturnType())[0]);
-        } else if (method.getTypeParamsMap().containsKey(method.getReturnType())) {
-            String returnTypeName = method.getTypeParamsMap().get(method.getReturnType())[0];
-            returnType = getGenericsClassRef(returnTypeName);
-        }
+//        if (visitingClass.getTypeParamsMap().containsKey(method.getReturnType())) {
+//            returnType = getGenericsClassRef(visitingClass.getTypeParamsMap().get(method.getReturnType())[0]);
+//        } else if (method.getTypeParamsMap().containsKey(method.getReturnType())) {
+//            String returnTypeName = method.getTypeParamsMap().get(method.getReturnType())[0];
+//            returnType = getGenericsClassRef(returnTypeName);
+//        }
 
         String callerName = generateName(configuration.getMethodCallIdentifier(), method.getName());
         String nullCallerName = generateName(configuration.getMethodNullCallIdentifier(), method.getName());
 
         JMethod caller = cls.method(methodMods, returnType, callerName);
         JMethod nullCaller = cls.method(methodMods, returnType, nullCallerName);
+
+        // add generics of the instantiator to the method
+        addGenerics(caller);
+        addGenerics(nullCaller);
 
         // add generics
         if (!method.getTypeParamsMap().isEmpty()) {
