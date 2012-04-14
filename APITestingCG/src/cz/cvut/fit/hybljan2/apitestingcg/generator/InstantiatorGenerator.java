@@ -370,7 +370,6 @@ public class InstantiatorGenerator extends ClassGenerator {
      * @return true or false if class is public or not. If class is not found (it's not part of API), returns false
      */
     protected boolean isClassPublic(String name) {
-        boolean result = true;
 
         // check if class is not generic type
         if (visitingClass.getTypeParamsMap().keySet().contains(name)) {
@@ -394,7 +393,7 @@ public class InstantiatorGenerator extends ClassGenerator {
             }
         }
 
-        return result;
+        return true;
     }
 
 

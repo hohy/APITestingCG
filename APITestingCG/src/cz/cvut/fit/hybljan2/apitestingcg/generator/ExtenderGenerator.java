@@ -5,6 +5,9 @@ import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 
+import java.util.Collection;
+import java.util.Set;
+
 /**
  * Created by IntelliJ IDEA.
  * User: Jan Hýbl
@@ -218,13 +221,13 @@ public class ExtenderGenerator extends ClassGenerator {
         }
 
         // return type have to be public or protected class
-        if (!isClassPublicOrProtected(method.getReturnType(), visitingClass)) {
+        if (!isTypePublicOrProtected(method.getReturnType(), method.getTypeParamsMap().keySet())) {
             return;
         }
 
         // all methods params has to be public or protected classes
         for (APIMethodParameter paramType : method.getParameters()) {
-            if (!isClassPublicOrProtected(paramType.getType(), visitingClass)) {
+            if (!isTypePublicOrProtected(paramType.getType(), method.getTypeParamsMap().keySet())) {
                 return;
             }
         }
@@ -319,6 +322,64 @@ public class ExtenderGenerator extends ClassGenerator {
             return className.substring(className.indexOf('<') + 1, className.lastIndexOf('>')).trim();
         }
         return null;
+    }
+
+    /**
+     * Checks if given type is public or protected. Type could be simple class (<code>java.util.List</code>) or complex type
+     * (<code>java.util.Map<java.lang.String, java.lang.List<java.io.File>></code>). Result is true if every class
+     * used in type definition is public or protected.
+     *
+     * @param type           Definition of the type
+     * @param genericClasses List of the generics classes.
+     * @return
+     */
+    protected boolean isTypePublicOrProtected(String type, Collection<String> genericClasses) {
+        boolean result = true;
+        // Split complex type to individual classes
+        Set<String> classNames = JFormatter.getTypesList(type);
+        // check public accessibility of every single class
+        for (String className : classNames) {
+            // check if it's generic class or wildcard
+            if (!((genericClasses != null && genericClasses.contains(className)) || (className.equals("?")))) {
+                // if class is not generic, use isClassPublic method to determine if class is public
+                if (!isClassPublicOrProtected(className)) {
+                    result = false;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Finds class with given name and checks if the class has public modifier.
+     *
+     * @param name full class name
+     * @return true or false if class is public or not. If class is not found (it's not part of API), returns false
+     */
+    protected boolean isClassPublicOrProtected(String name) {
+
+        if (visitingClass.getTypeParamsMap().keySet().contains(name)) {
+            return true;
+        }
+
+        try {
+            APIClass c = findClass(name);
+            if (c.getModifiers().contains(APIModifier.Modifier.PUBLIC)
+                    || (c.getModifiers().contains(APIModifier.Modifier.PROTECTED))) {
+                return true;
+            }
+        } catch (ClassNotFoundException e) {
+            try {
+                APIClass nc = visitingClass.getNestedClass(name);
+                return (nc.getModifiers().contains(APIModifier.Modifier.PUBLIC)
+                        || (nc.getModifiers().contains(APIModifier.Modifier.PROTECTED)));
+            } catch (ClassNotFoundException e1) {
+                System.err.println("isClassPublicOrProtected() - Class not found: " + name);
+            }
+        }
+
+        return true;
     }
 
 }

@@ -1,6 +1,9 @@
 package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
-import com.sun.codemodel.*;
+import com.sun.codemodel.JClass;
+import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JExpr;
+import com.sun.codemodel.JExpression;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.BlacklistRule;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
@@ -12,7 +15,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
@@ -260,46 +262,6 @@ public abstract class Generator implements IAPIVisitor {
             classMap.put(className, classReference);
             return classReference;
         }
-    }
-
-
-    /**
-     * Finds class with given name and checks if the class has public modifier.
-     *
-     * @param name full class name
-     * @return true or false if class is public or not. If class is not found (it's not part of API), returns false
-     */
-    protected boolean isClassPublicOrProtected(String name, APIClass currentClass) {
-
-        if (name.equals("?")) {
-            return true;
-        }
-
-        for (String typeParam : currentClass.getTypeParamsMap().keySet()) {
-            if (name.equals(typeParam)) {
-                return true;
-            }
-        }
-
-        Set<String> classNames = JFormatter.getTypesList(name);
-        boolean result = true;
-        for (String className : classNames) {
-            try {
-                APIClass c = currentAPI.findClass(className);
-                if (!c.getModifiers().contains(APIModifier.Modifier.PUBLIC)
-                        && !(c.getModifiers().contains(APIModifier.Modifier.PROTECTED))) {
-                    result = false;
-                }
-            } catch (ClassNotFoundException e) {
-                try {
-                    APIClass nc = currentClass.getNestedClass(name);
-                    return nc.getModifiers().contains(APIModifier.Modifier.PUBLIC);
-                } catch (ClassNotFoundException e1) {
-                    System.err.println("isClassPublicOrProtected() - Class not found: " + className);
-                }
-            }
-        }
-        return result;
     }
 
     /**
