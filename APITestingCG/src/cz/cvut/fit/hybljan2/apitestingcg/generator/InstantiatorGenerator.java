@@ -7,10 +7,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -55,7 +52,7 @@ public class InstantiatorGenerator extends ClassGenerator {
 
             // declare new class
             String className = generateName(configuration.getInstantiatorClassIdentifier(), apiClass.getName());
-            cls = declareNewClass(0, currentPackageName, className, visitingClass.isNested());
+            cls = declareNewClass(JMod.PUBLIC, currentPackageName, className, visitingClass.isNested());
 
             // add generics
             if (!apiClass.getTypeParamsMap().isEmpty()) {
@@ -209,7 +206,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         // field has to be public
         if (apiField.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
             // type of the field has to be public class
-            if (!isClassPublic(apiField.getVarType(), visitingClass)) {
+            if (!isTypePublic(apiField.getVarType(), null)) {
                 return;
             }
 
@@ -246,13 +243,13 @@ public class InstantiatorGenerator extends ClassGenerator {
         }
 
         // return type have to be public class
-        if (!isClassPublic(method.getReturnType(), visitingClass)) {
+        if (!isTypePublic(method.getReturnType(), method.getTypeParamsMap().keySet())) {
             return;
         }
 
         // all methods params has to be public classes
         for (APIMethodParameter paramType : method.getParameters()) {
-            if (!isClassPublic(paramType.getType(), visitingClass)) {
+            if (!isTypePublic(paramType.getType(), method.getTypeParamsMap().keySet())) {
                 return;
             }
         }
@@ -339,14 +336,87 @@ public class InstantiatorGenerator extends ClassGenerator {
         return true;
     }
 
+    /**
+     * Checks if given type is public. Type could be simple class (<code>java.util.List</code>) or complex type
+     * (<code>java.util.Map<java.lang.String, java.lang.List<java.io.File>></code>). Type is public if every class
+     * used in type definition is public.
+     *
+     * @param type           Definition of the type
+     * @param genericClasses List of the generics classes.
+     * @return
+     */
+    protected boolean isTypePublic(String type, Collection<String> genericClasses) {
+        boolean result = true;
+        // Split complex type to individual classes
+        Set<String> classNames = JFormatter.getTypesList(type);
+        // check public accessibility of every single class
+        for (String className : classNames) {
+            // check if it's generic class or wildcard
+            if (!((genericClasses != null && genericClasses.contains(className)) || (className.equals("?")))) {
+                // if class is not generic, use isClassPublic method to determine if class is public
+                if (!isClassPublic(className)) {
+                    result = false;
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Finds class with given name and checks if the class has public modifier.
+     *
+     * @param name full class name (not complex type)
+     * @return true or false if class is public or not. If class is not found (it's not part of API), returns false
+     */
+    protected boolean isClassPublic(String name) {
+        boolean result = true;
+
+        // check if class is not generic type
+        if (visitingClass.getTypeParamsMap().keySet().contains(name)) {
+            return true;
+        }
+
+        // try to find the class in API or load it with reflection.
+        try {
+            APIClass c = findClass(name);
+            if (!c.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
+                return false;
+            }
+        } catch (ClassNotFoundException e) {
+            // if class wasn't found, it could be nested class.
+            try {
+                APIClass nc = visitingClass.getNestedClass(name);
+                return nc.getModifiers().contains(APIModifier.Modifier.PUBLIC);
+            } catch (ClassNotFoundException e2) {
+                // it's unknown class
+                System.err.println("Class not found: " + name);
+            }
+        }
+
+        return result;
+    }
+
+
     private void addGenerics(JGenerifiable item) {
         if (instantiatorTypeParamsMap != null) {
             for (String typeName : instantiatorTypeParamsMap.keySet()) {
-                JClass typeBound = instantiatorTypeParamsMap.get(typeName);
-                if (typeBound != null) {
-                    item.generify(typeName, typeBound);
-                } else {
-                    item.generify(typeName);
+
+                boolean alreadyDefined = false;
+                for (JTypeVar typeVar : item.typeParams()) {
+                    if (typeName.equals(typeVar.name())) {
+                        alreadyDefined = true;
+                        break;
+                    }
+                }
+
+                if (!alreadyDefined) {
+                    JClass typeBound = instantiatorTypeParamsMap.get(typeName);
+                    if (typeBound != null) {
+                        item.generify(typeName, typeBound);
+                    } else {
+                        item.generify(typeName);
+                    }
                 }
             }
         }
@@ -380,7 +450,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         }
 
         // new instance has to be public class
-        if (!isClassPublic(instanceClassName, visitingClass)) {
+        if (!isTypePublic(instanceClassName, null)) {
             return;
         }
 
@@ -465,10 +535,6 @@ public class InstantiatorGenerator extends ClassGenerator {
         JMethod caller = cls.method(methodMods, returnType, callerName);
         JMethod nullCaller = cls.method(methodMods, returnType, nullCallerName);
 
-        // add generics of the instantiator to the method
-        addGenerics(caller);
-        addGenerics(nullCaller);
-
         // add generics
         if (!method.getTypeParamsMap().isEmpty()) {
             for (String typeName : method.getTypeParamsMap().keySet()) {
@@ -485,6 +551,9 @@ public class InstantiatorGenerator extends ClassGenerator {
             //nullCaller.generify(generateGenericsString(method.getTypeParamsMap()));
         }
 
+        // add generics of the instantiator to the method
+        addGenerics(caller);
+        addGenerics(nullCaller);
 
         // define method invocation
         JInvocation invocation;

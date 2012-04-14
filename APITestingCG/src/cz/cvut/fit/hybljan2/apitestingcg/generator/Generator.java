@@ -262,33 +262,6 @@ public abstract class Generator implements IAPIVisitor {
         }
     }
 
-    /**
-     * Finds class with given name and checks if the class has public modifier.
-     *
-     * @param name full class name
-     * @return true or false if class is public or not. If class is not found (it's not part of API), returns false
-     */
-    protected boolean isClassPublic(String name, APIClass currentClass) {
-        Set<String> classNames = JFormatter.getTypesList(name);
-        boolean result = true;
-        for (String className : classNames) {
-            try {
-                APIClass c = currentAPI.findClass(className);
-                if (!c.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
-                    result = false;
-                }
-            } catch (ClassNotFoundException e) {
-                try {
-                    APIClass nc = currentClass.getNestedClass(name);
-                    return nc.getModifiers().contains(APIModifier.Modifier.PUBLIC);
-                } catch (ClassNotFoundException e1) {
-                    System.err.println("isClassPublic() - Class not found: " + className);
-                }
-            }
-        }
-
-        return result;
-    }
 
     /**
      * Finds class with given name and checks if the class has public modifier.
@@ -297,6 +270,16 @@ public abstract class Generator implements IAPIVisitor {
      * @return true or false if class is public or not. If class is not found (it's not part of API), returns false
      */
     protected boolean isClassPublicOrProtected(String name, APIClass currentClass) {
+
+        if (name.equals("?")) {
+            return true;
+        }
+
+        for (String typeParam : currentClass.getTypeParamsMap().keySet()) {
+            if (name.equals(typeParam)) {
+                return true;
+            }
+        }
 
         Set<String> classNames = JFormatter.getTypesList(name);
         boolean result = true;
