@@ -121,9 +121,22 @@ public class InstantiatorGenerator extends ClassGenerator {
                 String instanceClassName = visitingClass.getFullName();
 
                 if (!visitingClass.getTypeParamsMap().isEmpty()) {
-                    instanceClassName += "<" + generateGenericsString(visitingClass.getTypeParamsMap()) + ">";
+                    if (!visitingClass.getTypeParamsMap().isEmpty()) {
+                        instanceClassName += "<";
+                        boolean first = true;
+                        for (String typeName : visitingClass.getTypeParamsMap().keySet()) {
+                            if (first) {
+                                instanceClassName += typeName;
+                                first = false;
+                            } else {
+                                instanceClassName += ", " + typeName;
+                            }
+                        }
+                        instanceClassName += "> ";
+                    }
                 }
                 JClass instanceClassRef = getGenericsClassRef(instanceClassName);
+
                 fieldsInstance = fieldsMethod.param(instanceClassRef, configuration.getInstanceIdentifier());
 
                 fieldsMethodBlock = fieldsMethod.body();
@@ -348,7 +361,7 @@ public class InstantiatorGenerator extends ClassGenerator {
     protected boolean isTypePublic(String type, Collection<String> genericClasses) {
         boolean result = true;
         // Split complex type to individual classes
-        Set<String> classNames = JFormatter.getTypesList(type);
+        Set<String> classNames = getTypesList(type);
         // check public accessibility of every single class
         for (String className : classNames) {
             // check if it's generic class or wildcard
@@ -535,19 +548,33 @@ public class InstantiatorGenerator extends ClassGenerator {
         JMethod nullCaller = cls.method(methodMods, returnType, nullCallerName);
 
         // add generics
-        if (!method.getTypeParamsMap().isEmpty()) {
+        if (visitingClass.getTypeParamsMap().isEmpty() && !method.getTypeParamsMap().isEmpty()) {
             for (String typeName : method.getTypeParamsMap().keySet()) {
-                JClass typeBound = getClassRef(method.getTypeParamsMap().get(typeName)[0]);
-                if (!typeBound.fullName().equals("java.lang.Object")) {
-                    caller.generify(typeName, typeBound);
-                    nullCaller.generify(typeName, typeBound);
-                } else {
-                    caller.generify(typeName);
-                    nullCaller.generify(typeName);
+                JTypeVar type = caller.generify(typeName);
+                JTypeVar ntype = nullCaller.generify(typeName);
+                for (String bound : method.getTypeParamsMap().get(typeName)) {
+                    JClass typeBound = getClassRef(bound);
+                    if (!bound.equals("java.lang.Object")) {
+                        type.bound(typeBound);
+                        ntype.bound(typeBound);
+                    }
                 }
             }
-            //caller.generify(generateGenericsString(method.getTypeParamsMap()));
-            //nullCaller.generify(generateGenericsString(method.getTypeParamsMap()));
+
+//
+//        if (!method.getTypeParamsMap().isEmpty()) {
+//            for (String typeName : method.getTypeParamsMap().keySet()) {
+//                JClass typeBound = getClassRef(method.getTypeParamsMap().get(typeName)[0]);
+//                if (!typeBound.fullName().equals("java.lang.Object")) {
+//                    caller.generify(typeName, typeBound);
+//                    nullCaller.generify(typeName, typeBound);
+//                } else {
+//                    caller.generify(typeName);
+//                    nullCaller.generify(typeName);
+//                }
+//            }
+//            //caller.generify(generateGenericsString(method.getTypeParamsMap()));
+//            //nullCaller.generify(generateGenericsString(method.getTypeParamsMap()));
         }
 
         // add generics of the instantiator to the method

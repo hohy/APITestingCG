@@ -12,9 +12,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -264,6 +262,20 @@ public abstract class Generator implements IAPIVisitor {
         }
     }
 
+    protected JClass getGenericsClassRef(String className, List<String> typeParams) {
+        if (className.endsWith("[]")) {
+            return getGenericsClassRef(className.substring(0, className.length() - 2), typeParams).array();
+        }
+
+        if (classMap.containsKey(className)) {
+            return classMap.get(className);
+        } else {
+            JClass classReference = cm.ref(className);
+            classMap.put(className, classReference);
+            return classReference;
+        }
+    }
+
     /**
      * Search current API for class with given name.
      *
@@ -278,5 +290,21 @@ public abstract class Generator implements IAPIVisitor {
     public static String simplifyName(String originalName) {
         if (originalName.contains(".")) return originalName.substring(originalName.lastIndexOf(".") + 1);
         return originalName;
+    }
+
+    public static Set<String> getTypesList(String typeString) {
+        Set<String> result = new HashSet<>();
+        typeString = typeString.replaceAll(">", "");
+        typeString = typeString.replaceAll("\\[", "");
+        typeString = typeString.replaceAll("\\]", "");
+        typeString = typeString.replaceAll("<", ",");
+        typeString = typeString.replaceAll("extends", ",");
+        typeString = typeString.replaceAll("super", ",");
+        String[] s1 = typeString.split(",");
+        for (String str1 : s1) {
+            String cleanName = str1.trim();
+            if (cleanName.length() > 0) result.add(cleanName);
+        }
+        return result;
     }
 }

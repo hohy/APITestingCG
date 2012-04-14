@@ -263,11 +263,12 @@ public class ExtenderGenerator extends ClassGenerator {
 
         if (visitingClass.getTypeParamsMap().isEmpty() && !method.getTypeParamsMap().isEmpty()) {
             for (String typeName : method.getTypeParamsMap().keySet()) {
-                JClass typeBound = getClassRef(method.getTypeParamsMap().get(typeName)[0]);
-                if (!typeBound.fullName().equals("java.lang.Object")) {
-                    mthd.generify(typeName, typeBound);
-                } else {
-                    mthd.generify(typeName);
+                JTypeVar type = mthd.generify(typeName);
+                for (String bound : method.getTypeParamsMap().get(typeName)) {
+                    JClass typeBound = getClassRef(bound);
+                    if (!bound.equals("java.lang.Object")) {
+                        type.bound(typeBound);
+                    }
                 }
             }
         }
@@ -336,7 +337,7 @@ public class ExtenderGenerator extends ClassGenerator {
     protected boolean isTypePublicOrProtected(String type, Collection<String> genericClasses) {
         boolean result = true;
         // Split complex type to individual classes
-        Set<String> classNames = JFormatter.getTypesList(type);
+        Set<String> classNames = getTypesList(type);
         // check public accessibility of every single class
         for (String className : classNames) {
             // check if it's generic class or wildcard
