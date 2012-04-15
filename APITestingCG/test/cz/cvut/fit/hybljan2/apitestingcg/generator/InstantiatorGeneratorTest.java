@@ -65,9 +65,9 @@ public class InstantiatorGeneratorTest {
         File resultFile = new File("output/tests/instantiator/test/lib/ClassAInstantiator.java");
         assertTrue(resultFile.exists());
 
-        //File expected = new File("testres/extender_exp/ClassAExtender.java");
+        File expected = new File("testres/instantiator_exp/ClassAInstantiator.java");
 
-        //FileAssert.assertEquals(expected, resultFile);
+        FileAssert.assertEquals(expected, resultFile);
 
     }
 
@@ -91,9 +91,9 @@ public class InstantiatorGeneratorTest {
         File resultFile = new File("output/tests/instantiator/test/lib/ConstructorsInstantiator.java");
         assertTrue(resultFile.exists());
 
-        //File expected = new File("testres/extender_exp/ClassAExtender.java");
+        File expected = new File("testres/instantiator_exp/ConstructorsInstantiator.java");
 
-        //FileAssert.assertEquals(expected, resultFile);
+        FileAssert.assertEquals(expected, resultFile);
 
     }
 

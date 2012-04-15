@@ -4,10 +4,10 @@ import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorJobConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ScannerConfiguration;
-import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
+import junitx.framework.FileAssert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -44,9 +44,6 @@ public class EnumGeneratorTest {
         TestUtils.delete(new File("output/tests/enum"));
     }
 
-    /**
-     * Test of generating simple constructor for extender class
-     */
     @Test
     public void TestPlanets() {
 
@@ -55,18 +52,14 @@ public class EnumGeneratorTest {
         job.setApiId("enum");
         job.setOutputDir("output/tests/enum");
         job.setOutputPackage("test.%s");
-        WhitelistRule r = new WhitelistRule();
-        r.setItem(WhitelistRule.RuleItem.INSTANTIATOR);
-        r.setRule("lib.Planet");
-        job.addWhitelistRule(r);
         generator.generate(api, job);
 
-        File resultFile = new File("output/tests/extender/test/lib/PlanetInstantiator.java");
+        File resultFile = new File("output/tests/enum/test/lib/PlanetInstantiator.java");
         assertTrue(resultFile.exists());
 
-        //File expected = new File("testres/extender_exp/ClassAExtender.java");
+        File expected = new File("testres/enum_exp/test/lib/PlanetInstantiator.java");
 
-        //FileAssert.assertEquals(expected, resultFile);
+        FileAssert.assertEquals(expected, resultFile);
 
     }
 }

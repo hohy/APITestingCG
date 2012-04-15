@@ -61,6 +61,7 @@ public class ExtenderGeneratorTest {
         r.setItem(WhitelistRule.RuleItem.EXTENDER);
         r.setRule("lib.ClassA.ClassA");
         job.addWhitelistRule(r);
+
         generator.generate(api, job);
 
         File resultFile = new File("output/tests/extender/test/lib/ClassAExtender.java");
@@ -89,9 +90,9 @@ public class ExtenderGeneratorTest {
         File resultFile = new File("output/tests/extender/test/lib/ClassBExtender.java");
         assertTrue(resultFile.exists());
 
-        //File expected = new File("testres/extender_exp/ClassBExtender.java");
+        File expected = new File("testres/extender_exp/ClassBExtender.java");
 
-        //FileAssert.assertEquals(expected, resultFile);
+        FileAssert.assertEquals(expected, resultFile);
 
     }
 
@@ -112,9 +113,9 @@ public class ExtenderGeneratorTest {
         File resultFile = new File("output/tests/extender/test/lib/BoxExtender.java");
         assertTrue(resultFile.exists());
 
-        //File expected = new File("testres/extender_exp/ClassBExtender.java");
+        File expected = new File("testres/extender_exp/BoxExtender.java");
 
-        //FileAssert.assertEquals(expected, resultFile);
+        FileAssert.assertEquals(expected, resultFile);
 
     }
 
@@ -135,9 +136,9 @@ public class ExtenderGeneratorTest {
         File resultFile = new File("output/tests/extender/test/lib/FieldsExtender.java");
         assertTrue(resultFile.exists());
 
-        //File expected = new File("testres/extender_exp/ClassBExtender.java");
+        File expected = new File("testres/extender_exp/FieldsExtender.java");
 
-        //FileAssert.assertEquals(expected, resultFile);
+        FileAssert.assertEquals(expected, resultFile);
 
     }
 
@@ -158,9 +159,9 @@ public class ExtenderGeneratorTest {
         File resultFile = new File("output/tests/extender/test/lib/AbstractClassExtender.java");
         assertTrue(resultFile.exists());
 
-        //File expected = new File("testres/extender_exp/ClassBExtender.java");
+        File expected = new File("testres/extender_exp/AbstractClassExtender.java");
 
-        //FileAssert.assertEquals(expected, resultFile);
+        FileAssert.assertEquals(expected, resultFile);
 
     }
 
@@ -179,11 +180,9 @@ public class ExtenderGeneratorTest {
         generator.generate(api, job);
 
         File resultFile = new File("output/tests/extender/test/lib/PrivateConstrExtender.java");
+
+        // Extender of a class with only private constructor can't be generated.
         assertFalse(resultFile.exists());
-
-        //File expected = new File("testres/extender_exp/ClassBExtender.java");
-
-        //FileAssert.assertEquals(expected, resultFile);
 
     }
 }

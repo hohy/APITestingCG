@@ -484,7 +484,7 @@ public class InstantiatorGenerator extends ClassGenerator {
 
         // add params to the method
         for (APIMethodParameter arg : constructor.getParameters()) {
-            result.param(getClassRef(arg.getType()), String.valueOf(arg.getName()));
+            result.param(getGenericsClassRef(arg.getType()), String.valueOf(arg.getName()));
             if (nullParams) {
                 newInstance.arg(getPrimitiveValue(arg.getType()));
             } else {
