@@ -88,7 +88,28 @@ public class AnnotationGeneratorTest {
         File expected = new File("testres/annotations_exp/test/lib/AnnotationType.java");
 
         FileAssert.assertEquals(expected, resultFile);
+    }
 
+
+    @Test
+    public void TestField() {
+        Generator generator = new AnnotationGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("annotations");
+        job.setOutputDir("output/tests/annotations/field");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.ALL);
+        r.setRule("lib.FieldAnnotation");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
+
+        File resultFile = new File("output/tests/annotations/field/test/lib/test/lib/FieldAnnotationAnnotation.java");
+        assertTrue(resultFile.exists());
+
+        File expected = new File("testres/annotations_exp/test/lib/FieldAnnotationAnnotation.java");
+
+        FileAssert.assertEquals(expected, resultFile);
     }
 
 }

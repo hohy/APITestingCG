@@ -16,8 +16,6 @@ import java.util.Arrays;
  */
 public class AnnotationGenerator extends ClassGenerator {
 
-    JDefinedClass noDefaultClass;
-
     public AnnotationGenerator(GeneratorConfiguration configuration) {
         super(configuration);
     }
@@ -47,8 +45,12 @@ public class AnnotationGenerator extends ClassGenerator {
             return;
         }
 
+        cls = null;
+
         // generate test class
         generateTestClass(apiClass, false);
+
+        cls = null;
 
         // check if any annotation param has defined default value. If it has, it has to be tested.
         for (APIMethod annotationParam : apiClass.getMethods()) {
@@ -81,7 +83,7 @@ public class AnnotationGenerator extends ClassGenerator {
 
             if (apiClass.getAnnotationTargets().contains(ElementType.FIELD)) {
                 initClass(className);
-                JFieldVar fld = cls.field(JMod.NONE, cm.INT, "annotatedField");
+                JFieldVar fld = cls.field(JMod.NONE, cm.INT, "annotatedField" + counter++);
                 annotate(fld, apiClass, setDefaultValues);
             }
 
