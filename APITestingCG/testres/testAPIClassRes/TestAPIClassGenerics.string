@@ -1,0 +1,2 @@
+public class testAPIClassRes.TestAPIClassGenerics <T java.util.Set & java.io.Serializable, X java.lang.Object>
+ public constructor testAPIClassRes.TestAPIClassGenerics TestAPIClassGenerics()

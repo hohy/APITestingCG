@@ -1,0 +1,35 @@
+public abstract class testAPIClassRes.TestAPIClassNestedClasses
+ public testAPIClassRes.TestAPIClassNestedClasses.ProtectedInnerClass prot
+ public testAPIClassRes.TestAPIClassNestedClasses.PublicInnerClass pub
+ public testAPIClassRes.TestAPIClassNestedClasses.PublicStaticNestedClass pubStat
+ public constructor testAPIClassRes.TestAPIClassNestedClasses TestAPIClassNestedClasses()
+ public method testAPIClassRes.TestAPIClassNestedClasses.ProtectedInnerClass protectedMethod()
+ public method testAPIClassRes.TestAPIClassNestedClasses.PublicInnerClass publicMethod()
+
+protected nested class testAPIClassRes.TestAPIClassNestedClasses.ProtectedInnerClass
+ protected int protectedInt
+ public int publicInt
+ public constructor testAPIClassRes.TestAPIClassNestedClasses.ProtectedInnerClass ProtectedInnerClass(int)
+ protected method void protectedMethod()
+ public method void publicMethod()
+
+protected static nested class testAPIClassRes.TestAPIClassNestedClasses.ProtectedStaticNestedClass
+ protected int protectedInt
+ public int publicInt
+ public constructor testAPIClassRes.TestAPIClassNestedClasses.ProtectedStaticNestedClass ProtectedStaticNestedClass(int)
+ protected method void protectedMethod()
+ public method void publicMethod()
+
+public nested class testAPIClassRes.TestAPIClassNestedClasses.PublicInnerClass
+ protected int protectedInt
+ public int publicInt
+ public constructor testAPIClassRes.TestAPIClassNestedClasses.PublicInnerClass PublicInnerClass(int)
+ protected method void protectedMethod()
+ public method void publicMethod()
+
+public static nested class testAPIClassRes.TestAPIClassNestedClasses.PublicStaticNestedClass
+ protected int protectedInt
+ public int publicInt
+ public constructor testAPIClassRes.TestAPIClassNestedClasses.PublicStaticNestedClass PublicStaticNestedClass(int)
+ protected method void protectedMethod()
+ public method void publicMethod()

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <api source="sourcecode">
+        <id>testlib src</id>
+        <name>Test Library</name>
+        <version>0.1</version>
+        <path>testres/configuration/lib-deprecated</path>
+        <classpath></classpath>
+        <sourceVersion>1.7</sourceVersion>
+    </api>
+
+    <generate>
+        <id>testlib src</id>
+        <output-directory>output/tests/deprecated</output-directory>
+        <output-package>all.%s</output-package>
+    </generate>
+
+    <generate>
+        <id>testlib src</id>
+        <output-directory>output/tests/deprecated</output-directory>
+        <output-package>nodeprecated.%s</output-package>
+        <skip-deprecated>true</skip-deprecated>
+    </generate>
+
+</configuration>
+
