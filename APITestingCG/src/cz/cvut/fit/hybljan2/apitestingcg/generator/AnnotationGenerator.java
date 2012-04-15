@@ -83,7 +83,7 @@ public class AnnotationGenerator extends ClassGenerator {
 
             if (apiClass.getAnnotationTargets().contains(ElementType.FIELD)) {
                 initClass(className);
-                JFieldVar fld = cls.field(JMod.NONE, cm.INT, "annotatedField" + counter++);
+                JFieldVar fld = cls.field(JMod.NONE, cm.INT, "annotatedField");
                 annotate(fld, apiClass, setDefaultValues);
             }
 
