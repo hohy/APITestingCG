@@ -1,11 +1,11 @@
-package test.lib;
 
-import lib.Methods;
+package test.lib;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import lib.Methods;
 
 public class MethodsInstantiator {
 

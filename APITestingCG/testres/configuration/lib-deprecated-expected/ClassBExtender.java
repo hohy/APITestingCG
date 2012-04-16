@@ -1,3 +1,4 @@
+
 package nodeprecated.lib;
 
 import lib.ClassB;

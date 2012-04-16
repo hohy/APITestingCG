@@ -1,9 +1,9 @@
-package test.lib;
 
-import lib.ClassB;
+package test.lib;
 
 import java.io.File;
 import java.io.IOException;
+import lib.ClassB;
 
 public class ClassBExtender extends ClassB {
 

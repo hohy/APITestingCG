@@ -1,3 +1,4 @@
+
 package test.lib;
 
 import lib.Generic1;
@@ -6,7 +7,7 @@ public class Generic1Instantiator {
 
 
     public <T> Generic1<T> createGeneric1(T t) {
-        return new Generic1<>(t);
+        return new Generic1<> (t);
     }
 
     public <T> T getValue(Generic1<T> instance) {

@@ -1,1 +1,2 @@
-@lib.PackageAnnotation package test.lib.annotatedPackage;
+@lib.PackageAnnotation
+package test.lib.annotatedPackage;

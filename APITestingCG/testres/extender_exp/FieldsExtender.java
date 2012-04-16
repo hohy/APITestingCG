@@ -1,9 +1,9 @@
+
 package test.lib;
 
+import java.io.File;
 import lib.ClassA;
 import lib.Fields;
-
-import java.io.File;
 
 public class FieldsExtender extends Fields {
 

@@ -1,9 +1,9 @@
-package test.lib;
 
-import lib.ClassA;
+package test.lib;
 
 import java.io.File;
 import java.util.List;
+import lib.ClassA;
 
 public class ClassAInstantiator {
 
