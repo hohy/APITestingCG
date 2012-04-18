@@ -6,7 +6,7 @@ import lib.GenericMethod1;
 public class GenericMethod1Instantiator {
 
 
-    public <T extends Number> GenericMethod1 createGenericMethod1() {
+    public GenericMethod1 createGenericMethod1() {
         return new GenericMethod1();
     }
 

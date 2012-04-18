@@ -79,11 +79,12 @@ public class ExtenderGenerator extends ClassGenerator {
 
             if (!apiClass.getTypeParamsMap().isEmpty()) {
                 for (String typeName : apiClass.getTypeParamsMap().keySet()) {
-                    JClass typeBound = getClassRef(apiClass.getTypeParamsMap().get(typeName)[0]);
-                    if (!typeBound.fullName().equals("java.lang.Object")) {
-                        cls.generify(typeName, typeBound);
-                    } else {
-                        cls.generify(typeName);
+                    JTypeVar type = cls.generify(typeName);
+                    for (String bound : visitingClass.getTypeParamsMap().get(typeName)) {
+                        JClass typeBound = getClassRef(bound);
+                        if(!bound.equals("java.lang.Object")) {
+                            type.bound(typeBound);
+                        }
                     }
                 }
             }
@@ -369,6 +370,8 @@ public class ExtenderGenerator extends ClassGenerator {
             if (c.getModifiers().contains(APIModifier.Modifier.PUBLIC)
                     || (c.getModifiers().contains(APIModifier.Modifier.PROTECTED))) {
                 return true;
+            } else {
+                return false;
             }
         } catch (ClassNotFoundException e) {
             try {

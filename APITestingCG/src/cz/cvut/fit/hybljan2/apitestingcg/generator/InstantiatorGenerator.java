@@ -21,8 +21,6 @@ public class InstantiatorGenerator extends ClassGenerator {
         super(configuration);
     }
 
-    Map<String, JClass> instantiatorTypeParamsMap = null;
-
     @Override
     public void visit(APIClass apiClass) {
 
@@ -54,21 +52,6 @@ public class InstantiatorGenerator extends ClassGenerator {
             String className = generateName(configuration.getInstantiatorClassIdentifier(), apiClass.getName());
             cls = declareNewClass(JMod.PUBLIC, currentPackageName, className, visitingClass.isNested());
 
-            // add generics
-            if (!apiClass.getTypeParamsMap().isEmpty()) {
-                instantiatorTypeParamsMap = new HashMap<>();
-                for (String typeName : apiClass.getTypeParamsMap().keySet()) {
-                    JClass typeBound = getClassRef(apiClass.getTypeParamsMap().get(typeName)[0]);
-                    if (!typeBound.fullName().equals("java.lang.Object")) {
-                        //cls.generify(typeName, typeBound);
-                        instantiatorTypeParamsMap.put(typeName, typeBound);
-                    } else {
-                        //cls.generify(typeName);
-                        instantiatorTypeParamsMap.put(typeName, null);
-                    }
-                }
-            }
-
             // visit all constructors, if class isn't abstract
             if (!visitingClass.getModifiers().contains(APIModifier.Modifier.ABSTRACT)) {
                 for (APIMethod constructor : apiClass.getConstructors()) {
@@ -82,7 +65,8 @@ public class InstantiatorGenerator extends ClassGenerator {
 
                 // find first public constructor and use it for creating new instance.
                 for (APIMethod constructor : apiClass.getConstructors()) {
-                    if (constructor.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
+                    if (constructor.getModifiers().contains(APIModifier.Modifier.PUBLIC) &&
+                            (!constructor.isDepreacated() || !jobConfiguration.isSkipDeprecated())) {
                         String name = generateName(configuration.getCreateSuperInstanceIdentifier(), apiClass.getExtending());
                         addCreateInstanceMethod(apiClass.getExtending(), name, constructor, false);
                         break;
@@ -98,7 +82,8 @@ public class InstantiatorGenerator extends ClassGenerator {
 
                 // find first public constructor and use it for creating new instances of all implemented interfaces.
                 for (APIMethod constructor : apiClass.getConstructors()) {
-                    if (constructor.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
+                    if (constructor.getModifiers().contains(APIModifier.Modifier.PUBLIC) &&
+                            (!constructor.isDepreacated() || !jobConfiguration.isSkipDeprecated())) {
                         for (String implementing : apiClass.getImplementing()) {
                             String name = generateName(configuration.getCreateSuperInstanceIdentifier(), implementing);
                             addCreateInstanceMethod(implementing, name, constructor, false);
@@ -169,6 +154,11 @@ public class InstantiatorGenerator extends ClassGenerator {
      * @param constructor
      */
     public void visitConstructor(APIMethod constructor) {
+
+        if (constructor.isDepreacated() && jobConfiguration.isSkipDeprecated()) {
+            return;
+        }
+
         // Check if constructor is enabled in job configuration.
         if (!isEnabled(methodSignature(constructor, visitingClass.getFullName()), WhitelistRule.RuleItem.INSTANTIATOR)) {
             return;
@@ -411,8 +401,8 @@ public class InstantiatorGenerator extends ClassGenerator {
 
 
     private void addGenerics(JGenerifiable item) {
-        if (instantiatorTypeParamsMap != null) {
-            for (String typeName : instantiatorTypeParamsMap.keySet()) {
+        if (!visitingClass.getTypeParamsMap().isEmpty()) {
+            for (String typeName : visitingClass.getTypeParamsMap().keySet()) {
 
                 boolean alreadyDefined = false;
                 for (JTypeVar typeVar : item.typeParams()) {
@@ -423,13 +413,15 @@ public class InstantiatorGenerator extends ClassGenerator {
                 }
 
                 if (!alreadyDefined) {
-                    JClass typeBound = instantiatorTypeParamsMap.get(typeName);
-                    if (typeBound != null) {
-                        item.generify(typeName, typeBound);
-                    } else {
-                        item.generify(typeName);
+                    
+                    JTypeVar type = item.generify(typeName);
+                        for (String bound : visitingClass.getTypeParamsMap().get(typeName)) {
+                            JClass typeBound = getClassRef(bound);
+                            if(!bound.equals("java.lang.Object")) {
+                                type.bound(typeBound);
+                            }
+                        }
                     }
-                }
             }
         }
     }
