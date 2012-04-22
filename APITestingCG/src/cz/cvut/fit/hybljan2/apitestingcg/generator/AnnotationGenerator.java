@@ -119,6 +119,7 @@ public class AnnotationGenerator extends ClassGenerator {
                 annotate(annotation, apiClass, setDefaultValues);
             }
 
+
             if (apiClass.getAnnotationTargets().contains(ElementType.PACKAGE)) {
                 String packageName = setDefaultValues ? currentPackageName + ".annotatedPackageDV" : currentPackageName + ".annotatedPackage";
                 JPackage a = cm._package(packageName);

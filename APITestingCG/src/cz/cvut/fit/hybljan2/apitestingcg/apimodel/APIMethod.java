@@ -25,7 +25,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
     private String returnType;
     private List<String> thrown;
     private String annotationDefaultValue;
-    private Map<String, String[]> typeParamsMap = new TreeMap<String, String[]>();
+    private Map<String, String[]> typeParamsMap = new LinkedHashMap<>();
 
     public APIMethod(String name, List<Modifier> modifiers, List<String> params, String returnType, List<String> thrown) {
         this.name = name;
@@ -50,7 +50,6 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         }
 
         name = jcmd.name.toString();
-
         if (jcmd.typarams.size() > 0) {
 
             // gets all type params

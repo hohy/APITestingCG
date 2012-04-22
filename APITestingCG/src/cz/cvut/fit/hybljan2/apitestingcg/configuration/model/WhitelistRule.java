@@ -12,6 +12,14 @@ import javax.xml.bind.annotation.*;
 @XmlRootElement(name = "whitelist")
 public class WhitelistRule {
 
+    public WhitelistRule() {
+    }
+
+    public WhitelistRule(String rule) {
+        item = RuleItem.ALL;
+        this.rule = rule;
+    }
+
     @XmlEnum
     public enum RuleItem {
         @XmlEnumValue("extender")

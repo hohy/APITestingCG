@@ -81,7 +81,7 @@ public class ExtenderGenerator extends ClassGenerator {
                 for (String typeName : apiClass.getTypeParamsMap().keySet()) {
                     JTypeVar type = cls.generify(typeName);
                     for (String bound : visitingClass.getTypeParamsMap().get(typeName)) {
-                        JClass typeBound = getClassRef(bound);
+                        JClass typeBound = getGenericsClassRef(bound);
                         if(!bound.equals("java.lang.Object")) {
                             type.bound(typeBound);
                         }
@@ -137,6 +137,19 @@ public class ExtenderGenerator extends ClassGenerator {
         // define body of the constructor. Body contains only super(...) call.
         JBlock body = constr.body();
         JInvocation superInv = body.invoke("super");
+
+        // add generic types
+        if (visitingClass.getTypeParamsMap().isEmpty() && !constructor.getTypeParamsMap().isEmpty()) {
+            for (String typeName : constructor.getTypeParamsMap().keySet()) {
+                JTypeVar type = constr.generify(typeName);
+                for (String bound : constructor.getTypeParamsMap().get(typeName)) {
+                    JClass typeBound = getClassRef(bound);
+                    if (!bound.equals("java.lang.Object")) {
+                        type.bound(typeBound);
+                    }
+                }
+            }
+        }
 
         // define params of the constructor.
         for (APIMethodParameter param : constructor.getParameters()) {

@@ -471,6 +471,19 @@ public class InstantiatorGenerator extends ClassGenerator {
             newInstance = JExpr._new(getGenericsClassRef(visitingClass.getFullName() + typeParam));
         }
 
+        // add generics
+        if (visitingClass.getTypeParamsMap().isEmpty() && !constructor.getTypeParamsMap().isEmpty()) {
+            for (String typeName : constructor.getTypeParamsMap().keySet()) {
+                JTypeVar type = result.generify(typeName);
+                for (String bound : constructor.getTypeParamsMap().get(typeName)) {
+                    JClass typeBound = getClassRef(bound);
+                    if (!bound.equals("java.lang.Object")) {
+                        type.bound(typeBound);
+                    }
+                }
+            }
+        }
+
         // add generics of the instantiator to the method
         addGenerics(result);
 
@@ -552,21 +565,6 @@ public class InstantiatorGenerator extends ClassGenerator {
                     }
                 }
             }
-
-//
-//        if (!method.getTypeParamsMap().isEmpty()) {
-//            for (String typeName : method.getTypeParamsMap().keySet()) {
-//                JClass typeBound = getClassRef(method.getTypeParamsMap().get(typeName)[0]);
-//                if (!typeBound.fullName().equals("java.lang.Object")) {
-//                    caller.generify(typeName, typeBound);
-//                    nullCaller.generify(typeName, typeBound);
-//                } else {
-//                    caller.generify(typeName);
-//                    nullCaller.generify(typeName);
-//                }
-//            }
-//            //caller.generify(generateGenericsString(method.getTypeParamsMap()));
-//            //nullCaller.generify(generateGenericsString(method.getTypeParamsMap()));
         }
 
         // add generics of the instantiator to the method
