@@ -142,6 +142,74 @@ public class GenericsTypesTest {
         
     }
 
+    @Test
+    public void TestGenerics10() {
+
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("annotations");
+        job.setOutputDir("output/tests/generics");
+        job.setOutputPackage("test.%s");
+        job.addWhitelistRule(new WhitelistRule("lib.Generic10"));
+        igenerator.generate(api, job);
+        egenerator.generate(api, job);
+        File resultFile = new File("output/tests/generics/test/lib/Generic10Instantiator.java");
+        assertTrue(resultFile.exists());
+        File expected = new File("testres/generics_exp/test/lib/Generic10Instantiator.java");
+        FileAssert.assertEquals(expected, resultFile);
+
+
+        resultFile = new File("output/tests/generics/test/lib/Generic10Extender.java");
+        assertTrue(resultFile.exists());
+        expected = new File("testres/generics_exp/test/lib/Generic10Extender.java");
+        FileAssert.assertEquals(expected, resultFile);
+
+    }
+
+    @Test
+    public void TestGenerics12() {
+
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("annotations");
+        job.setOutputDir("output/tests/generics");
+        job.setOutputPackage("test.%s");
+        job.addWhitelistRule(new WhitelistRule("lib.Generic12"));
+        egenerator.generate(api, job);
+        File resultFile = new File("output/tests/generics/test/lib/Generic12Instantiator.java");
+        assertTrue(resultFile.exists());
+        File expected = new File("testres/generics_exp/test/lib/Generic12Instantiator.java");
+        FileAssert.assertEquals(expected, resultFile);
+
+
+        resultFile = new File("output/tests/generics/test/lib/Generic12Extender.java");
+        assertTrue(resultFile.exists());
+        expected = new File("testres/generics_exp/test/lib/Generic12Extender.java");
+        FileAssert.assertEquals(expected, resultFile);
+
+    }
+
+    @Test
+    public void TestGenerics17() {
+
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("annotations");
+        job.setOutputDir("output/tests/generics");
+        job.setOutputPackage("test.%s");
+        job.addWhitelistRule(new WhitelistRule("lib.Generic17"));
+        egenerator.generate(api, job);
+        File resultFile = new File("output/tests/generics/test/lib/Generic17Instantiator.java");
+        assertTrue(resultFile.exists());
+        File expected = new File("testres/generics_exp/test/lib/Generic17Instantiator.java");
+        FileAssert.assertEquals(expected, resultFile);
+
+
+        resultFile = new File("output/tests/generics/test/lib/Generic17Extender.java");
+        assertTrue(resultFile.exists());
+        expected = new File("testres/generics_exp/test/lib/Generic17Extender.java");
+        FileAssert.assertEquals(expected, resultFile);
+
+    }
+
+
 
     @Test
     public void TestGenericsMethod1() {
