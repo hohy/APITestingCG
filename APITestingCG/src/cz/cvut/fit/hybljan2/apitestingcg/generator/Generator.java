@@ -27,6 +27,26 @@ public abstract class Generator implements IAPIVisitor {
 
     protected JCodeModel cm;
     private Map<String, JClass> classMap;
+    private Map<String, ClassReference> classReferenceMap;
+
+    private class ClassReference {
+        private APIModifier accessModifier;
+        private JClass refence;
+
+        public ClassReference(JClass reference, APIModifier accessModifier) {
+            this.refence = reference;
+            this.accessModifier = accessModifier;
+        }
+
+        public APIModifier getAccessModifier() {
+            return accessModifier;
+        }
+
+        public JClass getRefence() {
+            return refence;
+        }
+    }
+
     private API currentAPI;
 
     // defines package name for currently generated package content
@@ -39,7 +59,7 @@ public abstract class Generator implements IAPIVisitor {
     public void generate(API api, GeneratorJobConfiguration job) {
         jobConfiguration = job;
         cm = new JCodeModel();
-        classMap = new HashMap<String, JClass>();
+        classMap = new HashMap<>();
         currentAPI = api;
         // create directory for package
         File outputDir = new File(jobConfiguration.getOutputDir());
@@ -222,13 +242,40 @@ public abstract class Generator implements IAPIVisitor {
         return "null";
     }
 
+    /**
+     * 
+     * @param type
+     * @return
+     */
     protected JClass getTypeRef(APIType type) {
-        try {
-            APIClass cls = currentAPI.findClass(type.getName());
-        } catch (ClassNotFoundException e) {
+        // get reference to a base class of the type
+        JClass typeReference = null;
+        if(classReferenceMap.containsKey(type.getName())) {
+            typeReference = classReferenceMap.get(type.getName()).getRefence();
+        } else {
+            try {
+                APIClass cls = currentAPI.findClass(type.getName());
+                APIModifier accessModifier = APIModifier.PRIVATE;
+                
+                if (cls.getModifiers().contains(APIModifier.PUBLIC)) {
+                    accessModifier = APIModifier.PUBLIC;
+                } else if (cls.getModifiers().contains(APIModifier.PROTECTED)) {
+                    accessModifier = APIModifier.PROTECTED;
+                }
+                
+                typeReference = cm.ref(type.getName());
+                
+                classReferenceMap.put(type.getName(), new ClassReference(typeReference, accessModifier));
+            } catch (ClassNotFoundException e) {
+            }            
+        }
+        
+        // get references to the type argument classes
+        for(APIType typeArgument : type.getTypeArgs()) {
+            typeReference.narrow(getTypeRef(typeArgument));
         }
 
-        return cm.ref(type.getName());
+        return typeReference;
     }
 
     protected JClass getClassRef(String className) {

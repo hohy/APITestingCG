@@ -47,7 +47,10 @@ public class APIType {
     }
 
     public APIType(Type type) {
-        this.name = type.toString();
+        this.name = type.tsym.flatName().toString();
+        for(Type typeParam : type.getTypeArguments()) {
+            addTypeParameter(new APIType(typeParam));
+        }
     }
 
     public APIType(java.lang.reflect.Type type) {

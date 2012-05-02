@@ -16,13 +16,13 @@ public class API extends APIItem {
 
     public API(String name) {
         super.name = name;
-        packages = new TreeSet<APIPackage>();
+        packages = new TreeSet<>();
         version = "";
     }
 
     public API(String name, String version) {
         super.name = name;
-        packages = new TreeSet<APIPackage>();
+        packages = new TreeSet<>();
         this.version = version;
     }
 
