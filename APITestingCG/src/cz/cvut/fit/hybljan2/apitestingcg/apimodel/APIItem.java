@@ -1,7 +1,5 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashSet;
@@ -13,7 +11,7 @@ import java.util.Set;
  */
 public abstract class APIItem {
     protected String name;
-    protected List<Modifier> modifiers;
+    protected List<APIModifier> modifiers;
     protected boolean depreacated;
     protected Kind kind;
 
@@ -32,11 +30,11 @@ public abstract class APIItem {
         this.name = name;
     }
 
-    public List<Modifier> getModifiers() {
+    public List<APIModifier> getModifiers() {
         return modifiers;
     }
 
-    public void setModifiers(List<Modifier> modifiers) {
+    public void setModifiers(List<APIModifier> modifiers) {
         this.modifiers = modifiers;
     }
 

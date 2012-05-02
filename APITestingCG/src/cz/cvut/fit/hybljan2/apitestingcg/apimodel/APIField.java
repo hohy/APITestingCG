@@ -1,7 +1,6 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericSignatureFormatError;
@@ -11,7 +10,7 @@ import java.util.List;
  * @author Jan Hýbl
  */
 public class APIField extends APIItem implements Comparable<APIField> {
-    private String varType;
+    private APIType varType;
 
     /**
      * Constructor used in unit testing.
@@ -20,8 +19,8 @@ public class APIField extends APIItem implements Comparable<APIField> {
      * @param name
      * @param modifiers
      */
-    public APIField(String varType, String name, List<Modifier> modifiers) {
-        this.varType = varType;
+    public APIField(String varType, String name, List<APIModifier> modifiers) {
+        this.varType = new APIType(varType);
         this.modifiers = modifiers;
         this.name = name;
         this.kind = Kind.VARIABLE;
@@ -34,7 +33,7 @@ public class APIField extends APIItem implements Comparable<APIField> {
      */
     public APIField(JCVariableDecl jcvd) {
         this.name = jcvd.name.toString();
-        this.varType = jcvd.type.toString();
+        this.varType = new APIType(jcvd.type);
         this.modifiers = APIModifier.getModifiersSet(jcvd.getModifiers().getFlags());
         this.kind = getKind(jcvd.getKind());
 
@@ -42,12 +41,12 @@ public class APIField extends APIItem implements Comparable<APIField> {
 
     public APIField(JCVariableDecl jcvd, boolean constant) {
         this.name = jcvd.name.toString();
-        this.varType = jcvd.type.toString();//.tsym.flatName().toString();
+        this.varType = new APIType(jcvd.type);
         this.modifiers = APIModifier.getModifiersSet(jcvd.getModifiers().getFlags());
         if (constant) {
-            modifiers.add(Modifier.PUBLIC);
-            modifiers.add(Modifier.FINAL);
-            modifiers.add(Modifier.STATIC);
+            modifiers.add(APIModifier.PUBLIC);
+            modifiers.add(APIModifier.FINAL);
+            modifiers.add(APIModifier.STATIC);
         }
         this.kind = getKind(jcvd.getKind());
 
@@ -60,12 +59,7 @@ public class APIField extends APIItem implements Comparable<APIField> {
      */
     public APIField(Field f) {
         this.name = f.getName();
-        try {
-            this.varType = getTypeName(f.getGenericType());
-        } catch (GenericSignatureFormatError x) {
-            System.err.println(x);
-            this.varType = f.getType().getCanonicalName();
-        }
+        this.varType = new APIType(f.getGenericType());
         this.modifiers = APIModifier.getModifiersSet(f.getModifiers());
         this.kind = Kind.VARIABLE;
         if (f.getAnnotation(java.lang.Deprecated.class) != null) {
@@ -86,18 +80,14 @@ public class APIField extends APIItem implements Comparable<APIField> {
         if (isDepreacated()) {
             sb.append("Deprecated").append(' ');
         }
-        for (Modifier m : modifiers) sb.append(m).append(' ');
+        for (APIModifier m : modifiers) sb.append(m).append(' ');
         sb.append(varType).append(' ');
         sb.append(name);
         return sb.toString();
     }
 
-    public String getVarType() {
+    public APIType getVarType() {
         return varType;
-    }
-
-    public void setVarType(String varType) {
-        this.varType = varType;
     }
 
     /**

@@ -34,7 +34,7 @@ public class ExtenderGenerator extends ClassGenerator {
         }
 
         //  check if tested class is not final
-        if (apiClass.getModifiers().contains(APIModifier.Modifier.FINAL)) {
+        if (apiClass.getModifiers().contains(APIModifier.FINAL)) {
             return;
         }
 
@@ -45,8 +45,8 @@ public class ExtenderGenerator extends ClassGenerator {
         }
 
         // code can be generated only for public or protected classes.
-        if (!(apiClass.getModifiers().contains(APIModifier.Modifier.PUBLIC)
-                || apiClass.getModifiers().contains(APIModifier.Modifier.PROTECTED))) {
+        if (!(apiClass.getModifiers().contains(APIModifier.PUBLIC)
+                || apiClass.getModifiers().contains(APIModifier.PROTECTED))) {
             return;
         }
 
@@ -59,7 +59,7 @@ public class ExtenderGenerator extends ClassGenerator {
         try {
             visitingClass = apiClass;
             int classMods = 0;
-            if (visitingClass.getModifiers().contains(APIModifier.Modifier.ABSTRACT)
+            if (visitingClass.getModifiers().contains(APIModifier.ABSTRACT)
                     || apiClass.getType() == APIItem.Kind.INTERFACE) {
                 classMods = JMod.PUBLIC | JMod.ABSTRACT;
             } else if (!visitingClass.isNested()) {
@@ -181,30 +181,30 @@ public class ExtenderGenerator extends ClassGenerator {
         // Type of the field has to be public or protected class
         try {
             APIClass type = findClass(apiField.getVarType());
-            if (!(type.getModifiers().contains(APIModifier.Modifier.PUBLIC)
-                    || type.getModifiers().contains(APIModifier.Modifier.PROTECTED))) {
+            if (!(type.getModifiers().contains(APIModifier.PUBLIC)
+                    || type.getModifiers().contains(APIModifier.PROTECTED))) {
                 return;
             }
         } catch (ClassNotFoundException e) {
         }
-        if (apiField.getModifiers().contains(APIModifier.Modifier.FINAL)) { // Final fields
+        if (apiField.getModifiers().contains(APIModifier.FINAL)) { // Final fields
             // original field
             JFieldRef fld;
-            if (apiField.getModifiers().contains(APIModifier.Modifier.STATIC)) {
+            if (apiField.getModifiers().contains(APIModifier.STATIC)) {
                 fld = getGenericsClassRef(visitingClass.getFullName()).staticRef(apiField.getName());
             } else {
                 fld = JExpr._super().ref(apiField.getName());
             }
             // create new local variable and assing original value to it
-            fieldsMethodBlock.decl(getGenericsClassRef(apiField.getVarType()), apiField.getName(), fld);
+            fieldsMethodBlock.decl(getTypeRef(apiField.getVarType()), apiField.getName(), fld);
         } else {
             // create new field of same type as original
             String fldName = generateName(configuration.getFieldTestVariableIdentifier(), apiField.getName());
-            JClass typeRef = getGenericsClassRef(apiField.getVarType());
+            JClass typeRef = getTypeRef(apiField.getVarType());
             /*if (apiField.getVarType().contains("$")) {
                 typeRef = getClassRef(apiField.getVarType().substring(apiField.getVarType().indexOf('$') + 1));
             } */
-            JVar var = fieldsMethodBlock.decl(typeRef, fldName, getPrimitiveValue(apiField.getVarType()));
+            JVar var = fieldsMethodBlock.decl(typeRef, fldName, getPrimitiveValue(apiField.getVarType().getName()));
             fieldsMethodBlock.assign(JExpr.ref(apiField.getName()), var);
         }
         //fieldsMethodBlock.directStatement(" ");
@@ -219,18 +219,18 @@ public class ExtenderGenerator extends ClassGenerator {
         }
 
         // Extender can't override final methods
-        if (method.getModifiers().contains(APIModifier.Modifier.FINAL)) {
+        if (method.getModifiers().contains(APIModifier.FINAL)) {
             return;
         }
 
         // Extender can't override static methods
-        if (method.getModifiers().contains(APIModifier.Modifier.STATIC)) {
+        if (method.getModifiers().contains(APIModifier.STATIC)) {
             return;
         }
 
         // only public or protected method can be tested by extender
-        if (!(method.getModifiers().contains(APIModifier.Modifier.PUBLIC)
-                || method.getModifiers().contains(APIModifier.Modifier.PROTECTED))) {
+        if (!(method.getModifiers().contains(APIModifier.PUBLIC)
+                || method.getModifiers().contains(APIModifier.PROTECTED))) {
             return;
         }
 
@@ -380,8 +380,8 @@ public class ExtenderGenerator extends ClassGenerator {
 
         try {
             APIClass c = findClass(name);
-            if (c.getModifiers().contains(APIModifier.Modifier.PUBLIC)
-                    || (c.getModifiers().contains(APIModifier.Modifier.PROTECTED))) {
+            if (c.getModifiers().contains(APIModifier.PUBLIC)
+                    || (c.getModifiers().contains(APIModifier.PROTECTED))) {
                 return true;
             } else {
                 return false;
@@ -389,8 +389,8 @@ public class ExtenderGenerator extends ClassGenerator {
         } catch (ClassNotFoundException e) {
             try {
                 APIClass nc = visitingClass.getNestedClass(name);
-                return (nc.getModifiers().contains(APIModifier.Modifier.PUBLIC)
-                        || (nc.getModifiers().contains(APIModifier.Modifier.PROTECTED)));
+                return (nc.getModifiers().contains(APIModifier.PUBLIC)
+                        || (nc.getModifiers().contains(APIModifier.PROTECTED)));
             } catch (ClassNotFoundException e1) {
                 System.err.println("isClassPublicOrProtected() - Class not found: " + name);
             }

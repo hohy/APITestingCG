@@ -41,7 +41,7 @@ public class AnnotationGenerator extends ClassGenerator {
         }
 
         // only public classes can be tested.
-        if (!apiClass.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
+        if (!apiClass.getModifiers().contains(APIModifier.PUBLIC)) {
             return;
         }
 

@@ -2,6 +2,8 @@ package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
 import com.sun.codemodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIClass;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIField;
+import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 
 import java.util.Map;
@@ -14,10 +16,22 @@ import java.util.Stack;
  * Time: 14:11
  */
 public abstract class ClassGenerator extends Generator {
-
+    /**
+     * Code model of the generated class.
+     */
     protected JDefinedClass cls;
+
+    /**
+     * Stack of generated classes. Used for generating of the nested classes.
+     */
     protected Stack<JDefinedClass> classStack = new Stack<>();
+
+    /**
+     * Class from the scanned API that is currently processed.
+     */
     protected APIClass visitingClass;
+
+
     protected JBlock fieldsMethodBlock;
     protected JExpression fieldsInstance;
 

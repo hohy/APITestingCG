@@ -1,6 +1,5 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import org.junit.*;
 
@@ -106,16 +105,16 @@ public class APIMethodTest {
     @Test
     public void testEquals() {
         APIMethod instance = testInstaces[0];
-        List<Modifier> pubmod = new LinkedList<Modifier>();
-        pubmod.add(Modifier.PUBLIC);
+        List<APIModifier> pubmod = new LinkedList<>();
+        pubmod.add(APIModifier.PUBLIC);
         List<String> thrown = new LinkedList<String>();
         APIMethod obj = new APIMethod("methodA", pubmod, new LinkedList<String>(), "void", thrown);
         boolean result = instance.equals(obj);
         boolean expResults = true;
         assertEquals(expResults, result);
         instance = testInstaces[1];
-        pubmod.add(Modifier.STATIC);
-        pubmod.add(Modifier.FINAL);
+        pubmod.add(APIModifier.STATIC);
+        pubmod.add(APIModifier.FINAL);
         List<String> params = new LinkedList<String>();
         params.add("int");
         params.add("int");
@@ -124,7 +123,7 @@ public class APIMethodTest {
         assertEquals(expResults, result);
         instance = testInstaces[2];
         pubmod.clear();
-        pubmod.add(Modifier.PROTECTED);
+        pubmod.add(APIModifier.PROTECTED);
         params.clear();
         params.add("java.util.List");
         params.add("float");
@@ -145,7 +144,7 @@ public class APIMethodTest {
         expResults = true;
         instance = testInstaces[3];
         pubmod.clear();
-        pubmod.add(Modifier.PUBLIC);
+        pubmod.add(APIModifier.PUBLIC);
         params.clear();
         thrown.add("java.lang.Exception");
         obj = new APIMethod("methodD", pubmod, params, "void", thrown);

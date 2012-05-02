@@ -1,5 +1,11 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
+import com.sun.tools.javac.code.Type;
+
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,6 +36,7 @@ public class APIType {
      */
     private boolean array = false;
 
+    private APIModifier accessModifier = APIModifier.UNSET;
     public APIType(String name) {
         this.name = name;
     }
@@ -37,6 +44,30 @@ public class APIType {
     public APIType(String name, boolean array) {
         this.name = name;
         this.array = array;
+    }
+
+    public APIType(Type type) {
+        this.name = type.toString();
+    }
+
+    public APIType(java.lang.reflect.Type type) {
+
+    }
+
+    public APIType(GenericArrayType type) {
+
+    }
+
+    public APIType(ParameterizedType type) {
+
+    }
+
+    public APIType(TypeVariable type) {
+
+    }
+
+    public APIType(WildcardType type) {
+
     }
 
     public void addTypeParameter(APIType param) {

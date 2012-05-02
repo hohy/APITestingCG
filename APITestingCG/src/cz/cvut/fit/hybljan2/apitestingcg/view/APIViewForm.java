@@ -8,7 +8,7 @@ package cz.cvut.fit.hybljan2.apitestingcg.view;
 
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIItem.Kind;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
+
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -116,7 +116,7 @@ public class APIViewForm extends javax.swing.JFrame {
         JLabel modifiersLabel = new JLabel();
         if (item.getModifiers() != null) {
             StringBuilder mods = new StringBuilder("Modifiers:");
-            for (Modifier m : item.getModifiers()) mods.append(' ').append(m.toString());
+            for (APIModifier m : item.getModifiers()) mods.append(' ').append(m.toString());
             modifiersLabel.setText(mods.toString());
         }
         contentPanel.add(itemTypeLabel);

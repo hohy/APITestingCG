@@ -5,7 +5,6 @@ import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -27,7 +26,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
     private String annotationDefaultValue;
     private Map<String, String[]> typeParamsMap = new LinkedHashMap<>();
 
-    public APIMethod(String name, List<Modifier> modifiers, List<String> params, String returnType, List<String> thrown) {
+    public APIMethod(String name, List<APIModifier> modifiers, List<String> params, String returnType, List<String> thrown) {
         this.name = name;
         this.kind = Kind.METHOD;
         this.modifiers = modifiers;
@@ -224,7 +223,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        for (Modifier m : modifiers) sb.append(m).append(' ');
+        for (APIModifier m : modifiers) sb.append(m).append(' ');
 
         if (!kind.equals(Kind.CONSTRUCTOR)) {
             sb.append("method ");

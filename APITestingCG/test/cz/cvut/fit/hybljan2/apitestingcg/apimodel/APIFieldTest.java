@@ -4,7 +4,6 @@
  */
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import org.junit.*;
 
@@ -69,14 +68,14 @@ public class APIFieldTest {
         System.out.println("equals");
         boolean expResult = true;
 
-        List<Modifier> modifiersA = new LinkedList<Modifier>();
-        List<Modifier> modifiersB = new LinkedList<Modifier>();
-        modifiersA.add(Modifier.PUBLIC);
-        modifiersA.add(Modifier.FINAL);
-        modifiersA.add(Modifier.STATIC);
-        modifiersB.add(Modifier.STATIC);
-        modifiersB.add(Modifier.FINAL);
-        modifiersB.add(Modifier.PUBLIC);
+        List<APIModifier> modifiersA = new LinkedList<>();
+        List<APIModifier> modifiersB = new LinkedList<>();
+        modifiersA.add(APIModifier.PUBLIC);
+        modifiersA.add(APIModifier.FINAL);
+        modifiersA.add(APIModifier.STATIC);
+        modifiersB.add(APIModifier.STATIC);
+        modifiersB.add(APIModifier.FINAL);
+        modifiersB.add(APIModifier.PUBLIC);
 
         APIField instanceA = new APIField("java.io.File", "src", modifiersA);
         APIField instanceB = new APIField("java.io.File", "src", modifiersB);
@@ -91,10 +90,10 @@ public class APIFieldTest {
         System.out.println("equals");
         boolean expResult = false;
 
-        List<Modifier> modifiersA = new LinkedList<Modifier>();
-        List<Modifier> modifiersB = new LinkedList<Modifier>();
-        modifiersA.add(Modifier.PUBLIC);
-        modifiersB.add(Modifier.PROTECTED);
+        List<APIModifier> modifiersA = new LinkedList<>();
+        List<APIModifier> modifiersB = new LinkedList<>();
+        modifiersA.add(APIModifier.PUBLIC);
+        modifiersB.add(APIModifier.PROTECTED);
         APIField instanceA = new APIField("java.io.File", "src", modifiersA);
         APIField instanceB = new APIField("java.io.File", "src", modifiersB);
 

@@ -1,6 +1,5 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
 import org.junit.*;
@@ -47,8 +46,8 @@ public class APIClassTest {
         System.out.println("addMethod");
 
         List<String> params = new LinkedList<String>();
-        List<Modifier> modifiers = new LinkedList<Modifier>();
-        modifiers.add(Modifier.PUBLIC);
+        List<APIModifier> modifiers = new LinkedList<>();
+        modifiers.add(APIModifier.PUBLIC);
         List<String> thrown = new LinkedList<String>();
         APIMethod method1 = new APIMethod("run", modifiers, params, "void", thrown);
 
@@ -71,8 +70,8 @@ public class APIClassTest {
     public void testAddField() {
         System.out.println("addField");
 
-        List<Modifier> modifiers2 = new LinkedList<Modifier>();
-        modifiers2.add(Modifier.PROTECTED);
+        List<APIModifier> modifiers2 = new LinkedList<>();
+        modifiers2.add(APIModifier.PROTECTED);
         APIField field = new APIField("java.io.File", "source", modifiers2);
 
         SourceScanner sc = new SourceScanner("testres/testAPIClassRes/", "", "1.7");
@@ -112,13 +111,13 @@ public class APIClassTest {
         APIClass instance = testInstances[1];
 
         Set expResult = new TreeSet();
-        List<Modifier> modifiers = new LinkedList<Modifier>();
-        modifiers.add(Modifier.PUBLIC);
-        modifiers.add(Modifier.STATIC);
-        modifiers.add(Modifier.FINAL);
+        List<APIModifier> modifiers = new LinkedList<>();
+        modifiers.add(APIModifier.PUBLIC);
+        modifiers.add(APIModifier.STATIC);
+        modifiers.add(APIModifier.FINAL);
         expResult.add(new APIField("int", "SIZE", modifiers));
-        List<Modifier> modifiers2 = new LinkedList<Modifier>();
-        modifiers2.add(Modifier.PROTECTED);
+        List<APIModifier> modifiers2 = new LinkedList<>();
+        modifiers2.add(APIModifier.PROTECTED);
         expResult.add(new APIField("java.io.File", "source", modifiers2));
 
         Set result = instance.getFields();
@@ -135,8 +134,8 @@ public class APIClassTest {
         SortedSet expResult = new TreeSet();
 
         List<String> params = new LinkedList<String>();
-        List<Modifier> modifiers = new LinkedList<Modifier>();
-        modifiers.add(Modifier.PUBLIC);
+        List<APIModifier> modifiers = new LinkedList<>();
+        modifiers.add(APIModifier.PUBLIC);
         List<String> thrown = new LinkedList<String>();
         APIMethod method1 = new APIMethod("run", modifiers, params, "void", thrown);
         expResult.add(method1);
@@ -144,8 +143,8 @@ public class APIClassTest {
         List<String> params2 = new LinkedList<String>();
         params2.add("java.lang.String");
         params2.add("int");
-        List<Modifier> modifiers2 = new LinkedList<Modifier>();
-        modifiers2.add(Modifier.PROTECTED);
+        List<APIModifier> modifiers2 = new LinkedList<>();
+        modifiers2.add(APIModifier.PROTECTED);
         List<String> thrown2 = new LinkedList<String>();
         thrown2.add("java.io.IOException");
         APIMethod method2 = new APIMethod("getList", modifiers2, params2, "java.util.List<java.lang.Integer>", thrown2);
@@ -191,8 +190,8 @@ public class APIClassTest {
         APIClass instance = testInstances[0];
         SortedSet<APIMethod> expResult = new TreeSet<APIMethod>();
         List<String> thrown = new LinkedList<String>();
-        List<Modifier> pubmod = new LinkedList<Modifier>();
-        pubmod.add(Modifier.PUBLIC);
+        List<APIModifier> pubmod = new LinkedList<>();
+        pubmod.add(APIModifier.PUBLIC);
         APIMethod defcon = new APIMethod("TestAPIClass", pubmod, new LinkedList<String>(), "testAPIClassRes.TestAPIClass", thrown);
         expResult.add(defcon);
         SortedSet<APIMethod> result = instance.getConstructors();
@@ -204,8 +203,8 @@ public class APIClassTest {
         APIClass instance = testInstances[1];
         SortedSet<APIMethod> expResult = new TreeSet<APIMethod>();
         List<String> thrown = new LinkedList<String>();
-        List<Modifier> pubmod = new LinkedList<Modifier>();
-        pubmod.add(Modifier.PUBLIC);
+        List<APIModifier> pubmod = new LinkedList<>();
+        pubmod.add(APIModifier.PUBLIC);
         List<String> params = new LinkedList<>();
         params.add("int");
         expResult.add(new APIMethod("TestAPIClassB", pubmod, params, "testAPIClassRes.TestAPIClassB", thrown));
@@ -281,9 +280,9 @@ public class APIClassTest {
         obj.addDefaultConstructor();
 
         List<String> thrown = new LinkedList<String>();
-        List<Modifier> pubmod = new LinkedList<Modifier>();
+        List<APIModifier> pubmod = new LinkedList<>();
 
-        pubmod.add(Modifier.PUBLIC);
+        pubmod.add(APIModifier.PUBLIC);
         List<String> params = new LinkedList<>();
         params.add("int");
         obj.addConstructor(new APIMethod("TestAPIClassB", pubmod, params, "testAPIClassRes.TestAPIClassB", thrown));
@@ -300,15 +299,15 @@ public class APIClassTest {
         implement.add("java.lang.Runnable");
         obj.setImplementing(implement);
 
-        List<Modifier> psfmod = new LinkedList<Modifier>();
-        psfmod.add(Modifier.PUBLIC);
-        psfmod.add(Modifier.STATIC);
-        psfmod.add(Modifier.FINAL);
+        List<APIModifier> psfmod = new LinkedList<>();
+        psfmod.add(APIModifier.PUBLIC);
+        psfmod.add(APIModifier.STATIC);
+        psfmod.add(APIModifier.FINAL);
 
         APIField size = new APIField("int", "SIZE", psfmod);
         obj.addField(size);
-        List<Modifier> promod = new LinkedList<Modifier>();
-        promod.add(Modifier.PROTECTED);
+        List<APIModifier> promod = new LinkedList<>();
+        promod.add(APIModifier.PROTECTED);
         APIField source = new APIField("java.io.File", "source", promod);
         obj.addField(source);
         thrown = new LinkedList<String>();

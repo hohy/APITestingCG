@@ -29,7 +29,7 @@ public class EnumGenerator extends InstantiatorGenerator {
         if (!isEnabled(apiClass.getFullName(), WhitelistRule.RuleItem.INSTANTIATOR)) return;
 
         // only public classes can be tested.
-        if (!apiClass.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
+        if (!apiClass.getModifiers().contains(APIModifier.PUBLIC)) {
             return;
         }
 

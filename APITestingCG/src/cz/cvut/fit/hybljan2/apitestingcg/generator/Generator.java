@@ -22,8 +22,6 @@ import java.util.*;
  */
 public abstract class Generator implements IAPIVisitor {
 
-    protected static final char CLOSE_TYPE_ARGS = '\uFFFF';
-
     protected GeneratorConfiguration configuration;
     protected GeneratorJobConfiguration jobConfiguration;
 
@@ -191,6 +189,24 @@ public abstract class Generator implements IAPIVisitor {
     /**
      * Returns default value for given type.
      *
+     * @param type
+     * @return
+     */
+    private JExpression getPrimitiveValue(APIType type) {
+        if (type.getName().equals("byte")) return JExpr.cast(cm.BYTE, JExpr.lit(0));
+        if (type.getName().equals("short")) return JExpr.cast(cm.SHORT, JExpr.lit(0));
+        if (type.getName().equals("int")) return JExpr.lit(0);
+        if (type.getName().equals("long")) return JExpr.lit(0L);
+        if (type.getName().equals("float")) return JExpr.lit(0.0F);
+        if (type.getName().equals("double")) return JExpr.lit(0.0D);
+        if (type.getName().equals("boolean")) return JExpr.lit(false);
+        if (type.getName().equals("char")) return JExpr.lit('a');
+        return JExpr._null();
+    }
+
+    /**
+     * Returns default value for given type.
+     *
      * @param name
      * @return
      */
@@ -206,11 +222,20 @@ public abstract class Generator implements IAPIVisitor {
         return "null";
     }
 
+    protected JClass getTypeRef(APIType type) {
+        try {
+            APIClass cls = currentAPI.findClass(type.getName());
+        } catch (ClassNotFoundException e) {
+        }
+
+        return cm.ref(type.getName());
+    }
+
     protected JClass getClassRef(String className) {
 
         try {
             APIClass cls = currentAPI.findClass(className);
-            if (cls.getModifiers().contains(APIModifier.Modifier.PROTECTED)) {
+            if (cls.getModifiers().contains(APIModifier.PROTECTED)) {
                 className = className.substring(className.lastIndexOf('.') + 1);
             }
             if (cls.isNested()) {
@@ -241,7 +266,7 @@ public abstract class Generator implements IAPIVisitor {
         try {
             APIClass cls = currentAPI.findClass(className);
             //System.out.println("Class found: " + className);
-            if (cls.getModifiers().contains(APIModifier.Modifier.PROTECTED)) {
+            if (cls.getModifiers().contains(APIModifier.PROTECTED)) {
                 className = className.substring(className.lastIndexOf('.') + 1);
             }
         } catch (ClassNotFoundException e) {
@@ -285,6 +310,10 @@ public abstract class Generator implements IAPIVisitor {
      */
     protected APIClass findClass(String name) throws ClassNotFoundException {
         return currentAPI.findClass(name);
+    }
+
+    protected APIClass findClass(APIType varType) throws ClassNotFoundException {
+        return null;  //To change body of created methods use File | Settings | File Templates.
     }
 
     public static String simplifyName(String originalName) {

@@ -35,7 +35,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         }
 
         // only public classes can be tested by instantiator.
-        if (!apiClass.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
+        if (!apiClass.getModifiers().contains(APIModifier.PUBLIC)) {
             return;
         }
 
@@ -53,7 +53,7 @@ public class InstantiatorGenerator extends ClassGenerator {
             cls = declareNewClass(JMod.PUBLIC, currentPackageName, className, visitingClass.isNested());
 
             // visit all constructors, if class isn't abstract
-            if (!visitingClass.getModifiers().contains(APIModifier.Modifier.ABSTRACT)) {
+            if (!visitingClass.getModifiers().contains(APIModifier.ABSTRACT)) {
                 for (APIMethod constructor : apiClass.getConstructors()) {
                     visitConstructor(constructor);
                 }
@@ -61,11 +61,11 @@ public class InstantiatorGenerator extends ClassGenerator {
 
             // genetate test of extending - cant be performed if tested class has no public constructors or is abstract
             if (apiClass.getExtending() != null
-                    && !visitingClass.getModifiers().contains(APIModifier.Modifier.ABSTRACT)) {
+                    && !visitingClass.getModifiers().contains(APIModifier.ABSTRACT)) {
 
                 // find first public constructor and use it for creating new instance.
                 for (APIMethod constructor : apiClass.getConstructors()) {
-                    if (constructor.getModifiers().contains(APIModifier.Modifier.PUBLIC) &&
+                    if (constructor.getModifiers().contains(APIModifier.PUBLIC) &&
                             (!constructor.isDepreacated() || !jobConfiguration.isSkipDeprecated())) {
                         String name = generateName(configuration.getCreateSuperInstanceIdentifier(), apiClass.getExtending());
                         addCreateInstanceMethod(apiClass.getExtending(), name, constructor, false);
@@ -78,11 +78,11 @@ public class InstantiatorGenerator extends ClassGenerator {
             // genetate test of implementing - cant be performed if tested class has no constructors
             if (!apiClass.getImplementing().isEmpty()
                     && !apiClass.getConstructors().isEmpty()
-                    && !visitingClass.getModifiers().contains(APIModifier.Modifier.ABSTRACT)) {
+                    && !visitingClass.getModifiers().contains(APIModifier.ABSTRACT)) {
 
                 // find first public constructor and use it for creating new instances of all implemented interfaces.
                 for (APIMethod constructor : apiClass.getConstructors()) {
-                    if (constructor.getModifiers().contains(APIModifier.Modifier.PUBLIC) &&
+                    if (constructor.getModifiers().contains(APIModifier.PUBLIC) &&
                             (!constructor.isDepreacated() || !jobConfiguration.isSkipDeprecated())) {
                         for (String implementing : apiClass.getImplementing()) {
                             String name = generateName(configuration.getCreateSuperInstanceIdentifier(), implementing);
@@ -165,7 +165,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         }
 
         // only public constructors can be used in instantiator
-        if (!constructor.getModifiers().contains(APIModifier.Modifier.PUBLIC)) return;
+        if (!constructor.getModifiers().contains(APIModifier.PUBLIC)) return;
 
         // create basic create new instance method
         addCreateInstanceMethod(visitingClass.getFullNameWithTypeParams(), generateName(configuration.getCreateInstanceIdentifier(), constructor.getName()), constructor, false);
@@ -207,27 +207,27 @@ public class InstantiatorGenerator extends ClassGenerator {
         }
 
         // field has to be public
-        if (apiField.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
+        if (apiField.getModifiers().contains(APIModifier.PUBLIC)) {
             // type of the field has to be public class
             if (!isTypePublic(apiField.getVarType(), null)) {
                 return;
             }
 
             // Check if field is constant or variable
-            if (apiField.getModifiers().contains(APIModifier.Modifier.FINAL)) {
+            if (apiField.getModifiers().contains(APIModifier.FINAL)) {
                 // original field
                 JFieldRef fld;
-                if (apiField.getModifiers().contains(APIModifier.Modifier.STATIC)) {
+                if (apiField.getModifiers().contains(APIModifier.STATIC)) {
                     fld = getGenericsClassRef(visitingClass.getFullName()).staticRef(apiField.getName());
                 } else {
                     fld = fieldsInstance.ref(apiField.getName());
                 }
                 // create new local variable and assing original value to it
-                fieldsMethodBlock.decl(getGenericsClassRef(apiField.getVarType()), apiField.getName(), fld);
+                fieldsMethodBlock.decl(getTypeRef(apiField.getVarType()), apiField.getName(), fld);
             } else {
                 // create new field of same type as original
                 String fldName = generateName(configuration.getFieldTestVariableIdentifier(), apiField.getName());
-                JVar var = fieldsMethodBlock.decl(getGenericsClassRef(apiField.getVarType()), fldName, getPrimitiveValue(apiField.getVarType()));
+                JVar var = fieldsMethodBlock.decl(getTypeRef(apiField.getVarType()), fldName, getPrimitiveValue(apiField.getVarType().getName()));
                 fieldsMethodBlock.assign(fieldsInstance.ref(apiField.getName()), var);
             }
         }
@@ -241,7 +241,7 @@ public class InstantiatorGenerator extends ClassGenerator {
             return;
 
         // only public method can be tested by instantiator
-        if (!method.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
+        if (!method.getModifiers().contains(APIModifier.PUBLIC)) {
             return;
         }
 
@@ -366,6 +366,17 @@ public class InstantiatorGenerator extends ClassGenerator {
         return result;
     }
 
+    protected boolean isTypePublic(APIType varType, Collection<String> genericClasses) {
+        boolean result = true;
+        if((!((genericClasses != null && genericClasses.contains(varType.getName())) || (varType.getName().equals("?")))))
+            if (!isClassPublic(varType.getName())) {
+                return false;
+            }
+
+        // TODO: chybi testovani typeargu
+        return result;
+    }
+
     /**
      * Finds class with given name and checks if the class has public modifier.
      *
@@ -382,14 +393,14 @@ public class InstantiatorGenerator extends ClassGenerator {
         // try to find the class in API or load it with reflection.
         try {
             APIClass c = findClass(name);
-            if (!c.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
+            if (!c.getModifiers().contains(APIModifier.PUBLIC)) {
                 return false;
             }
         } catch (ClassNotFoundException e) {
             // if class wasn't found, it could be nested class.
             try {
                 APIClass nc = visitingClass.getNestedClass(name);
-                return nc.getModifiers().contains(APIModifier.Modifier.PUBLIC);
+                return nc.getModifiers().contains(APIModifier.PUBLIC);
             } catch (ClassNotFoundException e2) {
                 // it's unknown class
                 System.err.println("Class not found: " + name);
@@ -446,10 +457,10 @@ public class InstantiatorGenerator extends ClassGenerator {
         boolean innerClass = false;
 
         // only constructors of public class can be generated in instantiator.
-        if (!visitingClass.getModifiers().contains(APIModifier.Modifier.PUBLIC)) {
+        if (!visitingClass.getModifiers().contains(APIModifier.PUBLIC)) {
             return;
         }
-        if (visitingClass.isNested() && !visitingClass.getModifiers().contains(APIModifier.Modifier.STATIC)) {
+        if (visitingClass.isNested() && !visitingClass.getModifiers().contains(APIModifier.STATIC)) {
             innerClass = true;
         }
 
@@ -576,7 +587,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         JInvocation nullInvocation;
 
         // set invocation
-        if (method.getModifiers().contains(APIModifier.Modifier.STATIC)) {  // Static method - instance = Class name
+        if (method.getModifiers().contains(APIModifier.STATIC)) {  // Static method - instance = Class name
             invocation = getClassRef(visitingClass.getFullName()).staticInvoke(method.getName());
             nullInvocation = getClassRef(visitingClass.getFullName()).staticInvoke(method.getName());
         } else { // instance is first parameter

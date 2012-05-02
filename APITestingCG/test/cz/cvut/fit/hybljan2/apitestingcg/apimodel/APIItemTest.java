@@ -1,7 +1,6 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIItem.Kind;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import org.junit.*;
 
@@ -58,9 +57,9 @@ public class APIItemTest {
     public void testGetModifiers() {
         System.out.println("getModifiers");
         APIItem instance = new APIItemImpl();
-        List expResult = new LinkedList<Modifier>();
-        expResult.add(Modifier.PUBLIC);
-        expResult.add(Modifier.FINAL);
+        List expResult = new LinkedList<APIModifier>();
+        expResult.add(APIModifier.PUBLIC);
+        expResult.add(APIModifier.FINAL);
         List result = instance.getModifiers();
         assertEquals(expResult, result);
     }
@@ -81,9 +80,9 @@ public class APIItemTest {
 
         public APIItemImpl() {
             name = "somePkgName.SomeAPIItem";
-            modifiers = new LinkedList<Modifier>();
-            modifiers.add(Modifier.PUBLIC);
-            modifiers.add(Modifier.FINAL);
+            modifiers = new LinkedList<APIModifier>();
+            modifiers.add(APIModifier.PUBLIC);
+            modifiers.add(APIModifier.FINAL);
             kind = Kind.CLASS;
         }
 

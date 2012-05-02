@@ -3,7 +3,6 @@ package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
-import cz.cvut.fit.hybljan2.apitestingcg.apimodel.APIModifier.Modifier;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
@@ -61,8 +60,8 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         constructors = new TreeSet<APIMethod>();
         fields = new TreeSet<APIField>();
         kind = Kind.CLASS;
-        modifiers = new LinkedList<Modifier>();
-        modifiers.add(Modifier.PUBLIC);
+        modifiers = new LinkedList<APIModifier>();
+        modifiers.add(APIModifier.PUBLIC);
     }
 
     /**
@@ -103,7 +102,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         this.kind = getKind(jccd.getKind());
         this.modifiers = APIModifier.getModifiersSet(jccd.mods.getFlags());
         if (this.kind == Kind.ENUM) {
-            modifiers.add(Modifier.FINAL);
+            modifiers.add(APIModifier.FINAL);
         }
         this.fields = new TreeSet<APIField>();
         if (jccd.getExtendsClause() != null) {
@@ -226,8 +225,8 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     }
 
     public void addDefaultConstructor() {
-        List<Modifier> publicmodifier = new LinkedList<Modifier>();
-        publicmodifier.add(Modifier.PUBLIC);
+        List<APIModifier> publicmodifier = new LinkedList<>();
+        publicmodifier.add(APIModifier.PUBLIC);
         LinkedList<String> params = new LinkedList<String>();
         List<String> thrown = new LinkedList<String>();
         APIMethod constr = new APIMethod(name, publicmodifier, params, fullName, thrown);
@@ -236,8 +235,8 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     }
 
     public void deleteDefaultConstructor() {
-        List<Modifier> publicmodifier = new LinkedList<Modifier>();
-        publicmodifier.add(Modifier.PUBLIC);
+        List<APIModifier> publicmodifier = new LinkedList<>();
+        publicmodifier.add(APIModifier.PUBLIC);
         LinkedList<String> params = new LinkedList<String>();
         List<String> thrown = new LinkedList<String>();
         APIMethod constr = new APIMethod(fullName, publicmodifier, params, null, thrown);
