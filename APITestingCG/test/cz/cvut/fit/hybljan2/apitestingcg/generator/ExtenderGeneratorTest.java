@@ -120,8 +120,7 @@ public class ExtenderGeneratorTest {
     }
 
     @Test
-    public void TestFields() {
-
+    public void TestFields1() {
         Generator generator = new ExtenderGenerator(new GeneratorConfiguration());
         GeneratorJobConfiguration job = new GeneratorJobConfiguration();
         job.setApiId("extender");
@@ -129,17 +128,79 @@ public class ExtenderGeneratorTest {
         job.setOutputPackage("test.%s");
         WhitelistRule r = new WhitelistRule();
         r.setItem(WhitelistRule.RuleItem.EXTENDER);
-        r.setRule("lib.Fields");
+        r.setRule("lib.Fields1");
         job.addWhitelistRule(r);
         generator.generate(api, job);
 
-        File resultFile = new File("output/tests/extender/test/lib/FieldsExtender.java");
+        File resultFile = new File("output/tests/extender/test/lib/Fields1Extender.java");
         assertTrue(resultFile.exists());
 
-        File expected = new File("testres/extender_exp/FieldsExtender.java");
+        File expected = new File("testres/extender_exp/Fields1Extender.java");
 
         FileAssert.assertEquals(expected, resultFile);
+    }
 
+    @Test
+    public void TestFields2() {
+        Generator generator = new ExtenderGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("extender");
+        job.setOutputDir("output/tests/extender");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.EXTENDER);
+        r.setRule("lib.Fields2");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
+
+        File resultFile = new File("output/tests/extender/test/lib/Fields2Extender.java");
+        assertTrue(resultFile.exists());
+
+        File expected = new File("testres/extender_exp/Fields2Extender.java");
+
+        FileAssert.assertEquals(expected, resultFile);
+    }
+
+    @Test
+    public void TestFields3() {
+        Generator generator = new ExtenderGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("extender");
+        job.setOutputDir("output/tests/extender");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.EXTENDER);
+        r.setRule("lib.Fields3");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
+
+        File resultFile = new File("output/tests/extender/test/lib/Fields3Extender.java");
+        assertTrue(resultFile.exists());
+
+        File expected = new File("testres/extender_exp/Fields3Extender.java");
+
+        FileAssert.assertEquals(expected, resultFile);
+    }
+
+    @Test
+    public void TestFields4() {
+        Generator generator = new ExtenderGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("extender");
+        job.setOutputDir("output/tests/extender");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.EXTENDER);
+        r.setRule("lib.Fields4");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
+
+        File resultFile = new File("output/tests/extender/test/lib/Fields4Extender.java");
+        assertTrue(resultFile.exists());
+
+        File expected = new File("testres/extender_exp/Fields4Extender.java");
+
+        FileAssert.assertEquals(expected, resultFile);
     }
 
     @Test

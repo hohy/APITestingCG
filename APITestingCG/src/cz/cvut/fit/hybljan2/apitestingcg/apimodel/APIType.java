@@ -47,7 +47,7 @@ public class APIType {
     }
 
     public APIType(Type type) {
-        this.name = type.tsym.flatName().toString();
+        this.name = type.tsym.getQualifiedName().toString();
         for(Type typeParam : type.getTypeArguments()) {
             addTypeParameter(new APIType(typeParam));
         }
@@ -108,5 +108,27 @@ public class APIType {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof APIType)) return false;
+
+        APIType apiType = (APIType) o;
+
+        if (array != apiType.array) return false;
+        if (!name.equals(apiType.name)) return false;
+        if (typeArgs != null ? !typeArgs.equals(apiType.typeArgs) : apiType.typeArgs != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + (typeArgs != null ? typeArgs.hashCode() : 0);
+        result = 31 * result + (array ? 1 : 0);
+        return result;
     }
 }

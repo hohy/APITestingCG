@@ -179,14 +179,10 @@ public class ExtenderGenerator extends ClassGenerator {
         }
 
         // Type of the field has to be public or protected class
-        try {
-            APIClass type = findClass(apiField.getVarType());
-            if (!(type.getModifiers().contains(APIModifier.PUBLIC)
-                    || type.getModifiers().contains(APIModifier.PROTECTED))) {
-                return;
-            }
-        } catch (ClassNotFoundException e) {
+        if(!checkTypeAccessModifier(APIModifier.PROTECTED, apiField.getVarType(), visitingClass.getTypeParamsMap().keySet())) {
+            return;
         }
+
         if (apiField.getModifiers().contains(APIModifier.FINAL)) { // Final fields
             // original field
             JFieldRef fld;
@@ -196,14 +192,11 @@ public class ExtenderGenerator extends ClassGenerator {
                 fld = JExpr._super().ref(apiField.getName());
             }
             // create new local variable and assing original value to it
-            fieldsMethodBlock.decl(getTypeRef(apiField.getVarType()), apiField.getName(), fld);
+            fieldsMethodBlock.decl(getTypeRef(apiField.getVarType(), visitingClass.getTypeParamsMap().keySet()), apiField.getName(), fld);
         } else {
             // create new field of same type as original
             String fldName = generateName(configuration.getFieldTestVariableIdentifier(), apiField.getName());
-            JClass typeRef = getTypeRef(apiField.getVarType());
-            /*if (apiField.getVarType().contains("$")) {
-                typeRef = getClassRef(apiField.getVarType().substring(apiField.getVarType().indexOf('$') + 1));
-            } */
+            JClass typeRef = getTypeRef(apiField.getVarType(), visitingClass.getTypeParamsMap().keySet());
             JVar var = fieldsMethodBlock.decl(typeRef, fldName, getPrimitiveValue(apiField.getVarType().getName()));
             fieldsMethodBlock.assign(JExpr.ref(apiField.getName()), var);
         }

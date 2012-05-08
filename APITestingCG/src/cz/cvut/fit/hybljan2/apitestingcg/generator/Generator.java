@@ -60,6 +60,7 @@ public abstract class Generator implements IAPIVisitor {
         jobConfiguration = job;
         cm = new JCodeModel();
         classMap = new HashMap<>();
+        classReferenceMap = new HashMap<>();
         currentAPI = api;
         // create directory for package
         File outputDir = new File(jobConfiguration.getOutputDir());
@@ -247,7 +248,7 @@ public abstract class Generator implements IAPIVisitor {
      * @param type
      * @return
      */
-    protected JClass getTypeRef(APIType type) {
+    protected JClass getTypeRef(APIType type, Collection<String> genericClasses) {
         // get reference to a base class of the type
         JClass typeReference = null;
         if(classReferenceMap.containsKey(type.getName())) {
@@ -256,26 +257,75 @@ public abstract class Generator implements IAPIVisitor {
             try {
                 APIClass cls = currentAPI.findClass(type.getName());
                 APIModifier accessModifier = APIModifier.PRIVATE;
+                String className = type.getName();
                 
                 if (cls.getModifiers().contains(APIModifier.PUBLIC)) {
                     accessModifier = APIModifier.PUBLIC;
                 } else if (cls.getModifiers().contains(APIModifier.PROTECTED)) {
                     accessModifier = APIModifier.PROTECTED;
+                    // Because the protected classes can't be imported, we have to work in a generated
+                    // code only with the short names and be sure the type is used only at places where
+                    // the class can be referenced with short names (extender).
+                    className = type.getName().substring(type.getName().lastIndexOf('.') + 1);
                 }
                 
-                typeReference = cm.ref(type.getName());
+                typeReference = cm.ref(className);
                 
                 classReferenceMap.put(type.getName(), new ClassReference(typeReference, accessModifier));
             } catch (ClassNotFoundException e) {
+                if(genericClasses.contains(type.getName())) {
+                    typeReference = cm.ref(type.getName());
+                } else {
+                    System.err.println("Class Not Found:" + type.getName());
+                }
             }            
         }
         
         // get references to the type argument classes
         for(APIType typeArgument : type.getTypeArgs()) {
-            typeReference.narrow(getTypeRef(typeArgument));
+            typeReference = typeReference.narrow(getTypeRef(typeArgument, genericClasses));
         }
 
         return typeReference;
+    }
+
+    /**
+     * Method checks if all classes in type can be accessed with given minimal access level.
+     * @param minimalAccessLevel
+     * @param verifiedType
+     * @param genericClasses
+     * @return
+     */
+    protected boolean checkTypeAccessModifier(APIModifier minimalAccessLevel, APIType verifiedType, Collection<String> genericClasses) {
+        try {
+            APIClass cls = findClass(verifiedType.getName());
+            if(!APIModifier.checkAccessLevel(minimalAccessLevel, cls)) {
+                return false;
+            }
+        } catch (ClassNotFoundException e) {
+            if (!genericClasses.contains(verifiedType.getName())) {
+                System.err.println("Class \""+ verifiedType.getName() +"\" not found.");
+                return false;
+            }
+        }
+
+        for(APIType typeArg : verifiedType.getTypeArgs()) {
+            try {
+                APIClass cls = findClass(typeArg.getName());
+                if(!APIModifier.checkAccessLevel(minimalAccessLevel, cls)) {
+                    return false;
+                }
+            } catch (ClassNotFoundException e) {
+                if (!genericClasses.contains(typeArg.getName())) {
+                    System.err.println("Class \""+ typeArg.getName() +"\" not found.");
+                    return false;
+                }
+            }
+        }
+
+
+
+        return true;
     }
 
     protected JClass getClassRef(String className) {
@@ -357,10 +407,6 @@ public abstract class Generator implements IAPIVisitor {
      */
     protected APIClass findClass(String name) throws ClassNotFoundException {
         return currentAPI.findClass(name);
-    }
-
-    protected APIClass findClass(APIType varType) throws ClassNotFoundException {
-        return null;  //To change body of created methods use File | Settings | File Templates.
     }
 
     public static String simplifyName(String originalName) {

@@ -1,5 +1,6 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -31,7 +32,7 @@ public enum APIModifier {
      * @return
      */
     public static List<APIModifier> getModifiersSet(int modifiers) {
-        List<APIModifier> result = new LinkedList<APIModifier>();
+        List<APIModifier> result = new LinkedList<>();
         if (java.lang.reflect.Modifier.isAbstract(modifiers)) result.add(APIModifier.ABSTRACT);
         if (java.lang.reflect.Modifier.isNative(modifiers)) result.add(APIModifier.NATIVE);
         if (java.lang.reflect.Modifier.isPrivate(modifiers)) result.add(APIModifier.PRIVATE);
@@ -53,7 +54,7 @@ public enum APIModifier {
      * @return
      */
     public static List<APIModifier> getModifiersSet(Set<javax.lang.model.element.Modifier> flags) {
-        List<APIModifier> result = new LinkedList<APIModifier>();
+        List<APIModifier> result = new LinkedList<>();
         if (flags.contains(javax.lang.model.element.Modifier.ABSTRACT)) result.add(APIModifier.ABSTRACT);
         if (flags.contains(javax.lang.model.element.Modifier.NATIVE)) result.add(APIModifier.NATIVE);
         if (flags.contains(javax.lang.model.element.Modifier.PRIVATE)) result.add(APIModifier.PRIVATE);
@@ -86,5 +87,38 @@ public enum APIModifier {
         if (mods.contains(APIModifier.TRANSIENT)) sb.append("transient ");
         if (mods.contains(APIModifier.VOLATILE)) sb.append("volatile ");
         return sb.toString();
+    }
+
+    /**
+     * Method checks, if the given item can be accessed with the given access level.
+     *
+     * For example, <code>ClassA</code> is declared as <code>public</code>. So it can be accessed
+     * with all the access levels and this method will always return <code>true</code>. But, for class
+     * <code>ClassB</code> that is declared as <code>protected</code>, method will return true only for
+     * <code>protected</code> and <code>private</code> level. For <code>public</code> the method will
+     * return <code>false</code>. Finally, for <code>private</code> classes, the method will return
+     * <code>true</code> only for <code>private</code> minimal access modifier level.
+     *
+     * @param minimalAccessLevel    Java access modifier represented by APIModifier enum value.
+     * @param verifiedItem          Item from an API.
+     * @return                      Returns <code>true</code> if the item can be accessed with given access level,
+     *                              <code>false</code> if not.
+     */
+    public static boolean checkAccessLevel(APIModifier minimalAccessLevel, APIItem verifiedItem) {
+        if (verifiedItem.getModifiers().contains(PUBLIC)) {
+            return true;
+        } else if (verifiedItem.getModifiers().contains(PROTECTED)) {
+            if (minimalAccessLevel == PUBLIC) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            if (minimalAccessLevel == PRIVATE) {
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 }

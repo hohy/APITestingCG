@@ -53,7 +53,7 @@ public class APIFieldTest {
                 "public static final java.lang.Object OBJECT_CONST",
                 "public java.io.File file",
                 "protected float floatVar",
-                "public java.util.Map<java.lang.String,java.util.List<java.io.File>> xfileListMap"
+                "public java.util.Map<java.lang.String, java.util.List<java.io.File>> xfileListMap"
         };
         for (int i = 0; i < expResults.length; i++) {
             String expResult = expResults[i];
