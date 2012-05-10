@@ -244,21 +244,19 @@ public abstract class Generator implements IAPIVisitor {
     }
 
     /**
-     * 
-     * @param type
+     * TODO: rename the method to getClassRef when old getClassRef will be removed.
+     * @param className
      * @return
      */
-    protected JClass getTypeRef(APIType type, Collection<String> genericClasses) {
-        // get reference to a base class of the type
+    protected JClass getTypeRef(String className, Collection<String> genericClasses) {
         JClass typeReference = null;
-        if(classReferenceMap.containsKey(type.getName())) {
-            typeReference = classReferenceMap.get(type.getName()).getRefence();
+        if(classReferenceMap.containsKey(className)) {
+            typeReference = classReferenceMap.get(className).getRefence();
         } else {
             try {
-                APIClass cls = currentAPI.findClass(type.getName());
+                APIClass cls = currentAPI.findClass(className);
                 APIModifier accessModifier = APIModifier.PRIVATE;
-                String className = type.getName();
-                
+
                 if (cls.getModifiers().contains(APIModifier.PUBLIC)) {
                     accessModifier = APIModifier.PUBLIC;
                 } else if (cls.getModifiers().contains(APIModifier.PROTECTED)) {
@@ -266,21 +264,33 @@ public abstract class Generator implements IAPIVisitor {
                     // Because the protected classes can't be imported, we have to work in a generated
                     // code only with the short names and be sure the type is used only at places where
                     // the class can be referenced with short names (extender).
-                    className = type.getName().substring(type.getName().lastIndexOf('.') + 1);
+                    className = className.substring(className.lastIndexOf('.') + 1);
                 }
-                
+
                 typeReference = cm.ref(className);
-                
-                classReferenceMap.put(type.getName(), new ClassReference(typeReference, accessModifier));
+
+                classReferenceMap.put(className, new ClassReference(typeReference, accessModifier));
             } catch (ClassNotFoundException e) {
-                if(genericClasses.contains(type.getName())) {
-                    typeReference = cm.ref(type.getName());
+                if(genericClasses.contains(className)) {
+                    typeReference = cm.ref(className);
                 } else {
-                    System.err.println("Class Not Found:" + type.getName());
+                    System.err.println("Class Not Found:" + className);
                 }
-            }            
+            }
         }
-        
+
+        return typeReference;
+    }
+    
+    /**
+     * 
+     * @param type
+     * @return
+     */
+    protected JClass getTypeRef(APIType type, Collection<String> genericClasses) {
+        // get reference to a base class of the type
+        JClass typeReference = getTypeRef(type.getName(), genericClasses);
+
         // get references to the type argument classes
         for(APIType typeArgument : type.getTypeArgs()) {
             typeReference = typeReference.narrow(getTypeRef(typeArgument, genericClasses));

@@ -209,7 +209,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         // field has to be public
         if (apiField.getModifiers().contains(APIModifier.PUBLIC)) {
             // type of the field has to be public class
-            if (!isTypePublic(apiField.getVarType(), null)) {
+            if(!checkTypeAccessModifier(APIModifier.PUBLIC, apiField.getVarType(), visitingClass.getTypeParamsMap().keySet())) {
                 return;
             }
 
@@ -218,7 +218,7 @@ public class InstantiatorGenerator extends ClassGenerator {
                 // original field
                 JFieldRef fld;
                 if (apiField.getModifiers().contains(APIModifier.STATIC)) {
-                    fld = getGenericsClassRef(visitingClass.getFullName()).staticRef(apiField.getName());
+                    fld = getTypeRef(visitingClass.getFullName(), visitingClass.getTypeParamsMap().keySet()).staticRef(apiField.getName());
                 } else {
                     fld = fieldsInstance.ref(apiField.getName());
                 }
@@ -228,7 +228,14 @@ public class InstantiatorGenerator extends ClassGenerator {
                 // create new field of same type as original
                 String fldName = generateName(configuration.getFieldTestVariableIdentifier(), apiField.getName());
                 JVar var = fieldsMethodBlock.decl(getTypeRef(apiField.getVarType(), visitingClass.getTypeParamsMap().keySet()), fldName, getPrimitiveValue(apiField.getVarType().getName()));
-                fieldsMethodBlock.assign(fieldsInstance.ref(apiField.getName()), var);
+                JAssignmentTarget assignmentTarget = null;
+                if (apiField.getModifiers().contains(APIModifier.STATIC)) {
+                    assignmentTarget = getTypeRef(visitingClass.getFullName(), visitingClass.getTypeParamsMap().keySet())
+                            .staticRef(apiField.getName());
+                } else {
+                    assignmentTarget = fieldsInstance.ref(apiField.getName());
+                }
+                fieldsMethodBlock.assign(assignmentTarget, var);
             }
         }
     }

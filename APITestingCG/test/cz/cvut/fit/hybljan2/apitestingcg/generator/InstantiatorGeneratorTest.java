@@ -127,22 +127,87 @@ public class InstantiatorGeneratorTest {
     }
 
     @Test
-    public void TestFields() {
-
-        cz.cvut.fit.hybljan2.apitestingcg.generator.Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
+    public void TestFields1() {
+        Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
         GeneratorJobConfiguration job = new GeneratorJobConfiguration();
         job.setApiId("instantiator");
         job.setOutputDir("output/tests/instantiator");
         job.setOutputPackage("test.%s");
         WhitelistRule r = new WhitelistRule();
         r.setItem(WhitelistRule.RuleItem.INSTANTIATOR);
-        r.setRule("lib.Fields");
+        r.setRule("lib.Fields1");
         job.addWhitelistRule(r);
         generator.generate(api, job);
 
-        File resultFile = new File("output/tests/instantiator/test/lib/FieldsInstantiator.java");
+        File resultFile = new File("output/tests/instantiator/test/lib/Fields1Instantiator.java");
         assertTrue(resultFile.exists());
 
+        File expected = new File("testres/instantiator_exp/Fields1Instantiator.java");
+
+        FileAssert.assertEquals(expected, resultFile);
+    }
+
+    @Test
+    public void TestFields2() {
+        Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("instantiator");
+        job.setOutputDir("output/tests/instantiator");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.INSTANTIATOR);
+        r.setRule("lib.Fields2");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
+
+        File resultFile = new File("output/tests/instantiator/test/lib/Fields2Instantiator.java");
+        assertTrue(resultFile.exists());
+
+        File expected = new File("testres/instantiator_exp/Fields2Instantiator.java");
+
+        FileAssert.assertEquals(expected, resultFile);
+    }
+
+    @Test
+    public void TestFields3() {
+        Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("instantiator");
+        job.setOutputDir("output/tests/instantiator");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.INSTANTIATOR);
+        r.setRule("lib.Fields3");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
+
+        File resultFile = new File("output/tests/instantiator/test/lib/Fields3Instantiator.java");
+        assertTrue(resultFile.exists());
+
+        File expected = new File("testres/instantiator_exp/Fields3Instantiator.java");
+
+        FileAssert.assertEquals(expected, resultFile);
+    }
+
+    @Test
+    public void TestFields4() {
+        Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("instantiator");
+        job.setOutputDir("output/tests/instantiator");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.INSTANTIATOR);
+        r.setRule("lib.Fields4");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
+
+        File resultFile = new File("output/tests/instantiator/test/lib/Fields4Instantiator.java");
+        assertTrue(resultFile.exists());
+
+        File expected = new File("testres/instantiator_exp/Fields4Instantiator.java");
+
+        FileAssert.assertEquals(expected, resultFile);
     }
 
 }

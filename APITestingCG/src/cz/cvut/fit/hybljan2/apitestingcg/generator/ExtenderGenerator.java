@@ -187,7 +187,7 @@ public class ExtenderGenerator extends ClassGenerator {
             // original field
             JFieldRef fld;
             if (apiField.getModifiers().contains(APIModifier.STATIC)) {
-                fld = getGenericsClassRef(visitingClass.getFullName()).staticRef(apiField.getName());
+                fld = getTypeRef(visitingClass.getFullName(), visitingClass.getTypeParamsMap().keySet()).staticRef(apiField.getName());
             } else {
                 fld = JExpr._super().ref(apiField.getName());
             }
