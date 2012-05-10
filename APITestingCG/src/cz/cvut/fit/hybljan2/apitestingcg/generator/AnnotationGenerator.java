@@ -23,7 +23,7 @@ public class AnnotationGenerator extends ClassGenerator {
     @Override
     public void visit(APIClass apiClass) {
         // annotations tests can be generated only for annotations
-        if (!apiClass.getType().equals(APIItem.Kind.ANNOTATION)) return;
+        if (!apiClass.getKind().equals(APIItem.Kind.ANNOTATION)) return;
 
         // check if this annotation is enabled in jobConfiguration.
         if (!isEnabled(apiClass.getFullName(), WhitelistRule.RuleItem.ANNOTATION)) return;
@@ -175,7 +175,7 @@ public class AnnotationGenerator extends ClassGenerator {
         }
 
         APIClass paramType = findClass(name);
-        if (paramType.getType().equals(APIItem.Kind.ENUM)) {
+        if (paramType.getKind().equals(APIItem.Kind.ENUM)) {
             // visit all fields
             for (APIField field : paramType.getFields()) {
                 if (field.getVarType().equals(paramType.getFullName())) { // test if field is enum field or just variable

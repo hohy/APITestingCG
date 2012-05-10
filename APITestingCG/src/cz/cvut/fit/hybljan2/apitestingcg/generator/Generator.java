@@ -338,6 +338,7 @@ public abstract class Generator implements IAPIVisitor {
         return true;
     }
 
+    @Deprecated
     protected JClass getClassRef(String className) {
 
         try {
@@ -368,6 +369,7 @@ public abstract class Generator implements IAPIVisitor {
         }
     }
 
+    @Deprecated
     protected JClass getGenericsClassRef(String className) {
 
         try {
@@ -394,6 +396,7 @@ public abstract class Generator implements IAPIVisitor {
         }
     }
 
+    @Deprecated
     protected JClass getGenericsClassRef(String className, List<String> typeParams) {
         if (className.endsWith("[]")) {
             return getGenericsClassRef(className.substring(0, className.length() - 2), typeParams).array();

@@ -170,8 +170,8 @@ public class APIClassTest {
     public void testGetExtending() {
         System.out.println("getExtending");
         APIClass instance = testInstances[1];
-        String expResult = "javax.swing.JFrame";
-        String result = instance.getExtending();
+        APIType expResult = new APIType("javax.swing.JFrame");
+        APIType result = instance.getExtending();
         assertEquals(expResult, result);
     }
 
@@ -180,7 +180,7 @@ public class APIClassTest {
         System.out.println("getExtending");
         APIClass instance = testInstances[0];
         String expResult = null;
-        String result = instance.getExtending();
+        APIType result = instance.getExtending();
         assertEquals(expResult, result);
     }
 
@@ -224,10 +224,10 @@ public class APIClassTest {
     public void testGetImplementing() {
         System.out.println("getImplementing");
         APIClass instance = testInstances[1];
-        List expResult = new LinkedList();
-        expResult.add("java.lang.Runnable");
+        List<APIType> expResult = new LinkedList();
+        expResult.add(new APIType("java.lang.Runnable"));
 
-        List result = instance.getImplementing();
+        List<APIType> result = instance.getImplementing();
         assertEquals(expResult, result);
     }
 

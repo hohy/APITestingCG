@@ -30,8 +30,17 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
      * Indicates that the class is nested in other class or not.
      */
     private boolean nested = false;
-    private String extending;
-    private List<String> implementing = new LinkedList<>();
+
+    /**
+     * Class that this class extending.
+     */
+    private APIType extending;
+
+    /**
+     * List of interfaces, that are implemented by this class.
+     */
+    private List<APIType> implementing = new LinkedList<>();
+
     /**
      * Full name of class (contains package name) - expample: java.util.Set
      */
@@ -47,6 +56,10 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     private Map<String, String[]> typeParamsMap = new LinkedHashMap<>();
     private List<ElementType> annotationTargets;
 
+    /**
+     * APIType representation of this class
+     */
+    private APIType type;
     /**
      * Basic constructor. Can be used for testing.
      *
@@ -97,23 +110,22 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
 
         this.fullName = jccd.type.tsym.toString();
 
-        this.methods = new TreeSet<APIMethod>();
-        this.constructors = new TreeSet<APIMethod>();
+        this.methods = new TreeSet<>();
+        this.constructors = new TreeSet<>();
         this.kind = getKind(jccd.getKind());
         this.modifiers = APIModifier.getModifiersSet(jccd.mods.getFlags());
         if (this.kind == Kind.ENUM) {
             modifiers.add(APIModifier.FINAL);
         }
-        this.fields = new TreeSet<APIField>();
+        this.fields = new TreeSet<>();
         if (jccd.getExtendsClause() != null) {
-            this.extending = jccd.extending.type.tsym.getQualifiedName().toString();
+            this.extending = new APIType(jccd.extending.type);
         }
         if (jccd.getImplementsClause() != null) {
-            this.implementing = new LinkedList<String>();
+            this.implementing = new LinkedList<>();
             for (JCExpression e : jccd.getImplementsClause()) {
-                this.implementing.add(e.type.tsym.getQualifiedName().toString());
+                this.implementing.add(new APIType(e.type));
             }
-
         }
     }
 
@@ -179,12 +191,12 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         if (cls.getSuperclass() != null
                 && !cls.getSuperclass().equals(java.lang.Object.class)
                 && !cls.getSuperclass().equals(java.lang.Enum.class)) {
-            extending = getTypeName(cls.getSuperclass());//.getName();
+            extending = new APIType(cls.getSuperclass());
         }
 
         implementing = new LinkedList<>();
         for (Class implementedInterface : cls.getInterfaces()) {
-            implementing.add(getTypeName(implementedInterface));
+            implementing.add(new APIType(implementedInterface));
         }
 
         // construct typeparams (generics) map
@@ -278,7 +290,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         }
         if (implementing != null && implementing.size() > 0) {
             sb.append(" implements");
-            for (String i : implementing) {
+            for (APIType i : implementing) {
                 sb.append(' ').append(i);
             }
         }
@@ -325,17 +337,13 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     }
 
     /**
-     * Return name of class, that class is extending. Return null, if class extending
+     * Return type that class is extending. Return null, if class extending
      * java.lang.Object (default situation).
      *
      * @return
      */
-    public String getExtending() {
+    public APIType getExtending() {
         return extending;
-    }
-
-    public void setExtending(String extending) {
-        this.extending = extending;
     }
 
     public Map<String, String[]> getTypeParamsMap() {
@@ -343,12 +351,12 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     }
 
     /**
-     * Return list of names of interfaces, that class is implmenting. Return empty list,
+     * Return list of types of interfaces, that class is implmenting. Return empty list,
      * if class implements no interface.
      *
      * @return
      */
-    public List<String> getImplementing() {
+    public List<APIType> getImplementing() {
         return implementing;
     }
 
@@ -398,6 +406,16 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
 
     public SortedSet<APIMethod> getConstructors() {
         return constructors;
+    }
+
+    public APIType getType() {
+        if(type == null) {
+            type = new APIType(getFullName());
+            for(String typeName : getTypeParamsMap().keySet()) {
+                type.addTypeParameter(new APIType(typeName));
+            }
+        }
+        return type;
     }
 
     @Override
@@ -451,11 +469,14 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     }
 
     void setExtends(String string) {
-        this.extending = string;
+        this.extending = new APIType(string);
     }
 
     void setImplementing(List<String> implement) {
-        this.implementing = implement;
+        this.implementing.clear();
+        for(String i : implement) {
+            this.implementing.add(new APIType(i));
+        }
     }
 
     public List<ElementType> getAnnotationTargets() {

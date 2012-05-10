@@ -38,7 +38,7 @@ public abstract class APIItem {
         this.modifiers = modifiers;
     }
 
-    public Kind getType() {
+    public Kind getKind() {
         return kind;
     }
 

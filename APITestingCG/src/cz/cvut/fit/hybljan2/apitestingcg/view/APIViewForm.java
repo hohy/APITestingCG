@@ -107,10 +107,10 @@ public class APIViewForm extends javax.swing.JFrame {
         fullNameLabel.setFont(new Font("Arial", Font.PLAIN, 10));
 
         JLabel itemTypeLabel = new JLabel();
-        if (item.getType() == Kind.PACKAGE) { // If its null then it is package
+        if (item.getKind() == Kind.PACKAGE) { // If its null then it is package
             itemTypeLabel.setText("package");
         } else {
-            itemTypeLabel.setText(item.getType().toString());
+            itemTypeLabel.setText(item.getKind().toString());
         }
 
         JLabel modifiersLabel = new JLabel();
@@ -130,7 +130,7 @@ public class APIViewForm extends javax.swing.JFrame {
         contentPanel.add(contentPanel.add(Box.createVerticalStrut(10)));
 
         // add item-type specific content
-        switch (item.getType()) {
+        switch (item.getKind()) {
             case CLASS:
             case ANNOTATION:
             case ENUM:
@@ -162,7 +162,7 @@ public class APIViewForm extends javax.swing.JFrame {
 
                 if (cls.getImplementing() != null && cls.getImplementing().size() > 0) {
                     StringBuilder imp = new StringBuilder("Implementing:");
-                    for (String s : cls.getImplementing()) imp.append(' ').append(s);
+                    for (APIType s : cls.getImplementing()) imp.append(' ').append(s);
                     JLabel imlLabel = new JLabel(imp.toString());
                     contentPanel.add(imlLabel);
                     contentPanel.add(contentPanel.add(Box.createVerticalStrut(10)));

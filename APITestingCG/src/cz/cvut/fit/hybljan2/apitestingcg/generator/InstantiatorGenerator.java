@@ -25,7 +25,7 @@ public class InstantiatorGenerator extends ClassGenerator {
     public void visit(APIClass apiClass) {
 
         // instantiator can be generated for classes and interfaces
-        if ((!apiClass.getType().equals(APIItem.Kind.CLASS)) && (!apiClass.getType().equals(APIItem.Kind.INTERFACE))) {
+        if ((!apiClass.getKind().equals(APIItem.Kind.CLASS)) && (!apiClass.getKind().equals(APIItem.Kind.INTERFACE))) {
             return;
         }
 
@@ -67,7 +67,7 @@ public class InstantiatorGenerator extends ClassGenerator {
                 for (APIMethod constructor : apiClass.getConstructors()) {
                     if (constructor.getModifiers().contains(APIModifier.PUBLIC) &&
                             (!constructor.isDepreacated() || !jobConfiguration.isSkipDeprecated())) {
-                        String name = generateName(configuration.getCreateSuperInstanceIdentifier(), apiClass.getExtending());
+                        String name = generateName(configuration.getCreateSuperInstanceIdentifier(), apiClass.getExtending().getName());
                         addCreateInstanceMethod(apiClass.getExtending(), name, constructor, false);
                         break;
                     }
@@ -84,8 +84,8 @@ public class InstantiatorGenerator extends ClassGenerator {
                 for (APIMethod constructor : apiClass.getConstructors()) {
                     if (constructor.getModifiers().contains(APIModifier.PUBLIC) &&
                             (!constructor.isDepreacated() || !jobConfiguration.isSkipDeprecated())) {
-                        for (String implementing : apiClass.getImplementing()) {
-                            String name = generateName(configuration.getCreateSuperInstanceIdentifier(), implementing);
+                        for (APIType implementing : apiClass.getImplementing()) {
+                            String name = generateName(configuration.getCreateSuperInstanceIdentifier(), implementing.getName());
                             addCreateInstanceMethod(implementing, name, constructor, false);
                         }
                         break;
@@ -168,7 +168,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         if (!constructor.getModifiers().contains(APIModifier.PUBLIC)) return;
 
         // create basic create new instance method
-        addCreateInstanceMethod(visitingClass.getFullNameWithTypeParams(), generateName(configuration.getCreateInstanceIdentifier(), constructor.getName()), constructor, false);
+        addCreateInstanceMethod(visitingClass.getType(), generateName(configuration.getCreateInstanceIdentifier(), constructor.getName()), constructor, false);
 
         // if it is possible, create null version of previous constructor
         // nonparam constructor can't be tested with null values.
@@ -189,7 +189,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         }
 
         // generate null constructor (same as previous, but params are NULLs).
-        addCreateInstanceMethod(visitingClass.getFullNameWithTypeParams(), generateName(configuration.getCreateNullInstanceIdentifier(), constructor.getName()), constructor, true);
+        addCreateInstanceMethod(visitingClass.getType(), generateName(configuration.getCreateNullInstanceIdentifier(), constructor.getName()), constructor, true);
     }
 
     /**
@@ -300,6 +300,20 @@ public class InstantiatorGenerator extends ClassGenerator {
         return false;
     }
 
+    // TODO: tahle metoda se mi moc nelibi... funguje, ale vychazi ze stareho typoveho modelu.
+    // mozna by chtelo ji v budoucnu predelat. Hlavne se mi nelibi, ze pri kazdem volani se
+    // vola findClass, ktere je ted docela pomale... (sekvencni hledani v API)
+    private boolean checkNullCollision(APIMethod method, APIType type) {
+        APIClass cls = null;
+        try {
+            cls = findClass(type.getName());
+            return checkNullCollision(method, cls);
+        } catch (ClassNotFoundException e) {
+            System.err.println("Can't find class with name: \"" + type.getName() + "\"");
+        }
+        return false;
+    }
+    
     private boolean checkNullCollision(APIMethod method, String clsName) {
         APIClass cls = null;
         try {
@@ -447,18 +461,18 @@ public class InstantiatorGenerator extends ClassGenerator {
     /**
      * Create new metod like this template:
      * <p/>
-     * public instanceClassName methodName(args[0] a, args[1] b, ...) {
+     * public instanceType methodName(args[0] a, args[1] b, ...) {
      * return new visitingClassName(a, b);
      * }
      *
-     * @param instanceClassName
+     * @param instanceType
      * @param methodName
      * @param constructor
      * @param nullParams
      */
-    private void addCreateInstanceMethod(String instanceClassName, String methodName, APIMethod constructor, boolean nullParams) {
+    private void addCreateInstanceMethod(APIType instanceType, String methodName, APIMethod constructor, boolean nullParams) {
 
-        JClass returnCls = getGenericsClassRef(instanceClassName);
+        JClass returnCls = getTypeRef(instanceType, visitingClass.getTypeParamsMap().keySet());
 
         // checks if class is inner. - Inner classes has different constructors.
         boolean innerClass = false;
@@ -472,7 +486,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         }
 
         // new instance has to be public class
-        if (!isTypePublic(instanceClassName, null)) {
+        if (!isTypePublic(instanceType, null)) {
             return;
         }
 
@@ -482,11 +496,13 @@ public class InstantiatorGenerator extends ClassGenerator {
 
         String typeParam = visitingClass.getTypeParamsMap().isEmpty() ? "" : "< >";
         if (innerClass) {
-            String outerClassName = instanceClassName.substring(0, instanceClassName.lastIndexOf('.'));
+            String outerClassName = instanceType.getSimpleName();
             result.param(getClassRef(outerClassName), configuration.getInstanceIdentifier());
             newInstance = JExpr._new(cm.ref(visitingClass.getName() + typeParam));
         } else {
-            newInstance = JExpr._new(getGenericsClassRef(visitingClass.getFullName() + typeParam));
+            //newInstance = JExpr._new(getGenericsClassRef(visitingClass.getFullName() + typeParam));
+            // TODO: pridat genericke typy
+            newInstance = JExpr._new(getTypeRef(visitingClass.getType(), visitingClass.getTypeParamsMap().keySet()));
         }
 
         // add generics

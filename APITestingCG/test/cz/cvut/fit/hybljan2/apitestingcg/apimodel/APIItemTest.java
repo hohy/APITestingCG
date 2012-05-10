@@ -65,14 +65,14 @@ public class APIItemTest {
     }
 
     /**
-     * Test of getType method, of class APIItem.
+     * Test of getKind method, of class APIItem.
      */
     @Test
     public void testGetType() {
-        System.out.println("getType");
+        System.out.println("getKind");
         APIItem instance = new APIItemImpl();
         Kind expResult = Kind.CLASS;
-        Kind result = instance.getType();
+        Kind result = instance.getKind();
         assertEquals(expResult, result);
     }
 

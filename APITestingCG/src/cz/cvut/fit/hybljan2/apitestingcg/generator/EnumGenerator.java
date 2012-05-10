@@ -23,7 +23,7 @@ public class EnumGenerator extends InstantiatorGenerator {
     @Override
     public void visit(APIClass apiClass) {
         // enum test should be generated only for Enums
-        if (!apiClass.getType().equals(APIItem.Kind.ENUM)) return;
+        if (!apiClass.getKind().equals(APIItem.Kind.ENUM)) return;
 
         // check if extender for this class is enabled in jobConfiguration.
         if (!isEnabled(apiClass.getFullName(), WhitelistRule.RuleItem.INSTANTIATOR)) return;

@@ -24,7 +24,7 @@ public class ExtenderGenerator extends ClassGenerator {
     public void visit(APIClass apiClass) {
 
         // extender can be generated for classes and interfaces
-        if ((!apiClass.getType().equals(APIItem.Kind.CLASS)) && (!apiClass.getType().equals(APIItem.Kind.INTERFACE))) {
+        if ((!apiClass.getKind().equals(APIItem.Kind.CLASS)) && (!apiClass.getKind().equals(APIItem.Kind.INTERFACE))) {
             return;
         }
 
@@ -60,21 +60,21 @@ public class ExtenderGenerator extends ClassGenerator {
             visitingClass = apiClass;
             int classMods = 0;
             if (visitingClass.getModifiers().contains(APIModifier.ABSTRACT)
-                    || apiClass.getType() == APIItem.Kind.INTERFACE) {
+                    || apiClass.getKind() == APIItem.Kind.INTERFACE) {
                 classMods = JMod.PUBLIC | JMod.ABSTRACT;
             } else if (!visitingClass.isNested()) {
                 classMods = JMod.PUBLIC;
             }
 
             // if tested item is interface, create Implementator, otherwise Extender
-            if (visitingClass.getType() == APIItem.Kind.INTERFACE) {
+            if (visitingClass.getKind() == APIItem.Kind.INTERFACE) {
                 String className = generateName(configuration.getImplementerClassIdentifier(), apiClass.getName());
                 cls = declareNewClass(classMods, currentPackageName, className, visitingClass.isNested());
-                cls._implements(getGenericsClassRef(apiClass.getFullNameWithTypeParams()));
+                cls._implements(getTypeRef(visitingClass.getType(), visitingClass.getTypeParamsMap().keySet()));
             } else {
                 String className = generateName(configuration.getExtenderClassIdentifier(), apiClass.getName());
                 cls = declareNewClass(classMods, currentPackageName, className, visitingClass.isNested());
-                cls._extends(getGenericsClassRef(apiClass.getFullNameWithTypeParams()));
+                cls._extends(getTypeRef(visitingClass.getType(), visitingClass.getTypeParamsMap().keySet()));
             }
 
             if (!apiClass.getTypeParamsMap().isEmpty()) {
@@ -299,11 +299,11 @@ public class ExtenderGenerator extends ClassGenerator {
                 }
 
             } else {
-                //if (visitingClass.getTypeParamsMap().containsKey(param.getType())) {
-                //    String paramTypeName = visitingClass.getTypeParamsMap().get(param.getType())[0];
+                //if (visitingClass.getTypeParamsMap().containsKey(param.getKind())) {
+                //    String paramTypeName = visitingClass.getTypeParamsMap().get(param.getKind())[0];
                 //    paramType = getClassRef(paramTypeName);
-                //} else if (method.getTypeParamsMap().containsKey(param.getType())) {
-                //    String paramTypeName = method.getTypeParamsMap().get(param.getType())[0];
+                //} else if (method.getTypeParamsMap().containsKey(param.getKind())) {
+                //    String paramTypeName = method.getTypeParamsMap().get(param.getKind())[0];
                 //paramType = getClassRef(paramTypeName);
                 //paramType.getTypeParameters().add(paramType);
                 //}

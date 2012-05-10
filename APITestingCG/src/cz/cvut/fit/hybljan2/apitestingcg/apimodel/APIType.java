@@ -131,4 +131,8 @@ public class APIType {
         result = 31 * result + (array ? 1 : 0);
         return result;
     }
+
+    public String getSimpleName() {
+        return getName().substring(0, getName().lastIndexOf("."));
+    }
 }

@@ -210,4 +210,28 @@ public class InstantiatorGeneratorTest {
         FileAssert.assertEquals(expected, resultFile);
     }
 
+    /**
+     * Test of the instantiator generator that check if the generated code
+     * reflects that the tested class extends some class.
+     */
+    @Test
+    public void TestExtending() {
+        Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("instantiator");
+        job.setOutputDir("output/tests/instantiator");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.INSTANTIATOR);
+        r.setRule("lib.ExtendingClass1");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
+
+        File resultFile = new File("output/tests/instantiator/test/lib/ExtendingClass1Instantiator.java");
+        assertTrue(resultFile.exists());
+
+        File expected = new File("testres/instantiator_exp/ExtendingClass1Instantiator.java");
+
+        FileAssert.assertEquals(expected, resultFile);
+    }
 }
