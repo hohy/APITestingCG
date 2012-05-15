@@ -339,7 +339,7 @@ public class APIClassTest {
     @Test
     public void testGetFullNameWithTypeParams() throws Exception {
         APIClass instance = new APIClass("java.util.List");
-        String[] strings = {"java.lang.String"};
+        APIType[] strings = {new APIType("java.lang.String")};
         instance.getTypeParamsMap().put("T", strings);
         String expected = "java.util.List<T>";
         String result = instance.getFullNameWithTypeParams();
@@ -349,7 +349,7 @@ public class APIClassTest {
     @Test
     public void testGetFullNameWithTypeParams2() throws Exception {
         APIClass instance = new APIClass("java.util.Map");
-        String[] strings = {"java.lang.String"};
+        APIType[] strings = {new APIType("java.lang.String")};
         instance.getTypeParamsMap().put("T", strings);
         instance.getTypeParamsMap().put("U", strings);
         String expected = "java.util.Map<T, U>";

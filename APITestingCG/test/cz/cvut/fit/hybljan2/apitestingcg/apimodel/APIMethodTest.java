@@ -76,16 +76,16 @@ public class APIMethodTest {
     @Test
     public void testGetReturnType() {
         APIMethod instance = testInstaces[1];
-        String expResult = "int";
-        String result = instance.getReturnType();
+        APIType expResult = new APIType("int");
+        APIType result = instance.getReturnType();
         assertEquals(expResult, result);
     }
 
     @Test
     public void testGetReturnType2() {
         APIMethod instance = testInstaces[2];
-        String expResult = "java.io.File";
-        String result = instance.getReturnType();
+        APIType expResult = new APIType("java.io.File");
+        APIType result = instance.getReturnType();
         assertEquals(expResult, result);
     }
 

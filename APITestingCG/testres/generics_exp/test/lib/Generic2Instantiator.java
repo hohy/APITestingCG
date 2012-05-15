@@ -6,8 +6,8 @@ import lib.Generic2;
 public class Generic2Instantiator {
 
 
-    public <T, S> Generic2 <T, S> createGeneric2(T t, S s) {
-        return new Generic2 <T, S>(t, s);
+    public <T, S> Generic2<T, S> createGeneric2(T t, S s) {
+        return new Generic2<T, S>(t, s);
     }
 
     public <T, S> T getValue1(Generic2<T, S> instance) {

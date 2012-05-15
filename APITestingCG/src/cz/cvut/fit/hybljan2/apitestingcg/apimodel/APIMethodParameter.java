@@ -15,11 +15,16 @@ public class APIMethodParameter {
     /**
      * Full name of class.
      */
-    private String type;
+    private APIType type;
 
-    public APIMethodParameter(String name, String type) {
+    public APIMethodParameter(String name, APIType type) {
         this.name = name;
         this.type = type;
+    }
+    
+    public APIMethodParameter(String name, String type) {
+        this.name = name;
+        this.type = new APIType(type);
     }
 
     public APIMethodParameter(String name, JCTree.JCVariableDecl jcvd) {
@@ -28,14 +33,14 @@ public class APIMethodParameter {
         } else {
             this.name = name;
         }
-        type = jcvd.type.toString();
+        type = new APIType(jcvd.type);
     }
 
     public String getName() {
         return name;
     }
 
-    public String getType() {
+    public APIType getType() {
         return type;
     }
 
@@ -62,7 +67,7 @@ public class APIMethodParameter {
     }
 
     public boolean isPrimitive() {
-        switch (getType()) {
+        switch (getType().getName()) {
             case "byte":
             case "short":
             case "int":

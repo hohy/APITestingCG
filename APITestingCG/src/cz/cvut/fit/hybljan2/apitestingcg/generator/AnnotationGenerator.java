@@ -136,7 +136,7 @@ public class AnnotationGenerator extends ClassGenerator {
         for (APIMethod method : annotation.getMethods()) {
             if (setDefaults || method.getAnnotationDefaultValue() == null) {
                 try {
-                    result.param(method.getName(), getAnotationParamValue(method.getReturnType()));
+                    result.param(method.getName(), getAnotationParamValue(method.getReturnType().getName()));
                 } catch (Exception e) {
                     System.err.println("Cant set param value." + e.getMessage());
                 }

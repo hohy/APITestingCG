@@ -107,7 +107,8 @@ public class API extends APIItem {
             if (nestedClass.getFullName().equals(className)) {
                 return nestedClass;
             } else {
-                findNestedClass(className, nestedClass);
+                APIClass c = findNestedClass(className, nestedClass);
+                if (c != null) return c;
             }
         }
         return null;

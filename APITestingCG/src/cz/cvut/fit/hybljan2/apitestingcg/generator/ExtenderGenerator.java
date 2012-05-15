@@ -80,9 +80,9 @@ public class ExtenderGenerator extends ClassGenerator {
             if (!apiClass.getTypeParamsMap().isEmpty()) {
                 for (String typeName : apiClass.getTypeParamsMap().keySet()) {
                     JTypeVar type = cls.generify(typeName);
-                    for (String bound : visitingClass.getTypeParamsMap().get(typeName)) {
-                        JClass typeBound = getGenericsClassRef(bound);
-                        if(!bound.equals("java.lang.Object")) {
+                    for (APIType bound : visitingClass.getTypeParamsMap().get(typeName)) {
+                        JClass typeBound = getTypeRef(bound, visitingClass.getTypeParamsMap().keySet());
+                        if(!bound.equals(new APIType("java.lang.Object"))) {
                             type.bound(typeBound);
                         }
                     }
@@ -142,8 +142,8 @@ public class ExtenderGenerator extends ClassGenerator {
         if (visitingClass.getTypeParamsMap().isEmpty() && !constructor.getTypeParamsMap().isEmpty()) {
             for (String typeName : constructor.getTypeParamsMap().keySet()) {
                 JTypeVar type = constr.generify(typeName);
-                for (String bound : constructor.getTypeParamsMap().get(typeName)) {
-                    JClass typeBound = getClassRef(bound);
+                for (APIType bound : constructor.getTypeParamsMap().get(typeName)) {
+                    JClass typeBound = getTypeRef(bound, constructor.getTypeParamsMap().keySet());
                     if (!bound.equals("java.lang.Object")) {
                         type.bound(typeBound);
                     }
@@ -153,13 +153,13 @@ public class ExtenderGenerator extends ClassGenerator {
 
         // define params of the constructor.
         for (APIMethodParameter param : constructor.getParameters()) {
-            JType type = getClassRef(param.getType());
+            JType type = getTypeRef(param.getType(), visitingClass.getTypeParamsMap().keySet());
             constr.param(type, String.valueOf(param.getName()));
             superInv.arg(JExpr.ref(String.valueOf(param.getName())));
         }
 
         for (String exception : constructor.getThrown()) {
-            constr._throws(getClassRef(exception));
+            constr._throws(getTypeRef(exception, constructor.getTypeParamsMap().keySet()));
         }
     }
 
@@ -228,51 +228,53 @@ public class ExtenderGenerator extends ClassGenerator {
         }
 
         // return type have to be public or protected class
-        if (!isTypePublicOrProtected(method.getReturnType(), method.getTypeParamsMap().keySet())) {
+        if (!checkTypeAccessModifier(APIModifier.PROTECTED, method.getReturnType(),method.getTypeParamsMap().keySet())) {
             return;
         }
 
         // all methods params has to be public or protected classes
         for (APIMethodParameter paramType : method.getParameters()) {
-            if (!isTypePublicOrProtected(paramType.getType(), method.getTypeParamsMap().keySet())) {
+
+            if (!checkTypeAccessModifier(APIModifier.PROTECTED,paramType.getType(), method.getTypeParamsMap().keySet())) {
                 return;
             }
+
         }
 
         if (method.isDepreacated() && jobConfiguration.isSkipDeprecated()) {
             return;
         }
 
-        JClass extenderReturnType = getClassRef(method.getReturnType());
-        String returnTypeParam = getParamArg(method.getReturnType());
-        if (returnTypeParam != null) {
-            if (!visitingClass.getTypeParamsMap().isEmpty()) {
-                extenderReturnType = getGenericsClassRef(method.getReturnType());
-                /*
-                TODO: v nekterych pripadech je mozne pouzit genericky navratovy typ,
-                    viz metody write7 a 8 v testovacim souboru. Pouziti gt ale neni
-                    povinne, tak jej zatim vynechavam.
-                */
-
-            } else if (!method.getTypeParamsMap().isEmpty()) {
-                extenderReturnType = getGenericsClassRef(method.getReturnType());
-            }
-        } else {
-            if (visitingClass.getTypeParamsMap().containsKey(method.getReturnType())) {
-                extenderReturnType = getClassRef(method.getReturnType());
-            } else if (method.getTypeParamsMap().containsKey(method.getReturnType())) {
-                String returnTypeName = method.getReturnType();//method.getTypeParamsMap().get(method.getReturnType());
-                extenderReturnType = getClassRef(returnTypeName);
-            }
-        }
+        JClass extenderReturnType = getTypeRef(method.getReturnType(), method.getTypeParamsMap().keySet());//getClassRef(method.getReturnType());
+        //String returnTypeParam = getParamArg(method.getReturnType());
+//        if (returnTypeParam != null) {
+//            if (!visitingClass.getTypeParamsMap().isEmpty()) {
+//                extenderReturnType = getGenericsClassRef(method.getReturnType());
+//                /*
+//                TODO: v nekterych pripadech je mozne pouzit genericky navratovy typ,
+//                    viz metody write7 a 8 v testovacim souboru. Pouziti gt ale neni
+//                    povinne, tak jej zatim vynechavam.
+//                */
+//
+//            } else if (!method.getTypeParamsMap().isEmpty()) {
+//                extenderReturnType = getGenericsClassRef(method.getReturnType());
+//            }
+//        } else {
+//            if (visitingClass.getTypeParamsMap().containsKey(method.getReturnType())) {
+//                extenderReturnType = getClassRef(method.getReturnType());
+//            } else if (method.getTypeParamsMap().containsKey(method.getReturnType())) {
+//                String returnTypeName = method.getReturnType();//method.getTypeParamsMap().get(method.getReturnType());
+//                extenderReturnType = getClassRef(returnTypeName);
+//            }
+//        }
         // define new method
         JMethod mthd = cls.method(JMod.PUBLIC, extenderReturnType, method.getName());
 
         if (visitingClass.getTypeParamsMap().isEmpty() && !method.getTypeParamsMap().isEmpty()) {
             for (String typeName : method.getTypeParamsMap().keySet()) {
                 JTypeVar type = mthd.generify(typeName);
-                for (String bound : method.getTypeParamsMap().get(typeName)) {
-                    JClass typeBound = getClassRef(bound);
+                for (APIType bound : method.getTypeParamsMap().get(typeName)) {
+                    JClass typeBound = getTypeRef(bound, method.getTypeParamsMap().keySet());
                     if (!bound.equals("java.lang.Object")) {
                         type.bound(typeBound);
                     }
@@ -286,11 +288,11 @@ public class ExtenderGenerator extends ClassGenerator {
         // add params to method. New method has same params as overridden method.
         for (APIMethodParameter param : method.getParameters()) {
             boolean array = false;
-            if (param.getType().endsWith("[]")) {   // TODO: add isArray property to the APIMethodParam class
+            if (param.getType().isArray()) {
                 array = true;
             }
-            JClass paramType = getClassRef(param.getType());
-            String paramTypeParam = getParamArg(param.getType());
+            JClass paramType = getTypeRef(param.getType(),method.getTypeParamsMap().keySet());
+            /*String paramTypeParam = getParamArg(param.getType());
             if (paramTypeParam != null) {
                 if (!visitingClass.getTypeParamsMap().isEmpty()) {
                     paramType = getClassRef(param.getType());
@@ -307,7 +309,7 @@ public class ExtenderGenerator extends ClassGenerator {
                 //paramType = getClassRef(paramTypeName);
                 //paramType.getTypeParameters().add(paramType);
                 //}
-            }
+            } */
 
             if (array) {
                 paramType.array();
@@ -320,7 +322,7 @@ public class ExtenderGenerator extends ClassGenerator {
 
         // add list of thrown methods. Must be same as list of original class
         for (String thrown : method.getThrown()) {
-            mthd._throws(getClassRef(thrown));
+            mthd._throws(getTypeRef(thrown, method.getTypeParamsMap().keySet()));
         }
 
     }

@@ -21,11 +21,19 @@ import java.util.*;
 public class APIMethod extends APIItem implements Comparable<APIMethod> {
 
     private List<APIMethodParameter> parameters;
-    private String returnType;
+    private APIType returnType;
     private List<String> thrown;
     private String annotationDefaultValue;
-    private Map<String, String[]> typeParamsMap = new LinkedHashMap<>();
+    private Map<String, APIType[]> typeParamsMap = new LinkedHashMap<>();
 
+    /**
+     * Simple method constructor. Can be used for testing.
+     * @param name
+     * @param modifiers
+     * @param params
+     * @param returnType
+     * @param thrown
+     */
     public APIMethod(String name, List<APIModifier> modifiers, List<String> params, String returnType, List<String> thrown) {
         this.name = name;
         this.kind = Kind.METHOD;
@@ -35,7 +43,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         for (String ptype : params) {
             parameters.add(new APIMethodParameter(String.valueOf(pname++), ptype));
         }
-        this.returnType = returnType;
+        this.returnType = new APIType(returnType);
         this.thrown = thrown;
     }
 
@@ -56,18 +64,18 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
                 String typeName = par.getName().toString();
 
                 // and theirs bounds
-                List<String> typeBounds = new ArrayList<String>();
+                List<APIType> typeBounds = new ArrayList<>();
                 for (JCExpression typeBound : par.getBounds()) {
-                    typeBounds.add(typeBound.type.toString());
+                    typeBounds.add(new APIType(typeBound.type));
                 }
 
                 // if type bound is not specified, set default (java.lang.Object)
                 if (typeBounds.isEmpty()) {
-                    typeBounds.add("java.lang.Object");
+                    typeBounds.add(new APIType(Object.class));
                 }
 
                 // puts result to typeParams map
-                typeParamsMap.put(typeName, typeBounds.toArray(new String[0]));
+                typeParamsMap.put(typeName, typeBounds.toArray(new APIType[0]));
             }
         }
 
@@ -100,12 +108,12 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         // and other methods return full name of Class from jcmd.getReturnType()
         if (!kind.equals(Kind.CONSTRUCTOR)) {
             if (jcmd.getReturnType() == null) {
-                returnType = "void";
+                returnType = APIType.voidType;
             } else {
-                returnType = jcmd.restype.type.toString();
+                returnType = new APIType(jcmd.restype.type);
             }
         } else {
-            returnType = jcmd.sym.owner.toString();
+            returnType = new APIType(jcmd.sym.owner.toString());
         }
 
         boolean readParamNames = true;  // TODO: put this to the configuration
@@ -157,16 +165,16 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
             parameters.add(new APIMethodParameter(String.valueOf(pname++), getTypeName(t)));
         }
 
-        returnType = getTypeName(mth.getGenericReturnType());
+        returnType = new APIType(mth.getGenericReturnType());
 
         // construct typeparams (generics) map
         for (TypeVariable tp : mth.getTypeParameters()) {
             String typeName = tp.getName();
-            ArrayList<String> typeBounds = new ArrayList<>();
+            ArrayList<APIType> typeBounds = new ArrayList<>();
             for (Type type : tp.getBounds()) {
-                typeBounds.add(getTypeName(type));
+                typeBounds.add(new APIType(type));
             }
-            typeParamsMap.put(typeName, typeBounds.toArray(new String[0]));
+            typeParamsMap.put(typeName, typeBounds.toArray(new APIType[0]));
         }
 
         if (mth.getDefaultValue() != null) {
@@ -208,7 +216,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
                 filterFirstParam = false;
             }
         }
-        this.returnType = fullClassName;
+        this.returnType = new APIType(c.getDeclaringClass());//fullClassName;
         this.kind = Kind.CONSTRUCTOR;
     }
 
@@ -235,7 +243,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
             sb.append('<');
             for (String key : typeParamsMap.keySet()) {
                 sb.append(key).append(' ');
-                for (String typeBound : typeParamsMap.get(key)) {
+                for (APIType typeBound : typeParamsMap.get(key)) {
                     sb.append(typeBound).append(" & ");
                 }
                 sb.delete(sb.length() - 3, sb.length());
@@ -284,9 +292,11 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         else return "";
     }
 
-    // Constructor should hava return type null. Void method raturns "void"
-    // and other methods retrun full name of class.
-    public String getReturnType() {
+    /**
+     * Constructor should have return type null. Void method returns "void"
+     * and other methods return full name of class.
+     */
+    public APIType getReturnType() {
         return returnType;
     }
 
@@ -332,7 +342,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         return annotationDefaultValue;
     }
 
-    public Map<String, String[]> getTypeParamsMap() {
+    public Map<String, APIType[]> getTypeParamsMap() {
         return typeParamsMap;
     }
 }

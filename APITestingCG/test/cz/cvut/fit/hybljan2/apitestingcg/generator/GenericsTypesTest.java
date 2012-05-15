@@ -279,5 +279,27 @@ public class GenericsTypesTest {
         FileAssert.assertEquals(expected, resultFile);
     }
 
+    @Test
+    public void TestGenericNames() {
+
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("annotations");
+        job.setOutputDir("output/tests/generics");
+        job.setOutputPackage("test.%s");
+        job.addWhitelistRule(new WhitelistRule("lib.GenericNames"));
+        igenerator.generate(api, job);
+        egenerator.generate(api, job);
+        File resultFile = new File("output/tests/generics/test/lib/GenericNames.java");
+        assertTrue(resultFile.exists());
+        File expected = new File("testres/generics_exp/test/lib/GenericNames.java");
+        FileAssert.assertEquals(expected, resultFile);
+
+
+        resultFile = new File("output/tests/generics/test/lib/GenericNames.java");
+        assertTrue(resultFile.exists());
+        expected = new File("testres/generics_exp/test/lib/GenericNames.java");
+        FileAssert.assertEquals(expected, resultFile);
+    }
+
 
 }

@@ -144,7 +144,7 @@ public class APIViewForm extends javax.swing.JFrame {
                     sb.append("<");
                     for (String typeName : cls.getTypeParamsMap().keySet()) {
                         sb.append(typeName).append(" {");
-                        for (String typeBound : cls.getTypeParamsMap().get(typeName)) {
+                        for (APIType typeBound : cls.getTypeParamsMap().get(typeName)) {
                             sb.append(typeBound).append(',');
                         }
                         sb.append("}; ");
@@ -213,7 +213,7 @@ public class APIViewForm extends javax.swing.JFrame {
                     sb.append("<");
                     for (String typeName : mth.getTypeParamsMap().keySet()) {
                         sb.append(typeName).append(" {");
-                        for (String typeBound : mth.getTypeParamsMap().get(typeName)) {
+                        for (APIType typeBound : mth.getTypeParamsMap().get(typeName)) {
                             sb.append(typeBound).append(',');
                         }
                         sb.append("}; ");

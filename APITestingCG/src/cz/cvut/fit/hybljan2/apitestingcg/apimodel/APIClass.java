@@ -53,7 +53,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
      * U                --> {java.lang.Object}
      * U extends A & B  --> {A, B}
      */
-    private Map<String, String[]> typeParamsMap = new LinkedHashMap<>();
+    private Map<String, APIType[]> typeParamsMap = new LinkedHashMap<>();
     private List<ElementType> annotationTargets;
 
     /**
@@ -93,18 +93,18 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
                 String typeName = par.getName().toString();
 
                 // and theirs bounds
-                List<String> typeBounds = new ArrayList<String>();
+                List<APIType> typeBounds = new ArrayList<>();
                 for (JCExpression typeBound : par.getBounds()) {
-                    typeBounds.add(typeBound.type.toString());
+                    typeBounds.add(new APIType(typeBound.type));
                 }
 
                 // if type bound is not specified, set default (java.lang.Object)
                 if (typeBounds.isEmpty()) {
-                    typeBounds.add("java.lang.Object");
+                    typeBounds.add(new APIType(Object.class));
                 }
 
                 // puts result to typeParams map
-                typeParamsMap.put(typeName, typeBounds.toArray(new String[0]));
+                typeParamsMap.put(typeName, typeBounds.toArray(new APIType[0]));
             }
         }
 
@@ -202,11 +202,11 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         // construct typeparams (generics) map
         for (TypeVariable tp : cls.getTypeParameters()) {
             String typeName = tp.getName();
-            ArrayList<String> typeBounds = new ArrayList<>();
+            ArrayList<APIType> typeBounds = new ArrayList<>();
             for (Type type : tp.getBounds()) {
-                typeBounds.add(getTypeName(type));
+                typeBounds.add(new APIType(type));
             }
-            typeParamsMap.put(typeName, typeBounds.toArray(new String[0]));
+            typeParamsMap.put(typeName, typeBounds.toArray(new APIType[0]));
         }
 
         // add nested classes
@@ -275,8 +275,10 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
             sb.append(" <");
             for (String key : typeParamsMap.keySet()) {
                 sb.append(key).append(' ');
-                for (String typeBound : typeParamsMap.get(key)) {
-                    sb.append(typeBound).append(" & ");
+                for (APIType typeBound : typeParamsMap.get(key)) {
+                    if(typeBound != null) {
+                        sb.append(typeBound).append(" & ");
+                    }
                 }
                 sb.delete(sb.length() - 3, sb.length());
                 sb.append(", ");
@@ -346,7 +348,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         return extending;
     }
 
-    public Map<String, String[]> getTypeParamsMap() {
+    public Map<String, APIType[]> getTypeParamsMap() {
         return typeParamsMap;
     }
 

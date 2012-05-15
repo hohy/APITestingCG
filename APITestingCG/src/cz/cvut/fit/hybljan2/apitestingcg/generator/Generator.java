@@ -27,25 +27,6 @@ public abstract class Generator implements IAPIVisitor {
 
     protected JCodeModel cm;
     private Map<String, JClass> classMap;
-    private Map<String, ClassReference> classReferenceMap;
-
-    private class ClassReference {
-        private APIModifier accessModifier;
-        private JClass refence;
-
-        public ClassReference(JClass reference, APIModifier accessModifier) {
-            this.refence = reference;
-            this.accessModifier = accessModifier;
-        }
-
-        public APIModifier getAccessModifier() {
-            return accessModifier;
-        }
-
-        public JClass getRefence() {
-            return refence;
-        }
-    }
 
     private API currentAPI;
 
@@ -60,7 +41,6 @@ public abstract class Generator implements IAPIVisitor {
         jobConfiguration = job;
         cm = new JCodeModel();
         classMap = new HashMap<>();
-        classReferenceMap = new HashMap<>();
         currentAPI = api;
         // create directory for package
         File outputDir = new File(jobConfiguration.getOutputDir());
@@ -241,101 +221,6 @@ public abstract class Generator implements IAPIVisitor {
         if (name.equals("boolean")) return "false";
         if (name.equals("char")) return "a";
         return "null";
-    }
-
-    /**
-     * TODO: rename the method to getClassRef when old getClassRef will be removed.
-     * @param className
-     * @return
-     */
-    protected JClass getTypeRef(String className, Collection<String> genericClasses) {
-        JClass typeReference = null;
-        if(classReferenceMap.containsKey(className)) {
-            typeReference = classReferenceMap.get(className).getRefence();
-        } else {
-            try {
-                APIClass cls = currentAPI.findClass(className);
-                APIModifier accessModifier = APIModifier.PRIVATE;
-
-                if (cls.getModifiers().contains(APIModifier.PUBLIC)) {
-                    accessModifier = APIModifier.PUBLIC;
-                } else if (cls.getModifiers().contains(APIModifier.PROTECTED)) {
-                    accessModifier = APIModifier.PROTECTED;
-                    // Because the protected classes can't be imported, we have to work in a generated
-                    // code only with the short names and be sure the type is used only at places where
-                    // the class can be referenced with short names (extender).
-                    className = className.substring(className.lastIndexOf('.') + 1);
-                }
-
-                typeReference = cm.ref(className);
-
-                classReferenceMap.put(className, new ClassReference(typeReference, accessModifier));
-            } catch (ClassNotFoundException e) {
-                if(genericClasses.contains(className)) {
-                    typeReference = cm.ref(className);
-                } else {
-                    System.err.println("Class Not Found:" + className);
-                }
-            }
-        }
-
-        return typeReference;
-    }
-    
-    /**
-     * 
-     * @param type
-     * @return
-     */
-    protected JClass getTypeRef(APIType type, Collection<String> genericClasses) {
-        // get reference to a base class of the type
-        JClass typeReference = getTypeRef(type.getName(), genericClasses);
-
-        // get references to the type argument classes
-        for(APIType typeArgument : type.getTypeArgs()) {
-            typeReference = typeReference.narrow(getTypeRef(typeArgument, genericClasses));
-        }
-
-        return typeReference;
-    }
-
-    /**
-     * Method checks if all classes in type can be accessed with given minimal access level.
-     * @param minimalAccessLevel
-     * @param verifiedType
-     * @param genericClasses
-     * @return
-     */
-    protected boolean checkTypeAccessModifier(APIModifier minimalAccessLevel, APIType verifiedType, Collection<String> genericClasses) {
-        try {
-            APIClass cls = findClass(verifiedType.getName());
-            if(!APIModifier.checkAccessLevel(minimalAccessLevel, cls)) {
-                return false;
-            }
-        } catch (ClassNotFoundException e) {
-            if (!genericClasses.contains(verifiedType.getName())) {
-                System.err.println("Class \""+ verifiedType.getName() +"\" not found.");
-                return false;
-            }
-        }
-
-        for(APIType typeArg : verifiedType.getTypeArgs()) {
-            try {
-                APIClass cls = findClass(typeArg.getName());
-                if(!APIModifier.checkAccessLevel(minimalAccessLevel, cls)) {
-                    return false;
-                }
-            } catch (ClassNotFoundException e) {
-                if (!genericClasses.contains(typeArg.getName())) {
-                    System.err.println("Class \""+ typeArg.getName() +"\" not found.");
-                    return false;
-                }
-            }
-        }
-
-
-
-        return true;
     }
 
     @Deprecated

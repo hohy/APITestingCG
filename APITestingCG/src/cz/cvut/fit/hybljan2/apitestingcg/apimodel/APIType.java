@@ -37,6 +37,7 @@ public class APIType {
     private boolean array = false;
 
     private APIModifier accessModifier = APIModifier.UNSET;
+
     public APIType(String name) {
         this.name = name;
     }
@@ -48,13 +49,22 @@ public class APIType {
 
     public APIType(Type type) {
         this.name = type.tsym.getQualifiedName().toString();
+        if(type instanceof Type.ArrayType) {
+            this.name = ((Type.ArrayType) type).elemtype.tsym.getQualifiedName().toString();
+            this.array = true;
+        }
         for(Type typeParam : type.getTypeArguments()) {
             addTypeParameter(new APIType(typeParam));
         }
     }
 
+    // TODO: poradne implementovat a otestovat nasledujici konstruktory... tohle je jen takova nouzovka...
     public APIType(java.lang.reflect.Type type) {
-
+        this.name = type.toString();
+    }
+    
+    public APIType(Class type) {
+        this.name = type.getName();
     }
 
     public APIType(GenericArrayType type) {
@@ -66,7 +76,7 @@ public class APIType {
     }
 
     public APIType(TypeVariable type) {
-
+        this.name = type.getName();
     }
 
     public APIType(WildcardType type) {
@@ -135,4 +145,6 @@ public class APIType {
     public String getSimpleName() {
         return getName().substring(0, getName().lastIndexOf("."));
     }
+
+    public static final APIType voidType = new APIType("void");
 }

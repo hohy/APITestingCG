@@ -102,25 +102,26 @@ public class InstantiatorGenerator extends ClassGenerator {
                 JMethod fieldsMethod = cls.method(JMod.PUBLIC, cm.VOID, configuration.getFieldTestIdentifier());
                 // add generics of the instantiator to the method
                 addGenerics(fieldsMethod);
-
-                String instanceClassName = visitingClass.getFullName();
-
-                if (!visitingClass.getTypeParamsMap().isEmpty()) {
-                    if (!visitingClass.getTypeParamsMap().isEmpty()) {
-                        instanceClassName += "<";
-                        boolean first = true;
-                        for (String typeName : visitingClass.getTypeParamsMap().keySet()) {
-                            if (first) {
-                                instanceClassName += typeName;
-                                first = false;
-                            } else {
-                                instanceClassName += ", " + typeName;
-                            }
-                        }
-                        instanceClassName += "> ";
-                    }
-                }
-                JClass instanceClassRef = getGenericsClassRef(instanceClassName);
+//
+//                String instanceClassName = visitingClass.getFullName();
+//
+//                if (!visitingClass.getTypeParamsMap().isEmpty()) {
+//                    if (!visitingClass.getTypeParamsMap().isEmpty()) {
+//                        instanceClassName += "<";
+//                        boolean first = true;
+//                        for (String typeName : visitingClass.getTypeParamsMap().keySet()) {
+//                            if (first) {
+//                                instanceClassName += typeName;
+//                                first = false;
+//                            } else {
+//                                instanceClassName += ", " + typeName;
+//                            }
+//                        }
+//                        instanceClassName += "> ";
+//                    }
+//                }
+//                JClass instanceClassRef = getGenericsClassRef(instanceClassName);
+                JClass instanceClassRef = getTypeRef(visitingClass.getType());
 
                 fieldsInstance = fieldsMethod.param(instanceClassRef, configuration.getInstanceIdentifier());
 
@@ -351,8 +352,8 @@ public class InstantiatorGenerator extends ClassGenerator {
         Iterator<APIMethodParameter> itA = paramsA.iterator();
         Iterator<APIMethodParameter> itB = paramsB.iterator();
         while (itA.hasNext()) {
-            String paramA = getPrimitiveValueString(itA.next().getType());
-            String paramB = getPrimitiveValueString(itB.next().getType());
+            String paramA = getPrimitiveValueString(itA.next().getType().getName());
+            String paramB = getPrimitiveValueString(itB.next().getType().getName());
             if (!paramA.equals(paramB)) {
                 return false;
             }
@@ -447,9 +448,9 @@ public class InstantiatorGenerator extends ClassGenerator {
                 if (!alreadyDefined) {
                     
                     JTypeVar type = item.generify(typeName);
-                        for (String bound : visitingClass.getTypeParamsMap().get(typeName)) {
-                            JClass typeBound = getClassRef(bound);
-                            if(!bound.equals("java.lang.Object")) {
+                        for (APIType bound : visitingClass.getTypeParamsMap().get(typeName)) {
+                            JClass typeBound = getTypeRef(bound, visitingClass.getTypeParamsMap().keySet());
+                            if(!bound.equals(new APIType(Object.class))) {
                                 type.bound(typeBound);
                             }
                         }
@@ -497,7 +498,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         String typeParam = visitingClass.getTypeParamsMap().isEmpty() ? "" : "< >";
         if (innerClass) {
             String outerClassName = instanceType.getSimpleName();
-            result.param(getClassRef(outerClassName), configuration.getInstanceIdentifier());
+            result.param(getTypeRef(outerClassName,null), configuration.getInstanceIdentifier());
             newInstance = JExpr._new(cm.ref(visitingClass.getName() + typeParam));
         } else {
             //newInstance = JExpr._new(getGenericsClassRef(visitingClass.getFullName() + typeParam));
@@ -509,8 +510,8 @@ public class InstantiatorGenerator extends ClassGenerator {
         if (visitingClass.getTypeParamsMap().isEmpty() && !constructor.getTypeParamsMap().isEmpty()) {
             for (String typeName : constructor.getTypeParamsMap().keySet()) {
                 JTypeVar type = result.generify(typeName);
-                for (String bound : constructor.getTypeParamsMap().get(typeName)) {
-                    JClass typeBound = getClassRef(bound);
+                for (APIType bound : constructor.getTypeParamsMap().get(typeName)) {
+                    JClass typeBound = getTypeRef(bound, constructor.getTypeParamsMap().keySet());
                     if (!bound.equals("java.lang.Object")) {
                         type.bound(typeBound);
                     }
@@ -523,9 +524,9 @@ public class InstantiatorGenerator extends ClassGenerator {
 
         // add params to the method
         for (APIMethodParameter arg : constructor.getParameters()) {
-            result.param(getGenericsClassRef(arg.getType()), String.valueOf(arg.getName()));
+            result.param(getTypeRef(arg.getType(), constructor.getTypeParamsMap().keySet()), String.valueOf(arg.getName()));
             if (nullParams) {
-                newInstance.arg(getPrimitiveValue(arg.getType()));
+                newInstance.arg(getPrimitiveValue(arg.getType().getName()));
             } else {
                 newInstance.arg(JExpr.ref(arg.getName()));
             }
@@ -540,12 +541,12 @@ public class InstantiatorGenerator extends ClassGenerator {
             resultBody = tryBlock.body();
             char eName = 'E';
             for (String exceptionType : constructor.getThrown()) {
-                JClass exception = getClassRef(exceptionType);
+                JClass exception = getTypeRef(exceptionType, constructor.getTypeParamsMap().keySet());
                 String exceptionParam = "ex" + String.valueOf(eName++);
                 tryBlock._catch(exception).param(exceptionParam);
             }
             // add return null after catch block.
-            result.body()._return(getPrimitiveValue(constructor.getReturnType()));
+            result.body()._return(getPrimitiveValue(constructor.getReturnType().getName()));
         }
 
         // add return statement to the method body.
@@ -572,7 +573,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         int methodMods = JMod.PUBLIC;
         JTypeVar t = null;
 
-        JType returnType = getGenericsClassRef(method.getReturnType());
+        JType returnType = getTypeRef(method.getReturnType(), method.getTypeParamsMap().keySet());
 //        if (visitingClass.getTypeParamsMap().containsKey(method.getReturnType())) {
 //            returnType = getGenericsClassRef(visitingClass.getTypeParamsMap().get(method.getReturnType())[0]);
 //        } else if (method.getTypeParamsMap().containsKey(method.getReturnType())) {
@@ -591,9 +592,9 @@ public class InstantiatorGenerator extends ClassGenerator {
             for (String typeName : method.getTypeParamsMap().keySet()) {
                 JTypeVar type = caller.generify(typeName);
                 JTypeVar ntype = nullCaller.generify(typeName);
-                for (String bound : method.getTypeParamsMap().get(typeName)) {
-                    JClass typeBound = getClassRef(bound);
-                    if (!bound.equals("java.lang.Object")) {
+                for (APIType bound : method.getTypeParamsMap().get(typeName)) {
+                    JClass typeBound = getTypeRef(bound, method.getTypeParamsMap().keySet());
+                    if (!bound.getName().equals("java.lang.Object")) {
                         type.bound(typeBound);
                         ntype.bound(typeBound);
                     }
@@ -611,24 +612,25 @@ public class InstantiatorGenerator extends ClassGenerator {
 
         // set invocation
         if (method.getModifiers().contains(APIModifier.STATIC)) {  // Static method - instance = Class name
-            invocation = getClassRef(visitingClass.getFullName()).staticInvoke(method.getName());
-            nullInvocation = getClassRef(visitingClass.getFullName()).staticInvoke(method.getName());
+            invocation = getTypeRef(visitingClass.getType()).staticInvoke(method.getName());
+            nullInvocation = getTypeRef(visitingClass.getType()).staticInvoke(method.getName());
         } else { // instance is first parameter
-            String instanceClassName = visitingClass.getFullName();
-            if (!visitingClass.getTypeParamsMap().isEmpty()) {
-                instanceClassName += "<";
-                boolean first = true;
-                for (String typeName : visitingClass.getTypeParamsMap().keySet()) {
-                    if (first) {
-                        instanceClassName += typeName;
-                        first = false;
-                    } else {
-                        instanceClassName += ", " + typeName;
-                    }
-                }
-                instanceClassName += "> ";
-            }
-            JClass instanceClassRef = getGenericsClassRef(instanceClassName);
+//            String instanceClassName = visitingClass.getFullName();
+//            if (!visitingClass.getTypeParamsMap().isEmpty()) {
+//                instanceClassName += "<";
+//                boolean first = true;
+//                for (String typeName : visitingClass.getTypeParamsMap().keySet()) {
+//                    if (first) {
+//                        instanceClassName += typeName;
+//                        first = false;
+//                    } else {
+//                        instanceClassName += ", " + typeName;
+//                    }
+//                }
+//                instanceClassName += "> ";
+//            }
+//            JClass instanceClassRef = getGenericsClassRef(instanceClassName);
+            JClass instanceClassRef = getTypeRef(visitingClass.getType());
             JExpression instance = caller.param(instanceClassRef, configuration.getInstanceIdentifier());
             JExpression nullInstance = nullCaller.param(instanceClassRef, configuration.getInstanceIdentifier());
             invocation = instance.invoke(method.getName());
@@ -638,11 +640,11 @@ public class InstantiatorGenerator extends ClassGenerator {
         // add parameter to the method and invocation - new method has same parameters as original method
         for (APIMethodParameter parameter : method.getParameters()) {
             String name = parameter.getName();
-            JClass type = getGenericsClassRef(parameter.getType());
+            JClass type = getTypeRef(parameter.getType(), method.getTypeParamsMap().keySet());
             JVar arg = caller.param(type, name);
             nullCaller.param(type, name);
             invocation.arg(arg);
-            nullInvocation.arg(getPrimitiveValue(parameter.getType()));
+            nullInvocation.arg(getPrimitiveValue(parameter.getType().getName()));
         }
 
         JBlock callerBody = caller.body();
@@ -654,21 +656,21 @@ public class InstantiatorGenerator extends ClassGenerator {
             JTryBlock nullTryBlock = nullCaller.body()._try();
             callerBody = tryBlock.body();
             nullCallerBody = nullTryBlock.body();
-            char eName = 'E';
+
             for (String exceptionType : method.getThrown()) {
-                JClass exception = getClassRef(exceptionType);
+                JClass exception = getTypeRef(exceptionType, method.getTypeParamsMap().keySet());
                 String exceptionParam = "e";
                 tryBlock._catch(exception).param(exceptionParam);
                 nullTryBlock._catch(exception).param(exceptionParam);
             }
 
-            if (!method.getReturnType().equals("void")) {
-                caller.body()._return(getPrimitiveValue(method.getReturnType()));
-                nullCaller.body()._return(getPrimitiveValue(method.getReturnType()));
+            if (!method.getReturnType().equals(APIType.voidType)) {
+                caller.body()._return(getPrimitiveValue(method.getReturnType().getName()));
+                nullCaller.body()._return(getPrimitiveValue(method.getReturnType().getName()));
             }
         }
 
-        if (method.getReturnType().equals("void")) {
+        if (method.getReturnType().equals(APIType.voidType)) {
             callerBody.add(invocation);
             nullCallerBody.add(nullInvocation);
         } else {

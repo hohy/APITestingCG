@@ -27,7 +27,7 @@ public class Fields4Extender extends Fields4 {
         nested8 = nested8Value;
     }
 
-    class ProtectedNestedClassExtender<H> extends lib.Fields4.ProtectedNestedClass<H> {
+    class ProtectedNestedClassExtender<H> extends ProtectedNestedClass<H> {
 
 
         public ProtectedNestedClassExtender() {
