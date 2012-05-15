@@ -11,7 +11,7 @@ public class GenericConstructor1Extender extends GenericConstructor1 {
         super(t);
     }
 
-    public <T> GenericConstructor1Extender(Collection tt) {
+    public <T> GenericConstructor1Extender(Collection<T> tt) {
         super(tt);
     }
 

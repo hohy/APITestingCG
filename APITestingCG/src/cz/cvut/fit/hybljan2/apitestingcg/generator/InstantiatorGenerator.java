@@ -473,7 +473,7 @@ public class InstantiatorGenerator extends ClassGenerator {
      */
     private void addCreateInstanceMethod(APIType instanceType, String methodName, APIMethod constructor, boolean nullParams) {
 
-        JClass returnCls = getTypeRef(instanceType, visitingClass.getTypeParamsMap().keySet());
+        JClass returnCls = getTypeRef(instanceType, constructor.getTypeParamsMap().keySet());
 
         // checks if class is inner. - Inner classes has different constructors.
         boolean innerClass = false;
@@ -503,7 +503,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         } else {
             //newInstance = JExpr._new(getGenericsClassRef(visitingClass.getFullName() + typeParam));
             // TODO: pridat genericke typy
-            newInstance = JExpr._new(getTypeRef(visitingClass.getType(), visitingClass.getTypeParamsMap().keySet()));
+            newInstance = JExpr._new(getTypeRef(visitingClass.getType(), constructor.getTypeParamsMap().keySet()));
         }
 
         // add generics
@@ -512,7 +512,7 @@ public class InstantiatorGenerator extends ClassGenerator {
                 JTypeVar type = result.generify(typeName);
                 for (APIType bound : constructor.getTypeParamsMap().get(typeName)) {
                     JClass typeBound = getTypeRef(bound, constructor.getTypeParamsMap().keySet());
-                    if (!bound.equals("java.lang.Object")) {
+                    if (!bound.equals(new APIType("java.lang.Object"))) {
                         type.bound(typeBound);
                     }
                 }

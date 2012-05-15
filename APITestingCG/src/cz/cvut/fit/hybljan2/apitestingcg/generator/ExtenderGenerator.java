@@ -144,7 +144,7 @@ public class ExtenderGenerator extends ClassGenerator {
                 JTypeVar type = constr.generify(typeName);
                 for (APIType bound : constructor.getTypeParamsMap().get(typeName)) {
                     JClass typeBound = getTypeRef(bound, constructor.getTypeParamsMap().keySet());
-                    if (!bound.equals("java.lang.Object")) {
+                    if (!bound.equals(new APIType("java.lang.Object"))) {
                         type.bound(typeBound);
                     }
                 }
@@ -153,7 +153,7 @@ public class ExtenderGenerator extends ClassGenerator {
 
         // define params of the constructor.
         for (APIMethodParameter param : constructor.getParameters()) {
-            JType type = getTypeRef(param.getType(), visitingClass.getTypeParamsMap().keySet());
+            JType type = getTypeRef(param.getType(), constructor.getTypeParamsMap().keySet());
             constr.param(type, String.valueOf(param.getName()));
             superInv.arg(JExpr.ref(String.valueOf(param.getName())));
         }
@@ -275,7 +275,7 @@ public class ExtenderGenerator extends ClassGenerator {
                 JTypeVar type = mthd.generify(typeName);
                 for (APIType bound : method.getTypeParamsMap().get(typeName)) {
                     JClass typeBound = getTypeRef(bound, method.getTypeParamsMap().keySet());
-                    if (!bound.equals("java.lang.Object")) {
+                    if (!bound.equals(new APIType("java.lang.Object"))) {
                         type.bound(typeBound);
                     }
                 }

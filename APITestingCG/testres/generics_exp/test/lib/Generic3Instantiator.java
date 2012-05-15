@@ -7,7 +7,7 @@ public class Generic3Instantiator {
 
 
     public <T extends Number> Generic3<T> createGeneric3(T t) {
-        return new Generic3<> (t);
+        return new Generic3<T>(t);
     }
 
     public <T extends Number> T getValue(Generic3<T> instance) {

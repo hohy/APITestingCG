@@ -289,15 +289,15 @@ public class GenericsTypesTest {
         job.addWhitelistRule(new WhitelistRule("lib.GenericNames"));
         igenerator.generate(api, job);
         egenerator.generate(api, job);
-        File resultFile = new File("output/tests/generics/test/lib/GenericNames.java");
+        File resultFile = new File("output/tests/generics/test/lib/GenericNamesInstantiator.java");
         assertTrue(resultFile.exists());
-        File expected = new File("testres/generics_exp/test/lib/GenericNames.java");
+        File expected = new File("testres/generics_exp/test/lib/GenericNamesInstantiator.java");
         FileAssert.assertEquals(expected, resultFile);
 
 
-        resultFile = new File("output/tests/generics/test/lib/GenericNames.java");
+        resultFile = new File("output/tests/generics/test/lib/GenericNamesExtender.java");
         assertTrue(resultFile.exists());
-        expected = new File("testres/generics_exp/test/lib/GenericNames.java");
+        expected = new File("testres/generics_exp/test/lib/GenericNamesExtender.java");
         FileAssert.assertEquals(expected, resultFile);
     }
 

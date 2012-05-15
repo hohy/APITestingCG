@@ -7,7 +7,7 @@ public class Generic4Instantiator {
 
 
     public <T extends Number & Runnable> Generic4<T> createGeneric4(T t) {
-        return new Generic4<> (t);
+        return new Generic4<T>(t);
     }
 
     public <T extends Number & Runnable> T getValue(Generic4<T> instance) {
