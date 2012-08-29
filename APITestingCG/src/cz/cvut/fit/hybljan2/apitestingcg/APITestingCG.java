@@ -68,7 +68,6 @@ public class APITestingCG {
         Generator[] generators = {
                 new ExtenderGenerator(configuration.getGeneratorConfiguration()),
                 new InstantiatorGenerator(configuration.getGeneratorConfiguration()),
-                new EnumGenerator(configuration.getGeneratorConfiguration()),
                 new AnnotationGenerator(configuration.getGeneratorConfiguration())
         };
 

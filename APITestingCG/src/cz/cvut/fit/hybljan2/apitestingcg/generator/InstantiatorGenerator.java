@@ -25,7 +25,9 @@ public class InstantiatorGenerator extends ClassGenerator {
     public void visit(APIClass apiClass) {
 
         // instantiator can be generated for classes and interfaces
-        if ((!apiClass.getKind().equals(APIItem.Kind.CLASS)) && (!apiClass.getKind().equals(APIItem.Kind.INTERFACE))) {
+        if ((!apiClass.getKind().equals(APIItem.Kind.CLASS))
+                && (!apiClass.getKind().equals(APIItem.Kind.INTERFACE))
+                && (!apiClass.getKind().equals(APIItem.Kind.ENUM))) {
             return;
         }
 
@@ -195,7 +197,7 @@ public class InstantiatorGenerator extends ClassGenerator {
 
     /**
      * Generates test of the public field.
-     * Final fields are tested by assigning their value to new field of same type. Ex: {@code int x = super.x;}. New
+     * Final fields are tested by assigning their value to new field of same type. Ex: {@code int x = instance.x;}. New
      * local variable x hides original super field x, but it doesn't mind.
      * Non-final fields are tested by assigning some value to them. Ex: {@codeFile f = null; fileField = f;}
      *
