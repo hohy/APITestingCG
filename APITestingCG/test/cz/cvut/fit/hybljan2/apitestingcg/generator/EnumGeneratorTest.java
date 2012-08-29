@@ -47,7 +47,7 @@ public class EnumGeneratorTest {
     @Test
     public void TestPlanets() {
 
-        Generator generator = new EnumGenerator(new GeneratorConfiguration());
+        Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
         GeneratorJobConfiguration job = new GeneratorJobConfiguration();
         job.setApiId("enum");
         job.setOutputDir("output/tests/enum");
@@ -61,5 +61,23 @@ public class EnumGeneratorTest {
 
         FileAssert.assertEquals(expected, resultFile);
 
+    }
+
+    /**
+     * I want to figure out, if i need specialized generator for enum types, 
+     * or i can use standard instantiator generator. It doesn't assert anything,
+     * it's only simple check. First condition in the InstantiatorGenerator
+     * has to be commented.
+     */
+    @Test
+    public void TestInstantiator() {
+        GeneratorConfiguration gc = new GeneratorConfiguration();
+        gc.setInstantiatorClassIdentifier("Test%sInstantiator");
+        Generator generator = new InstantiatorGenerator(gc);
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("enum");
+        job.setOutputDir("output/tests/enum");
+        job.setOutputPackage("test.%s");
+        generator.generate(api, job);
     }
 }

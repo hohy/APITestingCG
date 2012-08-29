@@ -18,7 +18,7 @@ public class PlanetInstantiator {
         return instance.surfaceWeight(otherMass);
     }
 
-    public void fields() {
+    public void fields(Planet instance) {
         Planet EARTH = Planet.EARTH;
         double G = Planet.G;
         Planet JUPITER = Planet.JUPITER;
