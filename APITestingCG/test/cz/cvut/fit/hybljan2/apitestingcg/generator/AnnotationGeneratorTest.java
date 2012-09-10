@@ -59,10 +59,10 @@ public class AnnotationGeneratorTest {
         job.addWhitelistRule(r);
         generator.generate(api, job);
 
-        File resultFile = new File("output/tests/annotations/package/test/lib/annotatedPackage/package-info.java");
+        File resultFile = new File("output/tests/annotations/package/test/lib/packageannotation/package-info.java");
         assertTrue(resultFile.exists());
 
-        File expected = new File("testres/annotations_exp/test/lib/annotatedPackage/package-info.java");
+        File expected = new File("testres/annotations_exp/test/lib/packageannotation/package-info.java");
 
         FileAssert.assertEquals(expected, resultFile);
 
@@ -82,10 +82,10 @@ public class AnnotationGeneratorTest {
         job.addWhitelistRule(r);
         generator.generate(api, job);
 
-        File resultFile = new File("output/tests/annotations/annotation/test/lib/AnnotationType.java");
+        File resultFile = new File("output/tests/annotations/annotation/test/lib/AnnotationAnnotationAnnotation.java");
         assertTrue(resultFile.exists());
 
-        File expected = new File("testres/annotations_exp/test/lib/AnnotationType.java");
+        File expected = new File("testres/annotations_exp/test/lib/AnnotationAnnotationAnnotation.java");
 
         FileAssert.assertEquals(expected, resultFile);
     }
@@ -104,12 +104,68 @@ public class AnnotationGeneratorTest {
         job.addWhitelistRule(r);
         generator.generate(api, job);
 
-        File resultFile = new File("output/tests/annotations/field/test/lib/test/lib/FieldAnnotationAnnotation.java");
+        File resultFile = new File("output/tests/annotations/field/test/lib/FieldAnnotationClass.java");
         assertTrue(resultFile.exists());
 
-        File expected = new File("testres/annotations_exp/test/lib/FieldAnnotationAnnotation.java");
+        File expected = new File("testres/annotations_exp/test/lib/FieldAnnotationClass.java");
 
         FileAssert.assertEquals(expected, resultFile);
+    }
+
+    @Test
+    public void AllTargetsAnnotationTest() {
+        Generator generator = new AnnotationGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("annotations");
+        job.setOutputDir("output/tests/annotations/allTargets");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.ALL);
+        r.setRule("lib.PackageAnnotation");
+        WhitelistRule r2 = new WhitelistRule();
+        r2.setItem(WhitelistRule.RuleItem.ALL);
+        r2.setRule("lib.AllTargetsAnnotation");
+        job.addWhitelistRule(r2);
+        generator.generate(api, job);
+
+        //class
+        File resultFile = new File("output/tests/annotations/allTargets/test/lib/AllTargetsAnnotationClass.java");
+        assertTrue(resultFile.exists());
+        File expected = new File("testres/annotations_exp/test/lib/AllTargetsAnnotationClass.java");
+        FileAssert.assertEquals(expected, resultFile);
+
+        //class default value
+        resultFile = new File("output/tests/annotations/allTargets/test/lib/AllTargetsAnnotationClassDV.java");
+        assertTrue(resultFile.exists());
+        expected = new File("testres/annotations_exp/test/lib/AllTargetsAnnotationClassDV.java");
+        FileAssert.assertEquals(expected, resultFile);
+
+        //annotation
+        resultFile = new File("output/tests/annotations/allTargets/test/lib/AllTargetsAnnotationAnnotation.java");
+        assertTrue(resultFile.exists());
+        expected = new File("testres/annotations_exp/test/lib/AllTargetsAnnotationAnnotation.java");
+        FileAssert.assertEquals(expected, resultFile);
+
+        //annotation default value
+        resultFile = new File("output/tests/annotations/allTargets/test/lib/AllTargetsAnnotationAnnotationDV.java");
+        assertTrue(resultFile.exists());
+        expected = new File("testres/annotations_exp/test/lib/AllTargetsAnnotationAnnotationDV.java");
+        FileAssert.assertEquals(expected, resultFile);
+
+        //package
+        resultFile = new File("output/tests/annotations/allTargets/test/lib/alltargetsannotation/package-info.java");
+        assertTrue(resultFile.exists());
+        expected = new File("testres/annotations_exp/test/lib/package-info.java");
+        FileAssert.assertEquals(expected, resultFile);
+
+        //package default value
+        resultFile = new File("output/tests/annotations/allTargets/test/lib/alltargetsannotationDV/package-info.java");
+        assertTrue(resultFile.exists());
+        expected = new File("testres/annotations_exp/test/lib/package-info-dv.java");
+        FileAssert.assertEquals(expected, resultFile);
+
+
+
     }
 
 }
