@@ -113,7 +113,8 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
                 returnType = new APIType(jcmd.restype.type);
             }
         } else {
-            returnType = new APIType(jcmd.sym.owner.toString());
+            //returnType = new APIType(jcmd.sym.owner.toString());
+            returnType = new APIType(jcmd.sym.owner.type);
         }
 
         boolean readParamNames = true;  // TODO: put this to the configuration

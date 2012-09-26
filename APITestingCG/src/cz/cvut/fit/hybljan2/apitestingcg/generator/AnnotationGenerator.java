@@ -69,61 +69,71 @@ public class AnnotationGenerator extends ClassGenerator {
         }
     }
 
-    private void generateTestClass(APIClass apiClass, boolean setDefaultValues) {
+    /**
+     * Generates a new class that tests given annotation.
+     * @param testedAnnotation Annotation that is tested by the generated code.
+     * @param setDefaultValues Should be default value of the annotation parameters be set to some value or the default
+     *                         value should be used.
+     *
+     * TODO: all names hardcoded in the source should be configurable through configuration.
+     */
+    private void generateTestClass(APIClass testedAnnotation, boolean setDefaultValues) {
         // declare new class
         try {
-            String className = currentPackageName + '.';
-            className += setDefaultValues
-                    ? generateName(configuration.getAnnotationClassIdentifier(), apiClass.getName()) + "DV"
-                    : generateName(configuration.getAnnotationClassIdentifier(), apiClass.getName());
-            if (apiClass.getAnnotationTargets().contains(ElementType.TYPE)) {
+            // TODO: pridat konfiguraci jmena do nastaveni.
+            String className = generateName("%sClass", testedAnnotation.getName());
+            if(setDefaultValues) className += "DV";
+
+            if (testedAnnotation.getAnnotationTargets().contains(ElementType.TYPE)) {
                 initClass(className);
-                annotate(cls, apiClass, setDefaultValues);
+                annotate(cls, testedAnnotation, setDefaultValues);
             }
 
-            if (apiClass.getAnnotationTargets().contains(ElementType.FIELD)) {
+            if (testedAnnotation.getAnnotationTargets().contains(ElementType.FIELD)) {
                 initClass(className);
                 JFieldVar fld = cls.field(JMod.NONE, cm.INT, "annotatedField");
-                annotate(fld, apiClass, setDefaultValues);
+                annotate(fld, testedAnnotation, setDefaultValues);
             }
 
-            if (apiClass.getAnnotationTargets().contains(ElementType.LOCAL_VARIABLE)) {
+            if (testedAnnotation.getAnnotationTargets().contains(ElementType.LOCAL_VARIABLE)) {
                 initClass(className);
                 JMethod method = cls.method(JMod.NONE, cm.VOID, "localVarMethod");
                 JVar localVar = method.body().decl(cm.INT, "localVariable");
-                annotate(localVar, apiClass, setDefaultValues);
+                annotate(localVar, testedAnnotation, setDefaultValues);
             }
 
-            if (apiClass.getAnnotationTargets().contains(ElementType.METHOD)) {
+            if (testedAnnotation.getAnnotationTargets().contains(ElementType.METHOD)) {
                 initClass(className);
                 JMethod method = cls.method(JMod.NONE, cm.VOID, "annotatedMethod");
-                annotate(method, apiClass, setDefaultValues);
+                annotate(method, testedAnnotation, setDefaultValues);
             }
 
-            if (apiClass.getAnnotationTargets().contains(ElementType.PARAMETER)) {
+            if (testedAnnotation.getAnnotationTargets().contains(ElementType.PARAMETER)) {
                 initClass(className);
                 JMethod method = cls.method(JMod.NONE, cm.VOID, "parameterMethod");
                 JVar param = method.param(cm.INT, "param");
-                annotate(param, apiClass, setDefaultValues);
+                annotate(param, testedAnnotation, setDefaultValues);
             }
 
-            if (apiClass.getAnnotationTargets().contains(ElementType.CONSTRUCTOR)) {
+            if (testedAnnotation.getAnnotationTargets().contains(ElementType.CONSTRUCTOR)) {
                 initClass(className);
                 JMethod method = cls.constructor(JMod.NONE);
-                annotate(method, apiClass, setDefaultValues);
+                annotate(method, testedAnnotation, setDefaultValues);
             }
 
-            if (apiClass.getAnnotationTargets().contains(ElementType.ANNOTATION_TYPE)) {
-                String name = setDefaultValues ? "AnnotationTypeDV" : "AnnotationType";
+            if (testedAnnotation.getAnnotationTargets().contains(ElementType.ANNOTATION_TYPE)) {
+                String name = testedAnnotation.getName() + "Annotation";
+                if(setDefaultValues) name += "DV";
                 JDefinedClass annotation = cm._class(currentPackageName + '.' + name, ClassType.ANNOTATION_TYPE_DECL);
-                annotate(annotation, apiClass, setDefaultValues);
+                annotate(annotation, testedAnnotation, setDefaultValues);
             }
 
 
-            if (apiClass.getAnnotationTargets().contains(ElementType.PACKAGE)) {
-                String packageName = setDefaultValues ? currentPackageName + ".annotatedPackageDV" : currentPackageName + ".annotatedPackage";
+            if (testedAnnotation.getAnnotationTargets().contains(ElementType.PACKAGE)) {
+                String packageName = currentPackageName + "." + testedAnnotation.getName().toLowerCase();
+                if(setDefaultValues) packageName += "DV";
                 JPackage a = cm._package(packageName);
-                annotate(a, apiClass, setDefaultValues);
+                annotate(a, testedAnnotation, setDefaultValues);
             }
 
         } catch (JClassAlreadyExistsException e) {
@@ -132,7 +142,8 @@ public class AnnotationGenerator extends ClassGenerator {
     }
 
     private JAnnotationUse annotate(JAnnotatable item, APIClass annotation, boolean setDefaults) {
-        JAnnotationUse result = item.annotate(getClassRef(annotation.getFullName()));
+        //JAnnotationUse result = item.annotate(getClassRef(annotation.getFullName()));
+        JAnnotationUse result = item.annotate(getTypeRef(annotation.getFullName(),null));
         for (APIMethod method : annotation.getMethods()) {
             if (setDefaults || method.getAnnotationDefaultValue() == null) {
                 try {

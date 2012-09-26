@@ -392,10 +392,14 @@ public class InstantiatorGenerator extends ClassGenerator {
 
     protected boolean isTypePublic(APIType varType, Collection<String> genericClasses) {
         boolean result = true;
-        if((!((genericClasses != null && genericClasses.contains(varType.getName())) || (varType.getName().equals("?")))))
+        if((!((genericClasses != null
+                && genericClasses.contains(varType.getName()))
+                || (varType.getName().equals("?"))))) {
             if (!isClassPublic(varType.getName())) {
                 return false;
             }
+        }
+
 
         // TODO: chybi testovani typeargu
         return result;

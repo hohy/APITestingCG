@@ -6,6 +6,7 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,19 +37,27 @@ public class APIType {
      */
     private boolean array = false;
 
+    /**
+     * Used for searching of nested classes. Has '$' char instead of '.' for indication of the inner class.
+     */
+    private String flatName;
+    
     private APIModifier accessModifier = APIModifier.UNSET;
 
     public APIType(String name) {
         this.name = name;
+        this.flatName = name;
     }
 
     public APIType(String name, boolean array) {
         this.name = name;
         this.array = array;
+        this.flatName = name;
     }
 
     public APIType(Type type) {
         this.name = type.tsym.getQualifiedName().toString();
+        this.flatName = type.tsym.flatName().toString();
         if(type instanceof Type.ArrayType) {
             this.name = ((Type.ArrayType) type).elemtype.tsym.getQualifiedName().toString();
             this.array = true;
@@ -60,11 +69,13 @@ public class APIType {
 
     // TODO: poradne implementovat a otestovat nasledujici konstruktory... tohle je jen takova nouzovka...
     public APIType(java.lang.reflect.Type type) {
-        this.name = type.toString();
+        if(type instanceof Class) name = ((Class) type).getCanonicalName();
+        else this.name = type.toString();
     }
     
     public APIType(Class type) {
         this.name = type.getName();
+        this.flatName = type.getCanonicalName();
     }
 
     public APIType(GenericArrayType type) {
@@ -146,5 +157,18 @@ public class APIType {
         return getName().substring(0, getName().lastIndexOf("."));
     }
 
+    public String getFlatName() {
+        return flatName;
+    }
+
     public static final APIType voidType = new APIType("void");
+
+    // todo: tohle by se dalo optimalizovat, aby se to udelalo jen pri pridani noveho typu a ne pri kazdem cteni.
+    public Collection<String> getTypeArgsClassNames() {
+        List<String> classNames = new LinkedList<>();
+        for(APIType t : typeArgs) {
+            classNames.add(t.getName());
+        }
+        return classNames;
+    }
 }

@@ -108,7 +108,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
             }
         }
 
-        this.fullName = jccd.type.tsym.toString();
+        this.fullName = jccd.type.tsym.getQualifiedName().toString();
 
         this.methods = new TreeSet<>();
         this.constructors = new TreeSet<>();
@@ -140,14 +140,14 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         fullName = cls.getName();
 
         if (cls.isMemberClass()) {
-            fullName = cls.getEnclosingClass().getName() + '.' + name;
+            fullName = cls.getEnclosingClass().getCanonicalName() + '.' + name;
         }
 
         constructors = new TreeSet<>();
         for (Constructor constr : cls.getDeclaredConstructors()) {
             APIMethod apiconstr = new APIMethod(constr, fullName);
-            if (apiconstr.getModifiers().contains(Modifier.PUBLIC)
-                    || apiconstr.getModifiers().contains(Modifier.PROTECTED))
+            if (apiconstr.getModifiers().contains(APIModifier.PUBLIC)
+                    || apiconstr.getModifiers().contains(APIModifier.PROTECTED))
                 this.constructors.add(apiconstr);
         }
 
@@ -155,8 +155,8 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         for (Method mth : cls.getDeclaredMethods()) {
             if (!mth.isBridge() && !mth.isSynthetic()) {
                 APIMethod apimth = new APIMethod(mth);
-                if (apimth.getModifiers().contains(Modifier.PUBLIC)
-                        || apimth.getModifiers().contains(Modifier.PROTECTED)) {
+                if (apimth.getModifiers().contains(APIModifier.PUBLIC)
+                        || apimth.getModifiers().contains(APIModifier.PROTECTED)) {
                     methods.add(apimth);
                 }
             }
@@ -166,9 +166,10 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         fields = new TreeSet<>();
         for (Field f : cls.getDeclaredFields()) {
             APIField apifield = new APIField(f);
-            if (apifield.getModifiers().contains(Modifier.PUBLIC)
-                    || apifield.getModifiers().contains(Modifier.PROTECTED))
+            if (apifield.getModifiers().contains(APIModifier.PUBLIC)
+                    || apifield.getModifiers().contains(APIModifier.PROTECTED)) {
                 fields.add(new APIField(f));
+            }
         }
 
         kind = getKind(cls);
@@ -410,6 +411,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         return constructors;
     }
 
+    // todo: moznam bude potreba pridat flatname.
     public APIType getType() {
         if(type == null) {
             type = new APIType(getFullName());

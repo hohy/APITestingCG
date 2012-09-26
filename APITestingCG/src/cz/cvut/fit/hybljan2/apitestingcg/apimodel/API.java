@@ -102,6 +102,36 @@ public class API extends APIItem {
         return new APIClass(loadedClass);
     }
 
+    /**
+     * Same as findClass(String className), but APIType.getFlatName() is used as a class name for class loader.
+     * @param type     type of the parameter
+     * @return
+     * @throws ClassNotFoundException
+     */
+    public APIClass findClass(APIType type) throws ClassNotFoundException {
+
+        try {
+            return findPrimitive(type.getName());
+        } catch (ClassNotFoundException e) {
+        }
+
+        for (APIPackage pckg : packages) {
+            for (APIClass cls : pckg.getClasses()) {
+                if (cls.getFullName().equals(type.getName())) {
+                    return cls;
+                } else {
+                    APIClass result = findNestedClass(type.getName(), cls);
+                    if (result != null) return result;
+                }
+            }
+        }
+
+        // class is not part of API, try load it with class loader.
+        if(!type.isArray()) return new APIClass(Class.forName(type.getFlatName()));
+        else return new APIClass(Class.forName(type.getName()));
+
+    }
+
     public APIClass findNestedClass(String className, APIClass cls) {
         for (APIClass nestedClass : cls.getNestedClasses()) {
             if (nestedClass.getFullName().equals(className)) {

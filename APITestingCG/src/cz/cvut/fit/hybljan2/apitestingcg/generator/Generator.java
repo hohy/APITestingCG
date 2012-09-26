@@ -307,6 +307,17 @@ public abstract class Generator implements IAPIVisitor {
         return currentAPI.findClass(name);
     }
 
+    /**
+     * Search current API for class with given name.
+     *
+     * @param type full class name
+     * @return class info
+     * @throws ClassNotFoundException if class isn't part of API
+     */
+    protected APIClass findClass(APIType type) throws ClassNotFoundException {
+        return currentAPI.findClass(type);
+    }
+
     public static String simplifyName(String originalName) {
         if (originalName.contains(".")) return originalName.substring(originalName.lastIndexOf(".") + 1);
         return originalName;

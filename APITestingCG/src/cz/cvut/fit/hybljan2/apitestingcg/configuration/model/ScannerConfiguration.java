@@ -23,8 +23,8 @@ public class ScannerConfiguration {
     private String apiName = "";
     private String apiVersion = "";
     private String path = "";
-    private String classpath = "";
-    private String sourceVersion = "";
+    private String classpath = " ";
+    private String sourceVersion = "1.7";
     private String id = "";
 
     @XmlElement(name = "id", required = true)

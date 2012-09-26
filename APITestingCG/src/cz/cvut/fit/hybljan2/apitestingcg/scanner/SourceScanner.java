@@ -117,6 +117,7 @@ public class SourceScanner implements APIScanner {
         }
     }
 
+    // TODO: zkusit prehodit tuto metodu do APIScanneru, protože je pouzivana obema scannerz, tak bz to tam bylo asi lepsi.
     public static String getClassPathJarFilesList(String classPath) throws FileNotFoundException {
         StringBuilder sb = new StringBuilder();
         String[] pathItems = classPath.split(File.pathSeparator);

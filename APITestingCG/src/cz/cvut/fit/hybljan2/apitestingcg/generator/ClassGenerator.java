@@ -67,6 +67,7 @@ public abstract class ClassGenerator extends Generator {
     }
 
     public JDefinedClass declareNewClass(int classMods, String packageName, String className, boolean nested) throws JClassAlreadyExistsException {
+        System.out.println("Declaring new class:" + packageName + '.' + className);
         JDefinedClass result;
         if (nested) {
             result = classStack.peek()._class(classMods, className, ClassType.CLASS);
@@ -104,19 +105,25 @@ public abstract class ClassGenerator extends Generator {
     }
 
     /**
-     *
+     * TODO: nějak vymyslet, aby se nemusela ta reference hledat dvakrat.
      * @param type
      * @return
      */
     protected JClass getTypeRef(APIType type, Collection<String> genericClasses) {
         // get reference to a base class of the type
         JClass typeReference = getTypeRef(type.getName(), genericClasses);
-
+        // this second getTypeRef is there because class loader identifies classes with flat name instead of standard
+        // name. And it makes problems in nested classes ($ separator instead of .)
+        if(typeReference == null) typeReference = getTypeRef(type.getFlatName(), genericClasses);
         // get references to the type argument classes
         for(APIType typeArgument : type.getTypeArgs()) {
-            typeReference = typeReference.narrow(getTypeRef(typeArgument, genericClasses));
+            typeReference = typeReference.narrow(getTypeRef(typeArgument, typeArgument.getTypeArgsClassNames()));
         }
 
+        if(typeReference == null) {
+            throw new RuntimeException("Can't get reference of \"" + type + "\" (" + type.getFlatName() + ").");
+        }
+        
         if(type.isArray()) {
             return typeReference.array();
         } else {
@@ -161,6 +168,7 @@ public abstract class ClassGenerator extends Generator {
                         || (genericClasses != null && genericClasses.contains(className))) {
                     typeReference = cm.ref(className);
                 } else {
+                    //throw new RuntimeException("Class Not Found: " + className);
                     System.err.println("Class Not Found:" + className);
                 }
             }
@@ -178,30 +186,37 @@ public abstract class ClassGenerator extends Generator {
      */
     protected boolean checkTypeAccessModifier(APIModifier minimalAccessLevel, APIType verifiedType, Collection<String> genericClasses) {
         try {
-            APIClass cls = findClass(verifiedType.getName());
+            APIClass cls = findClass(verifiedType);
             if(!APIModifier.checkAccessLevel(minimalAccessLevel, cls)) {
                 return false;
             }
         } catch (ClassNotFoundException e) {
             if ((!visitingClass.getTypeParamsMap().keySet().contains(verifiedType.getName()))
                     && !(genericClasses != null && genericClasses.contains(verifiedType.getName()))) {
-                System.err.println("Class \""+ verifiedType.getName() +"\" not found.");
-                return false;
+                //System.err.println("Class \""+ verifiedType.getName() +"\" not found.");
+                throw new RuntimeException("Class \""+ verifiedType.getName() +"\" (" + verifiedType.getFlatName() + ") not found.");
+                //return false;
             }
         }
 
         for(APIType typeArg : verifiedType.getTypeArgs()) {
-            try {
-                APIClass cls = findClass(typeArg.getName());
-                if(!APIModifier.checkAccessLevel(minimalAccessLevel, cls)) {
-                    return false;
-                }
-            } catch (ClassNotFoundException e) {
-                if (!genericClasses.contains(typeArg.getName())) {
-                    System.err.println("Class \""+ typeArg.getName() +"\" not found.");
-                    return false;
-                }
+
+            if(checkTypeAccessModifier(minimalAccessLevel,typeArg,genericClasses)) {
+                return false;
             }
+//            try {
+//                APIClass cls = findClass(typeArg.getName());
+//                if(cls == null) cls = findClass(typeArg.getFlatName());
+//                if(!APIModifier.checkAccessLevel(minimalAccessLevel, cls)) {
+//                    return false;
+//                }
+//            } catch (ClassNotFoundException e) {
+//                if (!genericClasses.contains(typeArg.getName())) {
+//                    //System.err.println("Class \""+ typeArg.getName() +"\" not found.");
+//                    //return false;
+//                    throw new RuntimeException("Class \""+ verifiedType.getName() +"\" not found.");
+//                }
+//            }
         }
 
 

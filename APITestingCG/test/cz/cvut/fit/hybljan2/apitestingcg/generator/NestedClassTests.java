@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
 
@@ -26,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 public class NestedClassTests {
 
     private static API api;
+    private static API apime;
 
     @BeforeClass
     public static void Setup() throws IOException {
@@ -40,6 +42,14 @@ public class NestedClassTests {
         scanner.setConfiguration(scannerConfiguration);
 
         api = scanner.scan();
+
+        ScannerConfiguration mecfg = new ScannerConfiguration();
+        mecfg.setApiName("Map entry test");
+        mecfg.setPath("testres/nestedme");
+        mecfg.setId("nestedme");
+
+        scanner.setConfiguration(mecfg);
+        apime = scanner.scan();
 
         // delete output files from previous run of tests
         TestUtils.delete(new File("output/tests/nested"));
@@ -64,4 +74,14 @@ public class NestedClassTests {
 
     }
 
+    @Test
+    public void TestMapEntry() {
+        Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("meapi");
+        job.setOutputDir("output/tests/nestedme");
+        generator.generate(apime,job);
+        Map.Entry xxx = null;
+
+    }
 }
