@@ -5,10 +5,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorJobConfiguration;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -117,7 +114,11 @@ public abstract class ClassGenerator extends Generator {
         if(typeReference == null) typeReference = getTypeRef(type.getFlatName(), genericClasses);
         // get references to the type argument classes
         for(APIType typeArgument : type.getTypeArgs()) {
-            typeReference = typeReference.narrow(getTypeRef(typeArgument, typeArgument.getTypeArgsClassNames()));
+            // Todo: tohle by chtelo udelat tak, aby se predavali dva parametry a nemuselo se to takhle hnusne spojovat.
+            List typeArgs = new LinkedList<>();
+            if(genericClasses != null) typeArgs.addAll(genericClasses);
+            if(genericClasses != null) typeArgs.addAll(typeArgument.getTypeArgsClassNames());
+            typeReference = typeReference.narrow(getTypeRef(typeArgument, typeArgs));
         }
 
         if(typeReference == null) {
