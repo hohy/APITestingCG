@@ -182,7 +182,7 @@ public abstract class ClassGenerator extends Generator {
      * @param minimalAccessLevel
      * @param verifiedType
      * @param genericClasses    method defined generics types.
-     * @return
+     * @return        true if type has minimalAccessLevel, false if not
      */
     protected boolean checkTypeAccessModifier(APIModifier minimalAccessLevel, APIType verifiedType, Collection<String> genericClasses) {
         try {
@@ -201,7 +201,7 @@ public abstract class ClassGenerator extends Generator {
 
         for(APIType typeArg : verifiedType.getTypeArgs()) {
 
-            if(checkTypeAccessModifier(minimalAccessLevel,typeArg,genericClasses)) {
+            if(!checkTypeAccessModifier(minimalAccessLevel,typeArg,genericClasses)) {
                 return false;
             }
 //            try {
