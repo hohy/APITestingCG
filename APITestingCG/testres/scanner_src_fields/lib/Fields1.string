@@ -1,0 +1,26 @@
+public class lib.Fields1 <G java.lang.Object>
+ public java.util.List<java.lang.String> g1
+ public java.util.List<java.util.Map<java.lang.Integer, java.util.List<java.util.List<java.util.Map<java.lang.String, java.io.File>>>>> g2
+ public G g3
+ public java.util.List<G> g4
+ public lib.Fields1.NestedType n1
+ public boolean pBoolean
+ public byte pByte
+ public char pChar
+ public double pDouble
+ public float pFloat
+ public int pInt
+ public long pLong
+ public short pShort
+ protected final int protectedFinalPrimitiveFld
+ protected static final int protectedStaticFinalPromitiveFld
+ public final java.io.File publicFinalFld
+ public java.io.File publicFld
+ public int publicPrimitiveFld
+ public static final java.io.File publicStaticFinalFld
+ public static java.io.File publicStaticFld
+ public static int publicStaticPrimitiveFld
+ public constructor lib.Fields1 Fields1()
+
+public nested class lib.Fields1.NestedType
+ public constructor lib.Fields1.NestedType NestedType()
