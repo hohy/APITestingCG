@@ -665,7 +665,26 @@ public class InstantiatorGenerator extends ClassGenerator {
 
             for (String exceptionType : method.getThrown()) {
                 JClass exception = getTypeRef(exceptionType, method.getTypeParamsMap().keySet());
-                String exceptionParam = "e";
+                String exceptionParam;
+                // get exception name and check if exception name is not in conflict with name of any other parameter
+                // of the method.
+                boolean nameOk;
+                int exceptionExtension = 0;
+                do {
+                    exceptionParam = configuration.getExceptionVariableName() + Integer.toString(exceptionExtension);
+                    nameOk = true;
+                    for (APIMethodParameter parameter : method.getParameters()) {
+                        if((exceptionExtension == 0 && parameter.getName().equals(configuration.getExceptionVariableName())) 
+                            || (exceptionExtension != 0 && parameter.getName().equals(exceptionParam))) {
+                            exceptionExtension++;
+                            nameOk = false;
+                        }
+                    }
+                } while (!nameOk);
+
+                if(exceptionExtension == 0) { // there is no conflict, no extension is used.
+                    exceptionParam = configuration.getExceptionVariableName();
+                }
                 tryBlock._catch(exception).param(exceptionParam);
                 nullTryBlock._catch(exception).param(exceptionParam);
             }
