@@ -210,6 +210,74 @@ public class GenericsTypesTest {
     }
 
 
+    @Test
+    public void TestGenerics5() {
+
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("annotations");
+        job.setOutputDir("output/tests/generics");
+        job.setOutputPackage("test.%s");
+        job.addWhitelistRule(new WhitelistRule("lib.Generic5"));
+        egenerator.generate(api, job);
+        igenerator.generate(api, job);
+        File resultFile = new File("output/tests/generics/test/lib/Generic5Instantiator.java");
+        assertTrue(resultFile.exists());
+        File expected = new File("testres/generics_exp/test/lib/Generic5Instantiator.java");
+        FileAssert.assertEquals(expected, resultFile);
+
+
+        resultFile = new File("output/tests/generics/test/lib/Generic5Extender.java");
+        assertTrue(resultFile.exists());
+        expected = new File("testres/generics_exp/test/lib/Generic5Extender.java");
+        FileAssert.assertEquals(expected, resultFile);
+
+    }
+
+    @Test
+    public void TestGenerics8() {
+
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("annotations");
+        job.setOutputDir("output/tests/generics");
+        job.setOutputPackage("test.%s");
+        job.addWhitelistRule(new WhitelistRule("lib.Generic8"));
+        egenerator.generate(api, job);
+        igenerator.generate(api, job);
+        File resultFile = new File("output/tests/generics/test/lib/Generic8Instantiator.java");
+        assertTrue(resultFile.exists());
+        File expected = new File("testres/generics_exp/test/lib/Generic8Instantiator.java");
+        FileAssert.assertEquals(expected, resultFile);
+
+
+        resultFile = new File("output/tests/generics/test/lib/Generic8Extender.java");
+        assertTrue(resultFile.exists());
+        expected = new File("testres/generics_exp/test/lib/Generic8Extender.java");
+        FileAssert.assertEquals(expected, resultFile);
+
+    }
+
+    @Test
+    public void TestTypeParmsOrder() {
+
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("annotations");
+        job.setOutputDir("output/tests/generics");
+        job.setOutputPackage("test.%s");
+        job.addWhitelistRule(new WhitelistRule("lib.TypeParams"));
+        egenerator.generate(api, job);
+        igenerator.generate(api, job);
+        File resultFile = new File("output/tests/generics/test/lib/TypeParamsInstantiator.java");
+        assertTrue(resultFile.exists());
+        File expected = new File("testres/generics_exp/test/lib/TypeParamsInstantiator.java");
+        FileAssert.assertEquals(expected, resultFile);
+
+
+        resultFile = new File("output/tests/generics/test/lib/TypeParamsExtender.java");
+        assertTrue(resultFile.exists());
+        expected = new File("testres/generics_exp/test/lib/TypeParamsExtender.java");
+        FileAssert.assertEquals(expected, resultFile);
+
+    }
 
     @Test
     public void TestGenericsMethod1() {

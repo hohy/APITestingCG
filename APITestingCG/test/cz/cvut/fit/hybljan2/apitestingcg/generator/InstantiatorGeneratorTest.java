@@ -234,4 +234,26 @@ public class InstantiatorGeneratorTest {
 
         FileAssert.assertEquals(expected, resultFile);
     }
+
+
+    @Test
+    public void TestExceptionNameConflictHandling() {
+        Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("instantiator");
+        job.setOutputDir("output/tests/instantiator");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.INSTANTIATOR);
+        r.setRule("lib.ExceptionName");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
+
+        File resultFile = new File("output/tests/instantiator/test/lib/ExceptionNameInstantiator.java");
+        assertTrue(resultFile.exists());
+
+        File expected = new File("testres/instantiator_exp/ExceptionNameInstantiator.java");
+
+        FileAssert.assertEquals(expected, resultFile);
+    }
 }

@@ -33,6 +33,8 @@ public class GeneratorConfiguration {
     private String fieldTestIdentifier = "fields";
     // name of field used for fields tests.
     private String fieldTestVariableIdentifier = "%sValue";
+    // name of the variable for exceptions
+    private String exceptionVariableName = "e";
 
 
     @XmlElement(name = "instance-identifier")
@@ -150,5 +152,14 @@ public class GeneratorConfiguration {
 
     public void setAnnotationClassIdentifier(String annotationClassIdentifier) {
         this.annotationClassIdentifier = annotationClassIdentifier;
+    }
+
+    @XmlElement(name = "exception-variable-identifier")
+    public String getExceptionVariableName() {
+        return exceptionVariableName;
+    }
+
+    public void setExceptionVariableName(String exceptionVariableName) {
+        this.exceptionVariableName = exceptionVariableName;
     }
 }
