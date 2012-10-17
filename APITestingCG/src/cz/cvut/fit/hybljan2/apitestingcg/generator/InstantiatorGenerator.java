@@ -513,7 +513,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         }
 
         // add generics
-        if (visitingClass.getTypeParamsMap().isEmpty() && !constructor.getTypeParamsMap().isEmpty()) {
+        if (!constructor.getTypeParamsMap().isEmpty()) {
             for (String typeName : constructor.getTypeParamsMap().keySet()) {
                 JTypeVar type = result.generify(typeName);
                 for (APIType bound : constructor.getTypeParamsMap().get(typeName)) {
@@ -594,7 +594,7 @@ public class InstantiatorGenerator extends ClassGenerator {
         JMethod nullCaller = cls.method(methodMods, returnType, nullCallerName);
 
         // add generics
-        if (visitingClass.getTypeParamsMap().isEmpty() && !method.getTypeParamsMap().isEmpty()) {
+        if (!method.getTypeParamsMap().isEmpty()) {
             for (String typeName : method.getTypeParamsMap().keySet()) {
                 JTypeVar type = caller.generify(typeName);
                 JTypeVar ntype = nullCaller.generify(typeName);
