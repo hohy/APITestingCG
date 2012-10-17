@@ -139,7 +139,7 @@ public class ExtenderGenerator extends ClassGenerator {
         JInvocation superInv = body.invoke("super");
 
         // add generic types
-        if (visitingClass.getTypeParamsMap().isEmpty() && !constructor.getTypeParamsMap().isEmpty()) {
+        if (!constructor.getTypeParamsMap().isEmpty()) {
             for (String typeName : constructor.getTypeParamsMap().keySet()) {
                 JTypeVar type = constr.generify(typeName);
                 for (APIType bound : constructor.getTypeParamsMap().get(typeName)) {
@@ -270,7 +270,7 @@ public class ExtenderGenerator extends ClassGenerator {
         // define new method
         JMethod mthd = cls.method(JMod.PUBLIC, extenderReturnType, method.getName());
 
-        if (visitingClass.getTypeParamsMap().isEmpty() && !method.getTypeParamsMap().isEmpty()) {
+        if (!method.getTypeParamsMap().isEmpty()) {
             for (String typeName : method.getTypeParamsMap().keySet()) {
                 JTypeVar type = mthd.generify(typeName);
                 for (APIType bound : method.getTypeParamsMap().get(typeName)) {
