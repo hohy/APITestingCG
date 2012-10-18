@@ -38,6 +38,18 @@ public class APIType {
     private boolean array = false;
 
     /**
+     * Indicates the type of wildcard type.
+     * UPPER = extends keyword
+     * LOWER = super keyword
+     * NULL = no bound.
+     */
+    private BoundType bound = BoundType.NULL;
+
+    public enum BoundType {
+        UPPER, LOWER, NULL;
+    }
+
+    /**
      * Used for searching of nested classes. Has '$' char instead of '.' for indication of the inner class.
      */
     private String flatName;
@@ -61,6 +73,20 @@ public class APIType {
         if(type instanceof Type.ArrayType) {
             this.name = ((Type.ArrayType) type).elemtype.tsym.getQualifiedName().toString();
             this.array = true;
+        }
+        if(type instanceof Type.WildcardType) {
+            this.name = "?";
+            Type.WildcardType wt = (Type.WildcardType) type;
+
+            switch (wt.kind) {
+                case EXTENDS: bound = BoundType.UPPER;
+                    addTypeParameter(new APIType(wt.getExtendsBound()));
+                    break;
+                case SUPER: bound = BoundType.LOWER;
+                    addTypeParameter(new APIType(wt.getSuperBound()));
+                    break;
+                default: bound = BoundType.NULL; break;
+            }
         }
         for(Type typeParam : type.getTypeArguments()) {
             addTypeParameter(new APIType(typeParam));
@@ -159,6 +185,10 @@ public class APIType {
 
     public String getFlatName() {
         return flatName;
+    }
+
+    public BoundType getBound() {
+        return bound;
     }
 
     public static final APIType voidType = new APIType("void");

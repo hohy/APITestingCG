@@ -107,6 +107,14 @@ public abstract class ClassGenerator extends Generator {
      * @return
      */
     protected JClass getTypeRef(APIType type, Collection<String> genericClasses) {
+
+        if(type.getName().equals("?")) {
+            switch (type.getBound()) {
+                case NULL: return cm.wildcard();
+                case UPPER: return getTypeRef(type.getTypeArgs().get(0)).wildcard();
+                case LOWER: return getTypeRef(type.getTypeArgs().get(0)).spr();
+            }
+        }
         // get reference to a base class of the type
         JClass typeReference = getTypeRef(type.getName(), genericClasses);
         // this second getTypeRef is there because class loader identifies classes with flat name instead of standard
@@ -192,7 +200,8 @@ public abstract class ClassGenerator extends Generator {
                 return false;
             }
         } catch (ClassNotFoundException e) {
-            if ((!visitingClass.getTypeParamsMap().keySet().contains(verifiedType.getName()))
+
+            if ((!verifiedType.getName().equals("?")) && (!visitingClass.getTypeParamsMap().keySet().contains(verifiedType.getName()))
                     && !(genericClasses != null && genericClasses.contains(verifiedType.getName()))) {
                 //System.err.println("Class \""+ verifiedType.getName() +"\" not found.");
                 throw new RuntimeException("Class \""+ verifiedType.getName() +"\" (" + verifiedType.getFlatName() + ") not found.");

@@ -1,10 +1,7 @@
 package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
-import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
-import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorJobConfiguration;
-import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ScannerConfiguration;
-import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.*;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
@@ -56,18 +53,18 @@ public class GenericsTypesTest {
         job.setApiId("annotations");
         job.setOutputDir("output/tests/generics");
         job.setOutputPackage("test.%s");
-        job.addWhitelistRule(new WhitelistRule("lib.Generic1"));
+        job.addWhitelistRule(new WhitelistRule("lib.Generic01"));
         igenerator.generate(api, job);
         egenerator.generate(api, job);
 
-        File resultFile = new File("output/tests/generics/test/lib/Generic1Instantiator.java");
+        File resultFile = new File("output/tests/generics/test/lib/Generic01Instantiator.java");
         assertTrue(resultFile.exists());
-        File expected = new File("testres/generics_exp/test/lib/Generic1Instantiator.java");
+        File expected = new File("testres/generics_exp/test/lib/Generic01Instantiator.java");
         FileAssert.assertEquals(expected, resultFile);
 
-        resultFile = new File("output/tests/generics/test/lib/Generic1Extender.java");
+        resultFile = new File("output/tests/generics/test/lib/Generic01Extender.java");
         assertTrue(resultFile.exists());
-        expected = new File("testres/generics_exp/test/lib/Generic1Extender.java");
+        expected = new File("testres/generics_exp/test/lib/Generic01Extender.java");
         FileAssert.assertEquals(expected, resultFile);
         
     }
@@ -254,6 +251,51 @@ public class GenericsTypesTest {
         expected = new File("testres/generics_exp/test/lib/Generic8Extender.java");
         FileAssert.assertEquals(expected, resultFile);
 
+    }
+
+
+    @Test
+    public void TestGenerics9() {
+
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("annotations");
+        job.setOutputDir("output/tests/generics");
+        job.setOutputPackage("test.%s");
+        job.addWhitelistRule(new WhitelistRule("lib.Generic9"));
+        egenerator.generate(api, job);
+        igenerator.generate(api, job);
+        File resultFile = new File("output/tests/generics/test/lib/Generic9Instantiator.java");
+        assertTrue(resultFile.exists());
+        File expected = new File("testres/generics_exp/test/lib/Generic9Instantiator.java");
+        FileAssert.assertEquals(expected, resultFile);
+
+
+        resultFile = new File("output/tests/generics/test/lib/Generic9Extender.java");
+        assertTrue(resultFile.exists());
+        expected = new File("testres/generics_exp/test/lib/Generic9Extender.java");
+        FileAssert.assertEquals(expected, resultFile);
+    }
+
+    @Test
+    public void TestGenerics13() {
+
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("annotations");
+        job.setOutputDir("output/tests/generics");
+        job.setOutputPackage("test.%s");
+        job.addWhitelistRule(new WhitelistRule("lib.Generic13"));
+        egenerator.generate(api, job);
+        igenerator.generate(api, job);
+        File resultFile = new File("output/tests/generics/test/lib/Generic13Instantiator.java");
+        assertTrue(resultFile.exists());
+        File expected = new File("testres/generics_exp/test/lib/Generic13Instantiator.java");
+        FileAssert.assertEquals(expected, resultFile);
+
+
+        resultFile = new File("output/tests/generics/test/lib/Generic13Extender.java");
+        assertTrue(resultFile.exists());
+        expected = new File("testres/generics_exp/test/lib/Generic13Extender.java");
+        FileAssert.assertEquals(expected, resultFile);
     }
 
     @Test

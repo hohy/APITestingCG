@@ -11,6 +11,15 @@ import javax.xml.bind.annotation.*;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "blacklist")
 public class BlacklistRule {
+
+    public BlacklistRule(String rule) {
+        item = WhitelistRule.RuleItem.ALL;
+        this.rule = rule;
+    }
+
+    public BlacklistRule() {
+    }
+
     @XmlAttribute
     protected WhitelistRule.RuleItem item = WhitelistRule.RuleItem.ALL;
 
