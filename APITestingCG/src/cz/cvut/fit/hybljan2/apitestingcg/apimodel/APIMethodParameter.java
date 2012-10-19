@@ -2,6 +2,8 @@ package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
 import com.sun.tools.javac.tree.JCTree;
 
+import java.lang.reflect.Type;
+
 /**
  * Class represents one parameter of method or constructor.
  */
@@ -34,6 +36,11 @@ public class APIMethodParameter {
             this.name = name;
         }
         type = new APIType(jcvd.type);
+    }
+
+    public APIMethodParameter(String name, Type type) {
+        this.name = name;
+        this.type = new APIType(type);
     }
 
     public String getName() {
@@ -81,5 +88,9 @@ public class APIMethodParameter {
                 return false;
         }
 
+    }
+
+    public void setType(APIType type) {
+        this.type = type;
     }
 }

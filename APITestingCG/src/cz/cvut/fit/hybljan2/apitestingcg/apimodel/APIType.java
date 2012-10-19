@@ -1,6 +1,8 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
 import com.sun.tools.javac.code.Type;
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
+import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
@@ -44,6 +46,14 @@ public class APIType {
      * NULL = no bound.
      */
     private BoundType bound = BoundType.NULL;
+
+    public void setBound(BoundType bound) {
+        this.bound = bound;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public enum BoundType {
         UPPER, LOWER, NULL;
@@ -95,7 +105,42 @@ public class APIType {
 
     // TODO: poradne implementovat a otestovat nasledujici konstruktory... tohle je jen takova nouzovka...
     public APIType(java.lang.reflect.Type type) {
-        if(type instanceof Class) name = ((Class) type).getCanonicalName();
+        if (type instanceof GenericArrayType) {
+            GenericArrayType at = (GenericArrayType) type;            
+            this.array = true;
+            APIType result = new APIType(at.getGenericComponentType());
+            this.name = result.getName();
+            this.bound = result.getBound();
+            this.typeArgs = result.getTypeArgs();
+            this.flatName = result.getFlatName();
+        } else if(type instanceof ParameterizedTypeImpl) {
+            ParameterizedType pt = (ParameterizedType) type;
+            this.name = ((Class) ((ParameterizedType) type).getRawType()).getCanonicalName();
+            for (java.lang.reflect.Type typeParam : pt.getActualTypeArguments()) {
+                addTypeParameter(new APIType(typeParam));
+            }
+        } else if (type instanceof WildcardType) {
+            WildcardType wt = (WildcardType) type;
+            this.name = "?";
+            if (wt.getLowerBounds().length > 0) {
+                bound = BoundType.LOWER;
+                addTypeParameter(new APIType(wt.getLowerBounds()[0])); // there should be only one parameter
+            } else if (wt.getUpperBounds().length > 0) {
+                bound = BoundType.UPPER;
+                addTypeParameter(new APIType(wt.getUpperBounds()[0])); // there should be only one parameter
+            } else {
+                bound = BoundType.NULL;
+            }
+        } else if(type instanceof TypeVariable) {
+            TypeVariable tv = (TypeVariable) type;
+            this.name = tv.getName();
+        } else if(type instanceof Class) {
+            name = ((Class) type).getCanonicalName();
+            if(name.endsWith("[]")) {
+                name = name.substring(0,name.length()-2);
+                array = true;
+            }
+        }
         else this.name = type.toString();
     }
     
@@ -184,7 +229,9 @@ public class APIType {
     }
 
     public String getFlatName() {
-        return flatName;
+        if(flatName != null) return flatName;
+        else return name;
+
     }
 
     public BoundType getBound() {

@@ -163,7 +163,7 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         parameters = new LinkedList<>();
         char pname = 'a';
         for (Type t : mth.getGenericParameterTypes()) {
-            parameters.add(new APIMethodParameter(String.valueOf(pname++), getTypeName(t)));
+            parameters.add(new APIMethodParameter(String.valueOf(pname++), t));
         }
 
         returnType = new APIType(mth.getGenericReturnType());
@@ -345,5 +345,9 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
 
     public Map<String, APIType[]> getTypeParamsMap() {
         return typeParamsMap;
+    }
+
+    public void setReturnType(APIType returnType) {
+        this.returnType = returnType;
     }
 }

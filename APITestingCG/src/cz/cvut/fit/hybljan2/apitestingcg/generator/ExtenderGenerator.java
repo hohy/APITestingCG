@@ -6,6 +6,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfigurat
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -59,10 +60,10 @@ public class ExtenderGenerator extends ClassGenerator {
         try {
             visitingClass = apiClass;
             int classMods = 0;
-            if (visitingClass.getModifiers().contains(APIModifier.ABSTRACT)
-                    || apiClass.getKind() == APIItem.Kind.INTERFACE) {
-                classMods = JMod.PUBLIC | JMod.ABSTRACT;
-            } else if (!visitingClass.isNested()) {
+//            if (visitingClass.getModifiers().contains(APIModifier.ABSTRACT)
+//                    || apiClass.getKind() == APIItem.Kind.INTERFACE) {
+//                classMods = JMod.PUBLIC | JMod.ABSTRACT;
+            if (!visitingClass.isNested()) {
                 classMods = JMod.PUBLIC;
             }
 
@@ -109,6 +110,14 @@ public class ExtenderGenerator extends ClassGenerator {
                 field.accept(this);
             }
 
+            // implement all abstract method of ancestors (super class and implemented interfaces) of current class
+            if (visitingClass.getExtending() != null) {
+                implementAbstractMethods(visitingClass.getExtending().getName());
+            }
+            for (APIType type : visitingClass.getImplementing()) {
+                implementAbstractMethods(type.getName());
+            }
+
             classStack.push(cls);
 
             // visit all nested classes
@@ -122,6 +131,49 @@ public class ExtenderGenerator extends ClassGenerator {
         }
     }
 
+    private void implementAbstractMethods(String className) {
+        try {
+            APIClass cls = findClass(className);
+            for (APIMethod mth : cls.getMethods()) {
+                if (mth.getModifiers().contains(APIModifier.ABSTRACT)) {
+                    // all generic types in overridden method has to be replaced with their bounds.
+                    // Type params has to be deleted.
+                    mth.setReturnType(simplifyType(mth.getReturnType(),cls.getTypeParamsMap(),mth.getTypeParamsMap()));
+                    for (APIMethodParameter p : mth.getParameters()) {
+                        p.setType(simplifyType(p.getType(),cls.getTypeParamsMap(),mth.getTypeParamsMap()));
+                    }
+                    mth.getTypeParamsMap().clear();
+                    addOverridingMethod(mth);
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private APIType simplifyType(APIType type, Map<String, APIType[]> clsGenerics, Map<String,APIType[]> mtdGenerics) {
+        type.setBound(APIType.BoundType.NULL);
+        type.getTypeArgs().clear();
+        APIType[] genericTypes = clsGenerics.get(type.getName());
+        if(genericTypes != null) {
+            if(genericTypes.length > 0) {
+                type.setName(genericTypes[0].getName());
+            } else {
+                type.setName("java.lang.Object");
+            }
+        } else {
+            genericTypes = mtdGenerics.get(type.getName());
+            if(genericTypes != null) {
+                if(genericTypes.length > 0) {
+                    type.setName(genericTypes[0].getName());
+                } else {
+                    type.setName("java.lang.Object");
+                }
+            }
+        }
+        return type;
+    }
+    
     private void visitConstructor(APIMethod constructor) {
         // Check if constructor is enabled in job configuration.
         if (!isEnabled(methodSignature(constructor, visitingClass.getFullName()), WhitelistRule.RuleItem.EXTENDER)) {
@@ -227,6 +279,20 @@ public class ExtenderGenerator extends ClassGenerator {
             return;
         }
 
+        if (method.isDepreacated() && jobConfiguration.isSkipDeprecated()) {
+            return;
+        }
+
+        addOverridingMethod(method);
+
+    }
+
+    /**
+     * Add new method to current generated class which overrides original method specified as parameter.
+     * @param method
+     */
+    private void addOverridingMethod(APIMethod method) {
+
         // return type have to be public or protected class
         if (!checkTypeAccessModifier(APIModifier.PROTECTED, method.getReturnType(),method.getTypeParamsMap().keySet())) {
             return;
@@ -241,32 +307,7 @@ public class ExtenderGenerator extends ClassGenerator {
 
         }
 
-        if (method.isDepreacated() && jobConfiguration.isSkipDeprecated()) {
-            return;
-        }
-
-        JClass extenderReturnType = getTypeRef(method.getReturnType(), method.getTypeParamsMap().keySet());//getClassRef(method.getReturnType());
-        //String returnTypeParam = getParamArg(method.getReturnType());
-//        if (returnTypeParam != null) {
-//            if (!visitingClass.getTypeParamsMap().isEmpty()) {
-//                extenderReturnType = getGenericsClassRef(method.getReturnType());
-//                /*
-//                TODO: v nekterych pripadech je mozne pouzit genericky navratovy typ,
-//                    viz metody write7 a 8 v testovacim souboru. Pouziti gt ale neni
-//                    povinne, tak jej zatim vynechavam.
-//                */
-//
-//            } else if (!method.getTypeParamsMap().isEmpty()) {
-//                extenderReturnType = getGenericsClassRef(method.getReturnType());
-//            }
-//        } else {
-//            if (visitingClass.getTypeParamsMap().containsKey(method.getReturnType())) {
-//                extenderReturnType = getClassRef(method.getReturnType());
-//            } else if (method.getTypeParamsMap().containsKey(method.getReturnType())) {
-//                String returnTypeName = method.getReturnType();//method.getTypeParamsMap().get(method.getReturnType());
-//                extenderReturnType = getClassRef(returnTypeName);
-//            }
-//        }
+        JClass extenderReturnType = getTypeRef(method.getReturnType(), method.getTypeParamsMap().keySet());
         // define new method
         JMethod mthd = cls.method(JMod.PUBLIC, extenderReturnType, method.getName());
 
@@ -292,24 +333,6 @@ public class ExtenderGenerator extends ClassGenerator {
                 array = true;
             }
             JClass paramType = getTypeRef(param.getType(),method.getTypeParamsMap().keySet());
-            /*String paramTypeParam = getParamArg(param.getType());
-            if (paramTypeParam != null) {
-                if (!visitingClass.getTypeParamsMap().isEmpty()) {
-                    paramType = getClassRef(param.getType());
-                } else {
-                    paramType = getGenericsClassRef(param.getType());
-                }
-
-            } else {
-                //if (visitingClass.getTypeParamsMap().containsKey(param.getKind())) {
-                //    String paramTypeName = visitingClass.getTypeParamsMap().get(param.getKind())[0];
-                //    paramType = getClassRef(paramTypeName);
-                //} else if (method.getTypeParamsMap().containsKey(param.getKind())) {
-                //    String paramTypeName = method.getTypeParamsMap().get(param.getKind())[0];
-                //paramType = getClassRef(paramTypeName);
-                //paramType.getTypeParameters().add(paramType);
-                //}
-            } */
 
             if (array) {
                 paramType.array();
@@ -324,7 +347,6 @@ public class ExtenderGenerator extends ClassGenerator {
         for (String thrown : method.getThrown()) {
             mthd._throws(getTypeRef(thrown, method.getTypeParamsMap().keySet()));
         }
-
     }
 
     protected static String getParamArg(String className) {

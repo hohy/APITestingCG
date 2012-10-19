@@ -171,6 +171,7 @@ public class GenericsTypesTest {
         job.setOutputPackage("test.%s");
         job.addWhitelistRule(new WhitelistRule("lib.Generic12"));
         egenerator.generate(api, job);
+        igenerator.generate(api, job);
         File resultFile = new File("output/tests/generics/test/lib/Generic12Instantiator.java");
         assertTrue(resultFile.exists());
         File expected = new File("testres/generics_exp/test/lib/Generic12Instantiator.java");
@@ -193,6 +194,7 @@ public class GenericsTypesTest {
         job.setOutputPackage("test.%s");
         job.addWhitelistRule(new WhitelistRule("lib.Generic17"));
         egenerator.generate(api, job);
+        igenerator.generate(api, job);
         File resultFile = new File("output/tests/generics/test/lib/Generic17Instantiator.java");
         assertTrue(resultFile.exists());
         File expected = new File("testres/generics_exp/test/lib/Generic17Instantiator.java");
@@ -251,29 +253,6 @@ public class GenericsTypesTest {
         expected = new File("testres/generics_exp/test/lib/Generic8Extender.java");
         FileAssert.assertEquals(expected, resultFile);
 
-    }
-
-
-    @Test
-    public void TestGenerics9() {
-
-        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
-        job.setApiId("annotations");
-        job.setOutputDir("output/tests/generics");
-        job.setOutputPackage("test.%s");
-        job.addWhitelistRule(new WhitelistRule("lib.Generic9"));
-        egenerator.generate(api, job);
-        igenerator.generate(api, job);
-        File resultFile = new File("output/tests/generics/test/lib/Generic9Instantiator.java");
-        assertTrue(resultFile.exists());
-        File expected = new File("testres/generics_exp/test/lib/Generic9Instantiator.java");
-        FileAssert.assertEquals(expected, resultFile);
-
-
-        resultFile = new File("output/tests/generics/test/lib/Generic9Extender.java");
-        assertTrue(resultFile.exists());
-        expected = new File("testres/generics_exp/test/lib/Generic9Extender.java");
-        FileAssert.assertEquals(expected, resultFile);
     }
 
     @Test
