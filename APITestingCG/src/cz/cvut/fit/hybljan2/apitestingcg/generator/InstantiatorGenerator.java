@@ -618,24 +618,9 @@ public class InstantiatorGenerator extends ClassGenerator {
 
         // set invocation
         if (method.getModifiers().contains(APIModifier.STATIC)) {  // Static method - instance = Class name
-            invocation = getTypeRef(visitingClass.getType()).staticInvoke(method.getName());
-            nullInvocation = getTypeRef(visitingClass.getType()).staticInvoke(method.getName());
+            invocation = getTypeRef(visitingClass.getSimpleType()).staticInvoke(method.getName());
+            nullInvocation = getTypeRef(visitingClass.getSimpleType()).staticInvoke(method.getName());
         } else { // instance is first parameter
-//            String instanceClassName = visitingClass.getFullName();
-//            if (!visitingClass.getTypeParamsMap().isEmpty()) {
-//                instanceClassName += "<";
-//                boolean first = true;
-//                for (String typeName : visitingClass.getTypeParamsMap().keySet()) {
-//                    if (first) {
-//                        instanceClassName += typeName;
-//                        first = false;
-//                    } else {
-//                        instanceClassName += ", " + typeName;
-//                    }
-//                }
-//                instanceClassName += "> ";
-//            }
-//            JClass instanceClassRef = getGenericsClassRef(instanceClassName);
             JClass instanceClassRef = getTypeRef(visitingClass.getType());
             JExpression instance = caller.param(instanceClassRef, configuration.getInstanceIdentifier());
             JExpression nullInstance = nullCaller.param(instanceClassRef, configuration.getInstanceIdentifier());

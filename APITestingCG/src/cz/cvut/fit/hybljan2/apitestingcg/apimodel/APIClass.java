@@ -422,6 +422,10 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         return type;
     }
 
+    public APIType getSimpleType() {
+        return new APIType(getFullName());
+    }
+
     @Override
     public void accept(IAPIVisitor visitor) {
         visitor.visit(this);
