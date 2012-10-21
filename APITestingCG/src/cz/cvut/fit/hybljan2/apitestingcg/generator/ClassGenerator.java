@@ -116,7 +116,7 @@ public abstract class ClassGenerator extends Generator {
             }
         }
         // get reference to a base class of the type
-        JClass typeReference = getTypeRef(type.getName(), genericClasses);
+        JClass typeReference = getTypeRef(type.getName(), genericClasses,false);
         // this second getTypeRef is there because class loader identifies classes with flat name instead of standard
         // name. And it makes problems in nested classes ($ separator instead of .)
         if(typeReference == null) typeReference = getTypeRef(type.getFlatName(), genericClasses);
@@ -143,20 +143,28 @@ public abstract class ClassGenerator extends Generator {
     protected JClass getTypeRef(APIType className) {
        return getTypeRef(className, null);
     }
-    
+
+    protected JClass getTypeRef(String className, Collection<String> genericClasses) {
+        return getTypeRef(className, genericClasses, true);
+    }
+
     /**
      * TODO: rename the method to getClassRef when old getClassRef will be removed.
      * @param className
      * @param genericClasses    method defined generics types.
      * @return
      */
-    protected JClass getTypeRef(String className, Collection<String> genericClasses) {
+    protected JClass getTypeRef(String className, Collection<String> genericClasses, boolean requiered) {
         JClass typeReference = null;
         if(classReferenceMap.containsKey(className)) {
             typeReference = classReferenceMap.get(className).getRefence();
         } else {
             try {
                 APIClass cls = findClass(className);
+                if(cls.isNested()) {
+                    className = cls.getFullName();
+                }
+                    
                 APIModifier accessModifier = APIModifier.PRIVATE;
 
                 if (cls.getModifiers().contains(APIModifier.PUBLIC)) {
@@ -176,7 +184,7 @@ public abstract class ClassGenerator extends Generator {
                 if(visitingClass.getTypeParamsMap().keySet().contains(className)
                         || (genericClasses != null && genericClasses.contains(className))) {
                     typeReference = cm.ref(className);
-                } else {
+                } else if(requiered) {
                     //throw new RuntimeException("Class Not Found: " + className);
                     System.err.println("Class Not Found:" + className);
                 }

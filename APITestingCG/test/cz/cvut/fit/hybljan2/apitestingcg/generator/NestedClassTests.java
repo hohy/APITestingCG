@@ -53,6 +53,7 @@ public class NestedClassTests {
 
         // delete output files from previous run of tests
         TestUtils.delete(new File("output/tests/nested"));
+        TestUtils.delete(new File("output/tests/nestedme"));
     }
 
     @Test
@@ -76,12 +77,27 @@ public class NestedClassTests {
 
     @Test
     public void TestMapEntry() {
-        Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
+        Generator igenerator = new InstantiatorGenerator(new GeneratorConfiguration());
+        Generator egenerator = new ExtenderGenerator(new GeneratorConfiguration());
         GeneratorJobConfiguration job = new GeneratorJobConfiguration();
         job.setApiId("meapi");
         job.setOutputDir("output/tests/nestedme");
-        generator.generate(apime,job);
-        Map.Entry xxx = null;
+        igenerator.generate(apime, job);
+        egenerator.generate(apime, job);
+
+        File resultFile = new File("output/tests/nestedme/test/lib/NestedInstantiator.java");
+        assertTrue(resultFile.exists());
+
+        File expected = new File("testres/nestedme_exp/lib/NestedInstantiator.java");
+
+        FileAssert.assertEquals(expected, resultFile);
+
+        resultFile = new File("output/tests/nestedme/test/lib/NestedExtender.java");
+        assertTrue(resultFile.exists());
+
+        expected = new File("testres/nestedme_exp/lib/NestedExtender.java");
+
+        FileAssert.assertEquals(expected, resultFile);
 
     }
 }

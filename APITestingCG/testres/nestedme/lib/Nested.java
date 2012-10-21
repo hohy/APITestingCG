@@ -7,7 +7,7 @@ public class Nested<K, V> {
 
   //public Set<Map.Entry<K, V>> entries;
   
-  public Set<java.util.Map.Entry<K, V>> method() {
+  public Set<Map.Entry<K, V>> method() {
     return null;
   }
 }
