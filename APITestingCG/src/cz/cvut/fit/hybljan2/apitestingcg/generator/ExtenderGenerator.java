@@ -135,7 +135,8 @@ public class ExtenderGenerator extends ClassGenerator {
         try {
             APIClass cls = findClass(className);
             for (APIMethod mth : cls.getMethods()) {
-                if (mth.getModifiers().contains(APIModifier.ABSTRACT)) {
+                if (mth.getModifiers().contains(APIModifier.ABSTRACT)
+                        && !visitingClass.getMethods().contains(mth)) {
                     // all generic types in overridden method has to be replaced with their bounds.
                     // Type params has to be deleted.
                     mth.setReturnType(simplifyType(mth.getReturnType(),cls.getTypeParamsMap(),mth.getTypeParamsMap()));

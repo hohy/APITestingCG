@@ -131,7 +131,8 @@ public abstract class Generator implements IAPIVisitor {
         } else enabled = true;  // if there is no rules for whitelist, enable all items.
 
         for (BlacklistRule rule : jobConfiguration.getBlacklistRules()) {
-            if ((rule.getRule().equals(itemSignature) || (itemSignature.contains(rule.getRule()))) && (rule.getItem().equals(target) || rule.getItem().equals(WhitelistRule.RuleItem.ALL))) {
+            if ((rule.getRule().equals(itemSignature) || (itemSignature.contains(rule.getRule())))
+                    && (rule.getItem().equals(target) || rule.getItem().equals(WhitelistRule.RuleItem.ALL))) {
                 enabled = false;    // disable item if there is blacklist rule for it.
                 break;
             }
