@@ -296,6 +296,7 @@ public class ExtenderGenerator extends ClassGenerator {
 
         // return type have to be public or protected class
         if (!checkTypeAccessModifier(APIModifier.PROTECTED, method.getReturnType(),method.getTypeParamsMap().keySet())) {
+            cls.mods().setAbstract(true);
             return;
         }
 
@@ -303,6 +304,9 @@ public class ExtenderGenerator extends ClassGenerator {
         for (APIMethodParameter paramType : method.getParameters()) {
 
             if (!checkTypeAccessModifier(APIModifier.PROTECTED,paramType.getType(), method.getTypeParamsMap().keySet())) {
+                if(method.getModifiers().contains(APIModifier.ABSTRACT)) {
+                    cls.mods().setAbstract(true);
+                }
                 return;
             }
 
