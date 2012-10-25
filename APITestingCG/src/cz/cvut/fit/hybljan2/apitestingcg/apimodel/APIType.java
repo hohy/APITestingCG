@@ -4,6 +4,7 @@ import com.sun.tools.javac.code.Type;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
 
+import javax.lang.model.type.TypeKind;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.TypeVariable;
@@ -47,6 +48,8 @@ public class APIType {
      */
     private BoundType bound = BoundType.NULL;
 
+    private boolean typeVar;
+
     public void setBound(BoundType bound) {
         this.bound = bound;
     }
@@ -67,7 +70,15 @@ public class APIType {
     private APIModifier accessModifier = APIModifier.UNSET;
 
     public APIType(String name) {
-        this.name = name;
+        if(name.endsWith("[]")) {
+            this.name = name.substring(0,name.length()-2);
+            this.array = true;
+        } else {
+            this.name = name;
+        }
+        if(name.contains("<")) {
+            this.name = name.substring(0,name.indexOf('<'));
+        }
         this.flatName = name;
     }
 
@@ -78,6 +89,7 @@ public class APIType {
     }
 
     public APIType(Type type) {
+        this.typeVar = type.getKind().equals(TypeKind.TYPEVAR);
         this.name = type.tsym.getQualifiedName().toString();
         this.flatName = type.tsym.flatName().toString();
         if(type instanceof Type.ArrayType) {
@@ -105,6 +117,9 @@ public class APIType {
 
     // TODO: poradne implementovat a otestovat nasledujici konstruktory... tohle je jen takova nouzovka...
     public APIType(java.lang.reflect.Type type) {
+        if (type instanceof TypeVariable)  {
+            this.typeVar = true;
+        }
         if (type instanceof GenericArrayType) {
             GenericArrayType at = (GenericArrayType) type;            
             this.array = true;
@@ -236,6 +251,10 @@ public class APIType {
 
     public BoundType getBound() {
         return bound;
+    }
+
+    public boolean isTypeVar() {
+        return typeVar;
     }
 
     public static final APIType voidType = new APIType("void");
