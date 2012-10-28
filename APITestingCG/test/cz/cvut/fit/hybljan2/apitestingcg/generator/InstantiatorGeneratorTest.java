@@ -235,6 +235,26 @@ public class InstantiatorGeneratorTest {
         FileAssert.assertEquals(expected, resultFile);
     }
 
+    @Test
+    public void TestAncestors() {
+        Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("instantiator");
+        job.setOutputDir("output/tests/instantiator");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.INSTANTIATOR);
+        r.setRule("lib.Ancestors");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
+
+        File resultFile = new File("output/tests/instantiator/test/lib/AncestorsInstantiator.java");
+        assertTrue(resultFile.exists());
+
+        File expected = new File("testres/instantiator_exp/AncestorsInstantiator.java");
+
+        FileAssert.assertEquals(expected, resultFile);
+    }
 
     @Test
     public void TestExceptionNameConflictHandling() {

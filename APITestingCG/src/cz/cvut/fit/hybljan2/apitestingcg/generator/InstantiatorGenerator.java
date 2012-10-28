@@ -4,6 +4,7 @@ import com.sun.codemodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
+import sun.plugin2.main.server.ModalitySupport;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -95,6 +96,25 @@ public class InstantiatorGenerator extends ClassGenerator {
                 }
             }
 
+            // ancestors test
+            // class A implements Runnable { }
+            // User will contain: void ancestors(A a) { Runnable r = a; }
+            if(visitingClass.getExtending() != null || !visitingClass.getImplementing().isEmpty()) {
+                JMethod ancestorsMethod = cls.method(JMod.NONE, cm.VOID, "ancestors");
+                JClass instanceClassRef = getTypeRef(visitingClass.getType());
+                char varName = 'a';
+                JVar instance = ancestorsMethod.param(instanceClassRef, String.valueOf(varName++));
+                JBlock ancestorsBody = ancestorsMethod.body();
+                if (visitingClass.getExtending() != null) {
+                    JClass type = getTypeRef(visitingClass.getExtending(), visitingClass.getTypeParamsMap().keySet());
+                    ancestorsBody.decl(type,String.valueOf(varName++),instance);
+                }
+                for (APIType iface : visitingClass.getImplementing()) {
+                    JClass type = getTypeRef(iface, visitingClass.getTypeParamsMap().keySet());
+                    JVar v = ancestorsBody.decl(type,String.valueOf(varName++),instance);
+                }
+            }
+
             // visit all methods
             for (APIMethod method : apiClass.getMethods()) {
                 method.accept(this);
@@ -104,25 +124,6 @@ public class InstantiatorGenerator extends ClassGenerator {
                 JMethod fieldsMethod = cls.method(JMod.PUBLIC, cm.VOID, configuration.getFieldTestIdentifier());
                 // add generics of the instantiator to the method
                 addGenerics(fieldsMethod);
-//
-//                String instanceClassName = visitingClass.getFullName();
-//
-//                if (!visitingClass.getTypeParamsMap().isEmpty()) {
-//                    if (!visitingClass.getTypeParamsMap().isEmpty()) {
-//                        instanceClassName += "<";
-//                        boolean first = true;
-//                        for (String typeName : visitingClass.getTypeParamsMap().keySet()) {
-//                            if (first) {
-//                                instanceClassName += typeName;
-//                                first = false;
-//                            } else {
-//                                instanceClassName += ", " + typeName;
-//                            }
-//                        }
-//                        instanceClassName += "> ";
-//                    }
-//                }
-//                JClass instanceClassRef = getGenericsClassRef(instanceClassName);
                 JClass instanceClassRef = getTypeRef(visitingClass.getType());
 
                 fieldsInstance = fieldsMethod.param(instanceClassRef, configuration.getInstanceIdentifier());
