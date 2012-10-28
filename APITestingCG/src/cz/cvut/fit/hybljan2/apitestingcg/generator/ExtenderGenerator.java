@@ -109,11 +109,8 @@ public class ExtenderGenerator extends ClassGenerator {
             }
 
             // implement all abstract method of ancestors (super class and implemented interfaces) of current class
-            if (visitingClass.getExtending() != null) {
-                implementAbstractMethods(visitingClass.getExtending().getName());
-            }
-            for (APIType type : visitingClass.getImplementing()) {
-                implementAbstractMethods(type.getName());
+            if(visitingClass.getModifiers().contains(APIModifier.ABSTRACT)) {
+                implementAbstractMethods();
             }
 
             classStack.push(cls);
@@ -129,111 +126,167 @@ public class ExtenderGenerator extends ClassGenerator {
         }
     }
 
-    private void implementAbstractMethods(String className) {
-        try {
-            APIClass cls = findClass(className);
-            for (APIMethod mth : cls.getMethods()) {
-                if (mth.getModifiers().contains(APIModifier.ABSTRACT)) {
-                if (!checkIfMethodIsAlreadyImplemented(cls, mth)) {
-                        // all generic types in overridden method has to be replaced with their bounds.
-                        // Type params has to be deleted.
-                        mth.setReturnType(simplifyType(mth.getReturnType(),cls.getTypeParamsMap(),mth.getTypeParamsMap()));
-                        for (APIMethodParameter p : mth.getParameters()) {
-                            p.setType(simplifyType(p.getType(),cls.getTypeParamsMap(),mth.getTypeParamsMap()));
-                        }
-                        mth.getTypeParamsMap().clear();
-                        mth.getThrown().clear();
-                        addOverridingMethod(mth);
-                }
+    private class MethodMetadata {
+        private String name;
+        private Class returnType;
+        private String returnTypeName;
+        private List<Class> parameters;
+        private List<String> parameterNames;
 
-//                    boolean alreadyImplemented = false;
-//                    for(APIMethod implementedMethod : visitingClass.getMethods()) {
-//                        if (implementedMethod.getName().equals(mth.getName())
-//                                && checkParamType(implementedMethod.getReturnType(), mth.getReturnType())
-//                                && checkParamList(mth.getParameters(), implementedMethod.getParameters())) {
-//                            alreadyImplemented = true;
-//                            break;
-//                        }
-//                    }
-//                    if (!alreadyImplemented) {
-//                        // all generic types in overridden method has to be replaced with their bounds.
-//                        // Type params has to be deleted.
-//                        mth.setReturnType(simplifyType(mth.getReturnType(),cls.getTypeParamsMap(),mth.getTypeParamsMap()));
-//                        for (APIMethodParameter p : mth.getParameters()) {
-//                            p.setType(simplifyType(p.getType(),cls.getTypeParamsMap(),mth.getTypeParamsMap()));
-//                        }
-//                        mth.getTypeParamsMap().clear();
-//                        addOverridingMethod(mth);
-//                    }
-                }
-            }
-            if(cls.getExtending() != null) {
-                implementAbstractMethods(cls.getExtending().getName());
-            }
-            for(APIType intrface : cls.getImplementing()) {
-                implementAbstractMethods(intrface.getName());
-            }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
+        public MethodMetadata(JMethod method) {
+            this.name = method.name();
+            this.parameters = new LinkedList<>();
+            this.parameterNames = new LinkedList<>();
 
-    /**
-     * This huge and really ugly method check if method was already implemented in current exteder.
-     * @param originalClass
-     * @param originalMethod
-     * @return
-     */
-    private boolean checkIfMethodIsAlreadyImplemented(APIClass originalClass, APIMethod originalMethod) {
-        // we have to check all already implemented methods.
-        for (JMethod implementedMethod : cls.methods()) {
-            // name has to be same, if not try next one.
-            if (!implementedMethod.name().equals(originalMethod.getName())) {
-                continue;
-            }
-
-            // check method parameters compatibility
-            if(originalMethod.getParameters().size() != implementedMethod.params().size()) {
-                continue;
-            }
-            boolean incompatibleParameters = false;
-            APIType originalType, implementedType;
-            Map<String, APIType[]> methodTypeParams = convertTypeParams(implementedMethod.typeParams());
-            for(int i = 0; i < originalMethod.getParameters().size(); i++) {
-                originalType = prepareType(originalMethod.getParameters().get(i).getType(),
-                        originalClass.getTypeParamsMap(),
-                        originalMethod.getTypeParamsMap());
-                implementedType = prepareType(new APIType(implementedMethod.params().get(i).type().fullName()),
+            Map<String, APIType[]> methodTypeParams = convertTypeParams(method.typeParams());
+            for(int i = 0; i < method.params().size(); i++) {
+                Class paramType = prepareCType(new APIType(method.params().get(i).type().fullName()),
                         visitingClass.getTypeParamsMap(),
                         methodTypeParams);
-                if(!checkParamType(originalType,implementedType)) {
-                    incompatibleParameters = true;
-                    break;
+                this.parameters.add(paramType);
+                if (paramType == null) {
+                    this.parameterNames.add(method.params().get(i).type().fullName());
+                } else {
+                    this.parameterNames.add(paramType.getName());
                 }
             }
-            // if parameters are not comaptible, whole method is not.
-            if(incompatibleParameters) {
-                continue;
-            }
-
-            // check return types compatibility.
-            originalType = prepareType(originalMethod.getReturnType(),
-                    originalClass.getTypeParamsMap(),
-                    originalMethod.getTypeParamsMap());
-            implementedType = prepareType(new APIType(implementedMethod.type().fullName()),
+            
+            this.returnType = prepareCType(new APIType(method.type().fullName()),
                     visitingClass.getTypeParamsMap(),
                     methodTypeParams);
+            if (returnType == null) this.returnTypeName = method.type().fullName();
+            else this.returnTypeName = returnType.getName();
+        }
 
-            // same applies to return type.
-            if(!checkParamType(originalType,implementedType)) {
-                continue;
+        public MethodMetadata(APIMethod mth, Map<String, APIType[]>classTypeParams, Map<String, APIType[]>methodTypeParam) {
+            this.name = mth.getName();
+            this.parameters = new LinkedList<>();
+            this.parameterNames = new LinkedList<>();
+
+            for(int i = 0; i < mth.getParameters().size(); i++) {
+                Class paramType = prepareCType(mth.getParameters().get(i).getType(), classTypeParams, methodTypeParam);
+                this.parameters.add(paramType);
+                if (paramType == null) {
+                    this.parameterNames.add(mth.getParameters().get(i).getType().getName());
+                } else {
+                    this.parameterNames.add(paramType.getName());
+                }
+            }
+            this.returnType = prepareCType(mth.getReturnType(), classTypeParams, methodTypeParam);
+            if (returnType == null) this.returnTypeName = mth.getReturnType().getName();
+            else this.returnTypeName = returnType.getName();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof MethodMetadata)) return false;
+
+            MethodMetadata that = (MethodMetadata) o;
+
+            if (!name.equals(that.name)) return false;
+            if (parameters.size() != that.parameters.size()) return false;
+            for (int i = 0; i < parameters.size(); i++) {
+                Class thisParam = parameters.get(i);
+                Class thatParam = parameters.get(i);
+                if (thisParam != null && thatParam != null) {
+                   if(!thisParam.isAssignableFrom(thatParam)) {
+                        return false;
+                    }
+                } else if(!this.parameterNames.get(i).equals(that.parameterNames.get(i))) return false;
             }
 
-            // Ok, current implementedMethod is compatible with originalMethod, so it is already implemented.
+            if (returnType != null && that.returnType != null) {
+                if(!returnType.isAssignableFrom(that.returnType)) {
+                    return false;
+                }
+            } else if (!returnTypeName.equals(that.returnTypeName)) {
+                return false;
+            }
             return true;
         }
-        // No already implemented method was found in current class
-        return false;
+
+        @Override
+        public int hashCode() {
+            return name.hashCode();
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public Class getReturnType() {
+            return returnType;
+        }
+
+        public List<Class> getParameters() {
+            return parameters;
+        }
+
+        @Override
+        public String toString() {
+            return returnTypeName + " " + name + "(" + parameterNames + ")";
+        }
+    }
+    
+    private void implementAbstractMethods() {
+        Set<MethodMetadata> alreadyImplemented = new HashSet<>();
+        Set<MethodMetadata> toImplement = new HashSet<>();        
+        
+        // collecting already implemented methods in current class
+        for (JMethod implementedMethod : cls.methods()) {
+            alreadyImplemented.add(new MethodMetadata(implementedMethod));
+        }
+
+
+        Stack<APIType> classesToCheck = new Stack<>();
+        // get list of implemented and missing methods from ancestors        
+        if (visitingClass.getExtending() != null) {
+            classesToCheck.push(visitingClass.getExtending());
+        } else {
+            classesToCheck.push(new APIType("java.lang.Object"));
+        }
+        
+        for (APIType iface : visitingClass.getImplementing()) {
+            classesToCheck.push(iface);
+        }
+        
+        while (!classesToCheck.empty()) {
+            try {
+                APIClass cls = findClass(classesToCheck.pop().getName());
+                for (APIMethod mth : cls.getMethods()) {
+                    if (mth.getModifiers().contains(APIModifier.ABSTRACT)) {
+                        toImplement.add(new MethodMetadata(mth, cls.getTypeParamsMap(), mth.getTypeParamsMap()));
+                    } else {
+                        alreadyImplemented.add(new MethodMetadata(mth, cls.getTypeParamsMap(), mth.getTypeParamsMap()));
+                    }
+                }
+
+                if (cls.getExtending() != null) {
+                    classesToCheck.push(cls.getExtending());
+                }
+
+                for (APIType iface : cls.getImplementing()) {
+                    classesToCheck.push(iface);
+                }                
+            } catch (ClassNotFoundException e) {
+                System.err.println("Class not found " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        
+        // now, we should have list of all implemented and unimplemented methods.
+        for (MethodMetadata method : toImplement) {
+            // check if method is not already implemented
+            if(!alreadyImplemented.contains(method)) {
+                List<APIModifier> modifiers = new LinkedList<>();
+                modifiers.add(APIModifier.PUBLIC);
+                List<String> thrown = new LinkedList<>();
+                APIMethod newMethod = new APIMethod(method.getName(),modifiers,method.parameterNames,method.returnTypeName, thrown);
+                addOverridingMethod(newMethod);
+                alreadyImplemented.add(method);
+            }
+        }
     }
 
     private static Map<String, APIType[]> convertTypeParams(JTypeVar[] typeVars) {
@@ -246,106 +299,30 @@ public class ExtenderGenerator extends ClassGenerator {
         }
         return result;
     }
-    
-    private static APIType prepareType(APIType type, Map<String, APIType[]> classTypeParams, Map<String, APIType[]> methodTypeParams) {
 
+    private static Class prepareCType(APIType type, Map<String, APIType[]> classTypeParams, Map<String, APIType[]> methodTypeParams) {
+        APIType result = type;
         // try to find it in class type params.
         if(classTypeParams.containsKey(type.getName())) {
-            return classTypeParams.get(type.getName())[0];
+            result = classTypeParams.get(type.getName())[0];
         }
         // if it wasn't found, try to find it in method type params.
         if(methodTypeParams.containsKey(type.getName())) {
-            return methodTypeParams.get(type.getName())[0];
-        }
-
-        return type;
-    }
-    
-    /**
-     * Returns true if all parameters in extender method are equal or subtypes of parameters in original method.
-     * Used for checking if method is already implemented in extender. It's not the nicest solution but I have no
-     * idea how to solve it better.
-     * @param parametersOriginal
-     * @param parametersExtender
-     * @return
-     */
-    private static boolean checkParamList(List<APIMethodParameter> parametersOriginal, List<APIMethodParameter> parametersExtender) {
-        if(parametersExtender.size() == 0) {
-            return true;
-        } else if(parametersExtender.size() != parametersOriginal.size()) {
-            return false;
-        }
-
-        for (int i = 0; i < parametersExtender.size(); i++) {
-            if (!checkParamType(parametersOriginal.get(i).getType(), parametersExtender.get(i).getType())) return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Returns true if parameter type in extender method is equal to or extending coresponding parameter type in
-     * original method. Used for checking if method is already implemented in extender. It's not the nicest solution
-     * but I have no idea how to solve it better.
-     * @param parameterTypeOriginal
-     * @param parameterTypeExtender
-     * @return
-     */
-    private static boolean checkParamType(APIType parameterTypeOriginal, APIType parameterTypeExtender) {
-
-        if(parameterTypeExtender.getName().equals(parameterTypeOriginal.getName())) {
-            return true;
-        }
-
-        Class typeOriginal, typeExtender;
-        try {
-            typeOriginal = Class.forName(parameterTypeOriginal.getName());
-        } catch (ClassNotFoundException e) {
-            try {
-                typeOriginal = Class.forName(parameterTypeOriginal.getFlatName());
-            } catch (ClassNotFoundException e1) {
-                //throw new RuntimeException("Class " + parameterTypeOriginal.getName()  + " not found.");
-                return false;
-            }
+            result = methodTypeParams.get(type.getName())[0];
         }
 
         try {
-            typeExtender = Class.forName(parameterTypeExtender.getName());
+            return Class.forName(result.getName());
         } catch (ClassNotFoundException e) {
             try {
-                typeExtender = Class.forName(parameterTypeExtender.getFlatName());
+                return Class.forName(result.getFlatName());
             } catch (ClassNotFoundException e1) {
-                //throw new RuntimeException("Class " + parameterTypeExtender.getName()  + " not found.");
-                return false;
+                //System.err.println("Cant find: " + type.getName());
+                return null;
             }
         }
+    }    
 
-        return typeOriginal.isAssignableFrom(typeExtender);
-    }
-
-    private APIType simplifyType(APIType type, Map<String, APIType[]> clsGenerics, Map<String,APIType[]> mtdGenerics) {
-        type.setBound(APIType.BoundType.NULL);
-        type.getTypeArgs().clear();
-        APIType[] genericTypes = clsGenerics.get(type.getName());
-        if(genericTypes != null) {
-            if(genericTypes.length > 0) {
-                type.setName(genericTypes[0].getName());
-            } else {
-                type.setName("java.lang.Object");
-            }
-        } else {
-            genericTypes = mtdGenerics.get(type.getName());
-            if(genericTypes != null) {
-                if(genericTypes.length > 0) {
-                    type.setName(genericTypes[0].getName());
-                } else {
-                    type.setName("java.lang.Object");
-                }
-            }
-        }
-        return type;
-    }
-    
     private void visitConstructor(APIMethod constructor) {
         // Check if constructor is enabled in job configuration.
         if (!isEnabled(methodSignature(constructor, visitingClass.getFullName()), WhitelistRule.RuleItem.EXTENDER)) {

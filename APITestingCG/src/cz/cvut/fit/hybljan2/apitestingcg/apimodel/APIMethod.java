@@ -47,6 +47,19 @@ public class APIMethod extends APIItem implements Comparable<APIMethod> {
         this.thrown = thrown;
     }
 
+    public APIMethod(String name, List<APIModifier> modifiers, APIType returnType, List<APIType> params) {
+        this.name = name;
+        this.kind = Kind.METHOD;
+        this.modifiers = modifiers;
+        this.parameters = new LinkedList<>();
+        char pname = 'a';
+        for (APIType ptype : params) {
+            parameters.add(new APIMethodParameter(String.valueOf(pname++), ptype));
+        }
+        this.returnType = returnType;
+        this.thrown = new LinkedList<>();
+    }
+
     public APIMethod(JCMethodDecl jcmd, JavacTypes types) {
 
         // constructor or method?
