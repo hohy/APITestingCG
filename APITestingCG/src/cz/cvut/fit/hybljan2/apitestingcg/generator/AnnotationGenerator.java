@@ -147,7 +147,12 @@ public class AnnotationGenerator extends ClassGenerator {
         for (APIMethod method : annotation.getMethods()) {
             if (setDefaults || method.getAnnotationDefaultValue() == null) {
                 try {
-                    result.param(method.getName(), getAnotationParamValue(method.getReturnType().getName()));
+                    if(method.getReturnType().isArray()) {
+                        result.paramArray(method.getName()).param(getAnotationParamValue(method.getReturnType()));
+                    } else {
+                        result.param(method.getName(), getAnotationParamValue(method.getReturnType()));
+                    }
+
                 } catch (Exception e) {
                     System.err.println("Cant set param value." + e.getMessage());
                 }
@@ -156,8 +161,16 @@ public class AnnotationGenerator extends ClassGenerator {
         return result;
     }
 
-    public JExpression getAnotationParamValue(String name) throws Exception {
-        name = name.trim();
+    public JExpression getAnotationParamValue(APIType type) throws Exception {
+        String name = type.getName();
+        if (type.isArray()) {
+            // create copy of the type but with no array flag.
+            APIType noArray = new APIType(name);
+            for(APIType param : type.getTypeArgs()) {
+                noArray.addTypeParameter(param);
+            }
+            return getAnotationParamValue(noArray);
+        }
         if (name.equals("byte")) return JExpr.lit(0);
         if (name.equals("short")) return JExpr.lit(0);
         if (name.equals("int")) return JExpr.lit(0);
@@ -167,30 +180,44 @@ public class AnnotationGenerator extends ClassGenerator {
         if (name.equals("boolean")) return JExpr.lit(false);
         if (name.equals("char")) return JExpr.lit('a');
         if (name.equals("java.lang.String")) return JExpr.lit("A");
-        if (name.equals("java.lang.Class")) return JExpr.dotclass(getClassRef("java.io.File"));
-        if (name.endsWith("]")) {
-            String arrayType = name.substring(0, name.indexOf("["));
-            return JExpr.newArray(getClassRef(arrayType)).add(getAnotationParamValue(arrayType));
-        }
 
         // generic class
+        if (name.equals("java.lang.Class")) {
+
+            if(type.getTypeArgs().isEmpty()) {
+                return JExpr.dotclass(getClassRef("java.io.File"));
+            } else {
+                APIType param = type.getTypeArgs().get(0);
+                if(param.getName().equals("?")) {
+                    if(param.getBound()!= APIType.BoundType.NULL) {
+                        return JExpr.dotclass(getTypeRef(param.getTypeArgs().get(0)));
+                    } else {
+                        return JExpr.dotclass(getTypeRef(new APIType("java.lang.Object")));
+                    }
+                } else {
+                    return JExpr.dotclass(getTypeRef(param));
+                }
+            }
+        }
         int idx = name.indexOf('<');
         if (name.startsWith("java.lang.Class") && idx >= 0) {
             String typeParam = name.substring(idx + 1, name.lastIndexOf('>'));
-            return getAnotationParamValue(typeParam);
+            return getAnotationParamValue(new APIType(typeParam));
         }
+
+
 
         idx = name.indexOf("extends");
         if (idx >= 0) {
-            return getAnotationParamValue(name.substring(idx + 8));
+            return getAnotationParamValue(new APIType(name.substring(idx + 8)));
         }
 
-        APIClass paramType = findClass(name);
+        APIClass paramType = findClass(type);
         if (paramType.getKind().equals(APIItem.Kind.ENUM)) {
             // visit all fields
             for (APIField field : paramType.getFields()) {
-                if (field.getVarType().equals(paramType.getFullName())) { // test if field is enum field or just variable
-                    return getClassRef(paramType.getFullName()).staticRef(field.getName());
+                if (field.getVarType().equals(type)) { // test if field is enum field or just variable
+                    return getTypeRef(type).staticRef(field.getName());
                 }
             }
         } else {

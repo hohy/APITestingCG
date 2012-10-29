@@ -168,4 +168,25 @@ public class AnnotationGeneratorTest {
 
     }
 
+    @Test
+    public void AllTypesAnnotationTest() {
+        Generator generator = new AnnotationGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("annotations");
+        job.setOutputDir("output/tests/annotations");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.ALL);
+        r.setRule("lib.AllTypesAnnotation");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
+
+        //class
+        File resultFile = new File("output/tests/annotations/test/lib/AllTypesAnnotationClass.java");
+        assertTrue(resultFile.exists());
+        File expected = new File("testres/annotations_exp/test/lib/AllTypesAnnotationClass.java");
+        FileAssert.assertEquals(expected, resultFile);
+    }
+
+
 }
