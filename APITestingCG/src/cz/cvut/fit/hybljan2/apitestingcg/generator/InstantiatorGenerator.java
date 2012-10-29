@@ -51,9 +51,16 @@ public class InstantiatorGenerator extends ClassGenerator {
         try {
             visitingClass = apiClass;
 
+            int classMods = JMod.PUBLIC;
+
+            // if original method is static, extender has to be static too.
+            if (visitingClass.getModifiers().contains(APIModifier.STATIC)) {
+                classMods = classMods | JMod.STATIC;
+            }
+
             // declare new class
             String className = generateName(configuration.getInstantiatorClassIdentifier(), apiClass.getName());
-            cls = declareNewClass(JMod.PUBLIC, currentPackageName, className, visitingClass.isNested());
+            cls = declareNewClass(classMods, currentPackageName, className, visitingClass.isNested());
 
             // visit all constructors, if class isn't abstract
             if (!visitingClass.getModifiers().contains(APIModifier.ABSTRACT)) {

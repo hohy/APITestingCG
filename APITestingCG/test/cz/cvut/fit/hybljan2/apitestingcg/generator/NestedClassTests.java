@@ -59,12 +59,14 @@ public class NestedClassTests {
     @Test
     public void TestMethods() {
 
-        cz.cvut.fit.hybljan2.apitestingcg.generator.Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
+        Generator instantiatorGenerator = new InstantiatorGenerator(new GeneratorConfiguration());
+        Generator extenderGenerator = new ExtenderGenerator(instantiatorGenerator.configuration);
         GeneratorJobConfiguration job = new GeneratorJobConfiguration();
         job.setApiId("nested");
         job.setOutputDir("output/tests/nested");
         job.setOutputPackage("test.%s");
-        generator.generate(api, job);
+        instantiatorGenerator.generate(api, job);
+        extenderGenerator.generate(api,job);
 
         File resultFile = new File("output/tests/nested/test/lib/NestedInstantiator.java");
         assertTrue(resultFile.exists());

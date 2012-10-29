@@ -65,6 +65,11 @@ public class ExtenderGenerator extends ClassGenerator {
                 classMods = JMod.PUBLIC;
             }
 
+            // if original method is static, extender has to be static too.
+            if (visitingClass.getModifiers().contains(APIModifier.STATIC)) {
+                classMods = classMods | JMod.STATIC;
+            }
+
             // if tested item is interface, create Implementator, otherwise Extender
             if (visitingClass.getKind() == APIItem.Kind.INTERFACE) {
                 String className = generateName(configuration.getImplementerClassIdentifier(), apiClass.getName());
