@@ -108,17 +108,22 @@ public class InstantiatorGenerator extends ClassGenerator {
             // User will contain: void ancestors(A a) { Runnable r = a; }
             if(visitingClass.getExtending() != null || !visitingClass.getImplementing().isEmpty()) {
                 JMethod ancestorsMethod = cls.method(JMod.NONE, cm.VOID, "ancestors");
+                addGenerics(ancestorsMethod);
                 JClass instanceClassRef = getTypeRef(visitingClass.getType());
                 char varName = 'a';
                 JVar instance = ancestorsMethod.param(instanceClassRef, String.valueOf(varName++));
                 JBlock ancestorsBody = ancestorsMethod.body();
-                if (visitingClass.getExtending() != null) {
-                    JClass type = getTypeRef(visitingClass.getExtending(), visitingClass.getTypeParamsMap().keySet());
-                    ancestorsBody.decl(type,String.valueOf(varName++),instance);
+                if (visitingClass.getExtending() != null) {                    
+                    if (checkTypeAccessModifier(APIModifier.PUBLIC,visitingClass.getExtending(),visitingClass.getTypeParamsMap().keySet())) {
+                        JClass type = getTypeRef(visitingClass.getExtending(), visitingClass.getTypeParamsMap().keySet());
+                        ancestorsBody.decl(type,String.valueOf(varName++),instance);
+                    }                    
                 }
                 for (APIType iface : visitingClass.getImplementing()) {
-                    JClass type = getTypeRef(iface, visitingClass.getTypeParamsMap().keySet());
-                    JVar v = ancestorsBody.decl(type,String.valueOf(varName++),instance);
+                    if (checkTypeAccessModifier(APIModifier.PUBLIC,iface,visitingClass.getTypeParamsMap().keySet())) {
+                        JClass type = getTypeRef(iface, visitingClass.getTypeParamsMap().keySet());
+                        ancestorsBody.decl(type,String.valueOf(varName++),instance);
+                    }
                 }
             }
 

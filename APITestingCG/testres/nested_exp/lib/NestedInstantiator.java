@@ -16,7 +16,7 @@ public class NestedInstantiator {
         return new Nested();
     }
 
-    public class Class1Instantiator {
+    public static class Class1Instantiator {
 
 
         public Class1 createClass1() {
@@ -27,7 +27,7 @@ public class NestedInstantiator {
             instance.m();
         }
 
-        public class Class2Instantiator {
+        public static class Class2Instantiator {
 
 
             public Class2 createClass2() {
@@ -38,7 +38,7 @@ public class NestedInstantiator {
                 instance.m();
             }
 
-            public class Class3Instantiator {
+            public static class Class3Instantiator {
 
 
                 public Class3 createClass3() {
