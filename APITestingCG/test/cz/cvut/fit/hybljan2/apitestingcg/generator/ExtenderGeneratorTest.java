@@ -246,4 +246,29 @@ public class ExtenderGeneratorTest {
         assertFalse(resultFile.exists());
 
     }
+
+    @Test
+    public void TestAbstractMethods() {
+
+        Generator generator = new ExtenderGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("extender");
+        job.setOutputDir("output/tests/extender");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.EXTENDER);
+        r.setRule("lib.AbstractMethods");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
+
+        File resultFile = new File("output/tests/extender/test/lib/AbstractMethodsExtender.java");
+
+        assertTrue(resultFile.exists());
+
+        File expected = new File("testres/extender_exp/AbstractMethodsExtender.java");
+
+        FileAssert.assertEquals(expected, resultFile);
+
+
+    }
 }
