@@ -5,6 +5,7 @@ import cz.cvut.fit.hybljan2.apitestingcg.apimodel.*;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -144,22 +145,22 @@ public class ExtenderGenerator extends ClassGenerator {
             this.parameterNames = new LinkedList<>();
 
             Map<String, APIType[]> methodTypeParams = convertTypeParams(method.typeParams());
-            for(int i = 0; i < method.params().size(); i++) {
-                Class paramType = prepareCType(new APIType(method.params().get(i).type().fullName()),
+            for(JVar param : method.params()) {
+                Class paramType = prepareCType(new APIType(param.type().erasure().fullName()),
                         visitingClass.getTypeParamsMap(),
                         methodTypeParams);
                 this.parameters.add(paramType);
                 if (paramType == null) {
-                    this.parameterNames.add(method.params().get(i).type().fullName());
+                    this.parameterNames.add(param.type().erasure().fullName());
                 } else {
                     this.parameterNames.add(paramType.getName());
                 }
             }
             
-            this.returnType = prepareCType(new APIType(method.type().fullName()),
+            this.returnType = prepareCType(new APIType(method.type().erasure().fullName()),
                     visitingClass.getTypeParamsMap(),
                     methodTypeParams);
-            if (returnType == null) this.returnTypeName = method.type().fullName();
+            if (returnType == null) this.returnTypeName = method.type().erasure().fullName();
             else this.returnTypeName = returnType.getName();
         }
 
@@ -168,11 +169,11 @@ public class ExtenderGenerator extends ClassGenerator {
             this.parameters = new LinkedList<>();
             this.parameterNames = new LinkedList<>();
 
-            for(int i = 0; i < mth.getParameters().size(); i++) {
-                Class paramType = prepareCType(mth.getParameters().get(i).getType(), classTypeParams, methodTypeParam);
+            for(APIMethodParameter param : mth.getParameters()) {
+                Class paramType = prepareCType(param.getType(), classTypeParams, methodTypeParam);
                 this.parameters.add(paramType);
                 if (paramType == null) {
-                    this.parameterNames.add(mth.getParameters().get(i).getType().getName());
+                    this.parameterNames.add(param.getType().getName());
                 } else {
                     this.parameterNames.add(paramType.getName());
                 }
@@ -193,7 +194,7 @@ public class ExtenderGenerator extends ClassGenerator {
             if (parameters.size() != that.parameters.size()) return false;
             for (int i = 0; i < parameters.size(); i++) {
                 Class thisParam = parameters.get(i);
-                Class thatParam = parameters.get(i);
+                Class thatParam = that.parameters.get(i);
                 if (thisParam != null && thatParam != null) {
                    if(!thisParam.isAssignableFrom(thatParam)) {
                         return false;
@@ -241,6 +242,13 @@ public class ExtenderGenerator extends ClassGenerator {
         // collecting already implemented methods in current class
         for (JMethod implementedMethod : cls.methods()) {
             alreadyImplemented.add(new MethodMetadata(implementedMethod));
+        }
+
+        // collecting final methods implemented in visitingClass.
+        for (APIMethod mth : visitingClass.getMethods()) {
+            if (mth.getModifiers().contains(APIModifier.FINAL)) {
+                alreadyImplemented.add(new MethodMetadata(mth,visitingClass.getTypeParamsMap(),mth.getTypeParamsMap()));
+            }
         }
 
 
@@ -307,6 +315,17 @@ public class ExtenderGenerator extends ClassGenerator {
 
     private static Class prepareCType(APIType type, Map<String, APIType[]> classTypeParams, Map<String, APIType[]> methodTypeParams) {
         APIType result = type;
+        // is it primitive type
+        switch (type.getName()) {
+            case "boolean" : return type.isArray() ?  boolean[].class : boolean.class;
+            case "byte"    : return type.isArray() ?  byte[].class : byte.class;
+            case "char"    : return type.isArray() ?  char[].class : char.class;
+            case "short"   : return type.isArray() ?  short[].class : short.class;
+            case "int"     : return type.isArray() ?  int[].class : int.class;
+            case "long"    : return type.isArray() ?  long[].class : long.class;
+            case "float"   : return type.isArray() ?  float[].class : float.class;
+            case "double"  : return type.isArray() ?  double[].class : double.class;
+        }
         // try to find it in class type params.
         if(classTypeParams.containsKey(type.getName())) {
             result = classTypeParams.get(type.getName())[0];
@@ -317,7 +336,11 @@ public class ExtenderGenerator extends ClassGenerator {
         }
 
         try {
-            return Class.forName(result.getName());
+            String n = result.getName();
+            if(type.isArray()) {
+                n = "[L" + n + ";";
+            }
+            return Class.forName(n);
         } catch (ClassNotFoundException e) {
             try {
                 return Class.forName(result.getFlatName());
