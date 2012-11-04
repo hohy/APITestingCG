@@ -194,15 +194,15 @@ public abstract class Generator implements IAPIVisitor {
      * @param type
      * @return
      */
-    private JExpression getPrimitiveValue(APIType type) {
-        if (type.getName().equals("byte")) return JExpr.cast(cm.BYTE, JExpr.lit(0));
-        if (type.getName().equals("short")) return JExpr.cast(cm.SHORT, JExpr.lit(0));
-        if (type.getName().equals("int")) return JExpr.lit(0);
-        if (type.getName().equals("long")) return JExpr.lit(0L);
-        if (type.getName().equals("float")) return JExpr.lit(0.0F);
-        if (type.getName().equals("double")) return JExpr.lit(0.0D);
-        if (type.getName().equals("boolean")) return JExpr.lit(false);
-        if (type.getName().equals("char")) return JExpr.lit('a');
+    protected JExpression getPrimitiveValue(APIType type) {        
+        if (type.getName().equals("byte")) return type.isArray() ? JExpr.newArray(cm.BYTE) : JExpr.cast(cm.BYTE, JExpr.lit(0));
+        if (type.getName().equals("short")) return type.isArray() ? JExpr.newArray(cm.SHORT) : JExpr.cast(cm.SHORT, JExpr.lit(0));
+        if (type.getName().equals("int")) return type.isArray() ? JExpr.newArray(cm.INT) : JExpr.lit(0);
+        if (type.getName().equals("long")) return type.isArray() ? JExpr.newArray(cm.LONG) : JExpr.lit(0L);
+        if (type.getName().equals("float")) return type.isArray() ? JExpr.newArray(cm.FLOAT) : JExpr.lit(0.0F);
+        if (type.getName().equals("double")) return type.isArray() ? JExpr.newArray(cm.DOUBLE) : JExpr.lit(0.0D);
+        if (type.getName().equals("boolean")) return type.isArray() ? JExpr.newArray(cm.BOOLEAN) : JExpr.lit(false);
+        if (type.getName().equals("char")) return type.isArray() ? JExpr.newArray(cm.CHAR) : JExpr.lit('a');
         return JExpr._null();
     }
 

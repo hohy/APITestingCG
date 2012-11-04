@@ -688,8 +688,8 @@ public class InstantiatorGenerator extends ClassGenerator {
             }
 
             if (!method.getReturnType().equals(APIType.voidType)) {
-                caller.body()._return(getPrimitiveValue(method.getReturnType().getName()));
-                nullCaller.body()._return(getPrimitiveValue(method.getReturnType().getName()));
+                caller.body()._return(getPrimitiveValue(method.getReturnType()));
+                nullCaller.body()._return(getPrimitiveValue(method.getReturnType()));
             }
         }
 
