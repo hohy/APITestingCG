@@ -218,6 +218,12 @@ public class InstantiatorGenerator extends ClassGenerator {
      */
     @Override
     public void visit(APIField apiField) {
+
+        String signature = visitingClass.getFullName() + "." + apiField.getName();
+        if (!isEnabled(signature, WhitelistRule.RuleItem.INSTANTIATOR)) {
+            return;
+        }
+
         if (apiField.isDepreacated() && jobConfiguration.isSkipDeprecated()) {
             return;
         }
@@ -260,8 +266,10 @@ public class InstantiatorGenerator extends ClassGenerator {
     public void visit(APIMethod method) {
         // is method enabled in configuration
         String signature = methodSignature(method, visitingClass.getFullName());
-        if (!isEnabled(signature, WhitelistRule.RuleItem.INSTANTIATOR))
+        if (!isEnabled(signature, WhitelistRule.RuleItem.INSTANTIATOR)) {
             return;
+        }
+
 
         // only public method can be tested by instantiator
         if (!method.getModifiers().contains(APIModifier.PUBLIC)) {

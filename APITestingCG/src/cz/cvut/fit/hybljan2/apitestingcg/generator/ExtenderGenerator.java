@@ -403,6 +403,11 @@ public class ExtenderGenerator extends ClassGenerator {
     @Override
     public void visit(APIField apiField) {
 
+        String signature = visitingClass.getFullName() + "." + apiField.getName();
+        if (!isEnabled(signature, WhitelistRule.RuleItem.EXTENDER)) {
+            return;
+        }
+
         if (apiField.isDepreacated() && jobConfiguration.isSkipDeprecated()) {
             return;
         }
@@ -456,7 +461,13 @@ public class ExtenderGenerator extends ClassGenerator {
             return;
         }
 
+        // skip deprecated method is it is configured
         if (method.isDepreacated() && jobConfiguration.isSkipDeprecated()) {
+            // if abstract method is skipped, extender has to be abstract,
+            // because there is no implementation of the method.
+            if(method.getModifiers().contains(APIModifier.ABSTRACT)) {
+                cls.mods().setAbstract(true);
+            }
             return;
         }
 
