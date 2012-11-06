@@ -90,12 +90,12 @@ public class AbstractClassExtender extends AbstractClass {
     }
 
     @Override
-    public Object toArray(Object a) {
+    public Object[] toArray(Object[] a) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Object toArray() {
+    public Object[] toArray() {
         throw new UnsupportedOperationException();
     }
 
