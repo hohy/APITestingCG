@@ -375,8 +375,10 @@ public class InstantiatorGenerator extends ClassGenerator {
         Iterator<APIMethodParameter> itA = paramsA.iterator();
         Iterator<APIMethodParameter> itB = paramsB.iterator();
         while (itA.hasNext()) {
-            String paramA = getPrimitiveValueString(itA.next().getType().getName());
-            String paramB = getPrimitiveValueString(itB.next().getType().getName());
+            APIType paramTypeA = itA.next().getType();
+            APIType paramTypeB = itB.next().getType();
+            String paramA = paramTypeA.isArray() ? "null" : getPrimitiveValueString(paramTypeA.getName());
+            String paramB = paramTypeB.isArray() ? "null" : getPrimitiveValueString(paramTypeB.getName());
             if (!paramA.equals(paramB)) {
                 return false;
             }
