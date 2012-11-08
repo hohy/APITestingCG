@@ -421,8 +421,12 @@ public class InstantiatorGenerator extends ClassGenerator {
             }
         }
 
+        for (APIType typeArg : varType.getTypeArgs()) {
+            if (isTypePublic(typeArg,genericClasses) == false) {
+                return false;
+            }
+        }
 
-        // TODO: chybi testovani typeargu
         return result;
     }
 
