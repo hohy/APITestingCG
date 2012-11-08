@@ -194,6 +194,17 @@ public abstract class Generator implements IAPIVisitor {
      * @param type
      * @return
      */
+    protected JExpression getNullValue(APIType type) {
+        if(type.isArray()) return JExpr._null();
+        else return getPrimitiveValue(type.getName());
+    }
+
+    /**
+     * Returns default value for given type.
+     *
+     * @param type
+     * @return
+     */
     protected JExpression getPrimitiveValue(APIType type) {        
         if (type.getName().equals("byte")) return type.isArray() ? JExpr.newArray(cm.BYTE) : JExpr.cast(cm.BYTE, JExpr.lit(0));
         if (type.getName().equals("short")) return type.isArray() ? JExpr.newArray(cm.SHORT) : JExpr.cast(cm.SHORT, JExpr.lit(0));

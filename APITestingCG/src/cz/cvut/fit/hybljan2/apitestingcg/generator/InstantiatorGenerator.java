@@ -662,7 +662,7 @@ public class InstantiatorGenerator extends ClassGenerator {
             JVar arg = caller.param(type, name);
             nullCaller.param(type, name);
             invocation.arg(arg);
-            nullInvocation.arg(getPrimitiveValue(parameter.getType().getName()));
+            nullInvocation.arg(getNullValue(parameter.getType()));
         }
 
         JBlock callerBody = caller.body();
