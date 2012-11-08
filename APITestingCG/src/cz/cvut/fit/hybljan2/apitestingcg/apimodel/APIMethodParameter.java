@@ -74,6 +74,7 @@ public class APIMethodParameter {
     }
 
     public boolean isPrimitive() {
+        if(getType().isArray()) return false;
         switch (getType().getName()) {
             case "byte":
             case "short":
