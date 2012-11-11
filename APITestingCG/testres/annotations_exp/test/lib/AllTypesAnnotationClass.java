@@ -18,7 +18,7 @@ public class AllTypesAnnotationClass {
     }, ch = 'a', cla = {
         File.class
     }, clfa = {
-        File.class
+        List.class
     }, clf = List.class, cl = File.class, cll = List.class, clq = Object.class, cls = Serializable.class, da = {
         0.0D
     }, d = 0.0D, ena = {

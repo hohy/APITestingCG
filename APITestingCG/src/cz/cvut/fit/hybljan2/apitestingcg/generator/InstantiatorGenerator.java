@@ -445,6 +445,11 @@ public class InstantiatorGenerator extends ClassGenerator {
             return true;
         }
 
+        // arrays are always public
+        if (name.equals("Array")) {
+            return true;
+        }
+
         // try to find the class in API or load it with reflection.
         try {
             APIClass c = findClass(name);
@@ -458,7 +463,7 @@ public class InstantiatorGenerator extends ClassGenerator {
                 return nc.getModifiers().contains(APIModifier.PUBLIC);
             } catch (ClassNotFoundException e2) {
                 // it's unknown class
-                System.err.println("Class not found: " + name);
+                System.err.println("isClassPublic - Class not found: " + name + " in class " + visitingClass.getFullName());
             }
         }
 

@@ -268,7 +268,25 @@ public class ExtenderGeneratorTest {
         File expected = new File("testres/extender_exp/AbstractMethodsExtender.java");
 
         FileAssert.assertEquals(expected, resultFile);
+    }
 
+    @Test
+    public void TestArrays() {
+        Generator generator = new ExtenderGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("extender");
+        job.setOutputDir("output/tests/extender");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.EXTENDER);
+        r.setRule("lib.Arrays");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
 
+        File resultFile = new File("output/tests/extender/test/lib/ArraysExtender.java");
+
+        File expected = new File("testres/extender_exp/ArraysExtender.java");
+
+        FileAssert.assertEquals(expected, resultFile);
     }
 }

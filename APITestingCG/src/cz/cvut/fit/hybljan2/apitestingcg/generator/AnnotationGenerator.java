@@ -148,7 +148,7 @@ public class AnnotationGenerator extends ClassGenerator {
             if (setDefaults || method.getAnnotationDefaultValue() == null) {
                 try {
                     if(method.getReturnType().isArray()) {
-                        result.paramArray(method.getName()).param(getAnotationParamValue(method.getReturnType()));
+                        result.paramArray(method.getName()).param(getAnotationParamValue(method.getReturnType().getTypeArgs().get(0)));
                     } else {
                         result.param(method.getName(), getAnotationParamValue(method.getReturnType()));
                     }

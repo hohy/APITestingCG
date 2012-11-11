@@ -71,7 +71,8 @@ public class APIType {
 
     public APIType(String name) {
         if(name.endsWith("[]")) {
-            this.name = name.substring(0,name.length()-2);
+            this.name = "Array";
+            addTypeParameter(new APIType(name.substring(0,name.length()-2)));
             this.array = true;
         } else {
             this.name = name;
@@ -84,6 +85,7 @@ public class APIType {
 
     public APIType(String name, boolean array) {
         this.name = name;
+        if(array) addTypeParameter(new APIType(name));
         this.array = array;
         this.flatName = name;
     }
@@ -93,7 +95,8 @@ public class APIType {
         this.name = type.tsym.getQualifiedName().toString();
         this.flatName = type.tsym.flatName().toString();
         if(type instanceof Type.ArrayType) {
-            this.name = ((Type.ArrayType) type).elemtype.tsym.getQualifiedName().toString();
+            this.name = ((Type.ArrayType) type).tsym.getQualifiedName().toString();//elemtype.tsym.getQualifiedName().toString();
+            addTypeParameter(new APIType(((Type.ArrayType) type).elemtype));
             this.array = true;
         }
         if(type instanceof Type.WildcardType) {
@@ -124,10 +127,11 @@ public class APIType {
             GenericArrayType at = (GenericArrayType) type;            
             this.array = true;
             APIType result = new APIType(at.getGenericComponentType());
-            this.name = result.getName();
+            this.name = "Array";//result.getName();
             this.bound = result.getBound();
-            this.typeArgs = result.getTypeArgs();
+            //this.typeArgs = result.getTypeArgs();
             this.flatName = result.getFlatName();
+            addTypeParameter(result);
         } else if(type instanceof ParameterizedTypeImpl) {
             ParameterizedType pt = (ParameterizedType) type;
             this.name = ((Class) ((ParameterizedType) type).getRawType()).getCanonicalName();
@@ -151,8 +155,10 @@ public class APIType {
             this.name = tv.getName();
         } else if(type instanceof Class) {
             name = ((Class) type).getCanonicalName();
-            if(name.endsWith("[]")) {
-                name = name.substring(0,name.length()-2);
+            if(((Class) type).isArray()) {
+                this.name = "Array";
+                //name = name.substring(0,name.length()-2);
+                addTypeParameter(new APIType(((Class) type).getComponentType()));
                 array = true;
             }
         }

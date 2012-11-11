@@ -315,37 +315,63 @@ public class ExtenderGenerator extends ClassGenerator {
 
     private static Class prepareCType(APIType type, Map<String, APIType[]> classTypeParams, Map<String, APIType[]> methodTypeParams) {
         APIType result = type;
-        // is it primitive type
-        switch (type.getName()) {
-            case "boolean" : return type.isArray() ?  boolean[].class : boolean.class;
-            case "byte"    : return type.isArray() ?  byte[].class : byte.class;
-            case "char"    : return type.isArray() ?  char[].class : char.class;
-            case "short"   : return type.isArray() ?  short[].class : short.class;
-            case "int"     : return type.isArray() ?  int[].class : int.class;
-            case "long"    : return type.isArray() ?  long[].class : long.class;
-            case "float"   : return type.isArray() ?  float[].class : float.class;
-            case "double"  : return type.isArray() ?  double[].class : double.class;
-        }
         // try to find it in class type params.
         if(classTypeParams.containsKey(type.getName())) {
             result = classTypeParams.get(type.getName())[0];
+            type.addTypeParameter(classTypeParams.get(type.getName())[0]);
         }
         // if it wasn't found, try to find it in method type params.
         if(methodTypeParams.containsKey(type.getName())) {
             result = methodTypeParams.get(type.getName())[0];
+            type.addTypeParameter(methodTypeParams.get(type.getName())[0]);
+        }
+
+        if(type.isArray()) {
+            Class c = prepareCType(type.getTypeArgs().get(0),classTypeParams,methodTypeParams);
+            String fieldDescriptor = c.getName();
+            if(c.isPrimitive()) { // this is ugly... but I have no better idea, how to get class of array of primitive type.
+                switch (c.getName()) {
+                    case "boolean" : fieldDescriptor = "Z"; break;
+                    case "byte"    : fieldDescriptor = "B"; break;
+                    case "char"    : fieldDescriptor = "C"; break;
+                    case "short"   : fieldDescriptor = "S"; break;
+                    case "int"     : fieldDescriptor = "I"; break;
+                    case "long"    : fieldDescriptor = "L"; break;
+                    case "float"   : fieldDescriptor = "F"; break;
+                    case "double"  : fieldDescriptor = "D";
+                }
+                fieldDescriptor = "[" + fieldDescriptor;
+            } else {
+                fieldDescriptor = "[L" + fieldDescriptor + ";";
+            }
+            try {
+                return Class.forName(fieldDescriptor);
+            } catch (ClassNotFoundException e) {
+                System.err.println("prepareCType1 - Class not found: " + fieldDescriptor);
+                return null;
+            }
+        }
+
+        // is it primitive type
+        switch (type.getName()) {
+            case "boolean" : return boolean.class;
+            case "byte"    : return byte.class;
+            case "char"    : return char.class;
+            case "short"   : return short.class;
+            case "int"     : return int.class;
+            case "long"    : return long.class;
+            case "float"   : return float.class;
+            case "double"  : return double.class;
+            case "void"    : return void.class;
         }
 
         try {
-            String n = result.getName();
-            if(type.isArray()) {
-                n = "[L" + n + ";";
-            }
-            return Class.forName(n);
+            return Class.forName(result.getName());
         } catch (ClassNotFoundException e) {
             try {
                 return Class.forName(result.getFlatName());
             } catch (ClassNotFoundException e1) {
-                //System.err.println("Cant find: " + type.getName());
+                System.err.println("prepareCType2 - Cant find: " + type.getName());
                 return null;
             }
         }

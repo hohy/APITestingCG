@@ -114,6 +114,10 @@ public abstract class ClassGenerator extends Generator {
                 case LOWER: return getTypeRef(type.getTypeArgs().get(0),genericClasses).spr();
             }
         }
+
+        if(type.getName().equals("Array")) {
+            return getTypeRef(type.getTypeArgs().get(0),genericClasses).array();
+        }
         // get reference to a base class of the type
         JClass typeReference = getTypeRef(type.getName(), genericClasses,false);
         // this second getTypeRef is there because class loader identifies classes with flat name instead of standard
@@ -185,7 +189,7 @@ public abstract class ClassGenerator extends Generator {
                     typeReference = cm.ref(className);
                 } else if(requiered) {
                     //throw new RuntimeException("Class Not Found: " + className);
-                    System.err.println("Class Not Found:" + className);
+                    System.err.println("getTypeRef(): Class Not Found: " + className + " in class: " + visitingClass.getFullName());
                 }
             }
         }
@@ -208,10 +212,10 @@ public abstract class ClassGenerator extends Generator {
             }
         } catch (ClassNotFoundException e) {
 
-            if ((!verifiedType.getName().equals("?"))
+            if ((!(verifiedType.getName().equals("?")||verifiedType.getName().equals("Array")))
                     && (!visitingClass.getTypeParamsMap().keySet().contains(verifiedType.getName()))
                     && !(genericClasses != null && genericClasses.contains(verifiedType.getName()))) {
-                throw new RuntimeException("Class \""+ verifiedType.getName() +"\" (" + verifiedType.getFlatName() + ") not found.");
+                throw new RuntimeException("Class \""+ verifiedType.getName() +"\" (" + verifiedType.getFlatName() + ") not found in class: " + visitingClass.getFullName());
             }
         }
 

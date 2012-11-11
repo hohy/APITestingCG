@@ -296,4 +296,24 @@ public class InstantiatorGeneratorTest {
 
         FileAssert.assertEquals(expected, resultFile);
     }
+
+    @Test
+    public void TestArrays() {
+        Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("instantiator");
+        job.setOutputDir("output/tests/instantiator");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.INSTANTIATOR);
+        r.setRule("lib.Arrays");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
+
+        File resultFile = new File("output/tests/instantiator/test/lib/ArraysInstantiator.java");
+
+        File expected = new File("testres/instantiator_exp/ArraysInstantiator.java");
+
+        FileAssert.assertEquals(expected, resultFile);
+    }
 }
