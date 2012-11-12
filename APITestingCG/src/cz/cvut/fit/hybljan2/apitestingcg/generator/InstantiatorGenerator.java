@@ -77,8 +77,19 @@ public class InstantiatorGenerator extends ClassGenerator {
                 for (APIMethod constructor : apiClass.getConstructors()) {
                     if (constructor.getModifiers().contains(APIModifier.PUBLIC) &&
                             (!constructor.isDepreacated() || !jobConfiguration.isSkipDeprecated())) {
-                        String name = generateName(configuration.getCreateSuperInstanceIdentifier(), apiClass.getExtending().getName());
-                        addCreateInstanceMethod(apiClass.getExtending(), name, constructor, false);
+                        String cimName = generateName(configuration.getCreateSuperInstanceIdentifier(), apiClass.getExtending().getName());
+                        boolean nameOk;
+                        do {
+                            nameOk = true;
+                            for(JMethod m : cls.methods()) {
+                                if(m.name().equals(cimName)) {
+                                    nameOk = false;
+                                    cimName = cimName + "_";
+                                    break;
+                                }
+                            }
+                        } while (!nameOk);
+                        addCreateInstanceMethod(apiClass.getExtending(), cimName, constructor, false);
                         break;
                     }
                 }
@@ -95,8 +106,19 @@ public class InstantiatorGenerator extends ClassGenerator {
                     if (constructor.getModifiers().contains(APIModifier.PUBLIC) &&
                             (!constructor.isDepreacated() || !jobConfiguration.isSkipDeprecated())) {
                         for (APIType implementing : apiClass.getImplementing()) {
-                            String name = generateName(configuration.getCreateSuperInstanceIdentifier(), implementing.getName());
-                            addCreateInstanceMethod(implementing, name, constructor, false);
+                            String cimName = generateName(configuration.getCreateSuperInstanceIdentifier(), implementing.getName());
+                            boolean nameOk;
+                            do {
+                                nameOk = true;
+                                for(JMethod m : cls.methods()) {
+                                    if(m.name().equals(cimName)) {
+                                        nameOk = false;
+                                        cimName = cimName + "_";
+                                        break;
+                                    }
+                                }
+                            } while (!nameOk);
+                            addCreateInstanceMethod(implementing, cimName, constructor, false);
                         }
                         break;
                     }
@@ -184,7 +206,19 @@ public class InstantiatorGenerator extends ClassGenerator {
         if (!constructor.getModifiers().contains(APIModifier.PUBLIC)) return;
 
         // create basic create new instance method
-        addCreateInstanceMethod(visitingClass.getType(), generateName(configuration.getCreateInstanceIdentifier(), constructor.getName()), constructor, false);
+        String cimName = generateName(configuration.getCreateInstanceIdentifier(), constructor.getName());
+        boolean nameOk;
+        do {
+            nameOk = true;
+            for(JMethod m : cls.methods()) {
+                if(m.name().equals(cimName)) {
+                    nameOk = false;
+                    cimName = cimName + "_";
+                    break;
+                }
+            }
+        } while (!nameOk);
+        addCreateInstanceMethod(visitingClass.getType(), cimName, constructor, false);
 
         // if it is possible, create null version of previous constructor
         // nonparam constructor can't be tested with null values.
@@ -205,7 +239,18 @@ public class InstantiatorGenerator extends ClassGenerator {
         }
 
         // generate null constructor (same as previous, but params are NULLs).
-        addCreateInstanceMethod(visitingClass.getType(), generateName(configuration.getCreateNullInstanceIdentifier(), constructor.getName()), constructor, true);
+        cimName = generateName(configuration.getCreateNullInstanceIdentifier(), constructor.getName());
+        do {
+            nameOk = true;
+            for(JMethod m : cls.methods()) {
+                if(m.name().equals(cimName)) {
+                    nameOk = false;
+                    cimName = cimName + "_";
+                    break;
+                }
+            }
+        } while (!nameOk);
+        addCreateInstanceMethod(visitingClass.getType(), cimName, constructor, true);
     }
 
     /**

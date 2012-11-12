@@ -371,7 +371,7 @@ public class ExtenderGenerator extends ClassGenerator {
             try {
                 return Class.forName(result.getFlatName());
             } catch (ClassNotFoundException e1) {
-                System.err.println("prepareCType2 - Cant find: " + type.getName());
+                //System.err.println("prepareCType2 - Cant find: " + type.getName());
                 return null;
             }
         }
