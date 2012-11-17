@@ -54,7 +54,18 @@ public class ExtenderGenerator extends ClassGenerator {
         // If it hasn't, extender can't be generated.
         if (apiClass.getConstructors().isEmpty()) {
             return;
+        } else { // and these constructor can't be disabled in configuration.
+            boolean validConstructor = false;
+            for (APIMethod constructor : apiClass.getConstructors()) {
+                if (isEnabled(methodSignature(constructor, apiClass.getFullName()), WhitelistRule.RuleItem.EXTENDER)
+                        &&  (!constructor.isDepreacated() || !jobConfiguration.isSkipDeprecated())) {
+                    validConstructor = true;
+                    break;
+                }
+            }
+            if (!validConstructor) return;
         }
+
 
         try {
             visitingClass = apiClass;

@@ -76,6 +76,7 @@ public class InstantiatorGenerator extends ClassGenerator {
                 // find first public constructor and use it for creating new instance.
                 for (APIMethod constructor : apiClass.getConstructors()) {
                     if (constructor.getModifiers().contains(APIModifier.PUBLIC) &&
+                            isEnabled(methodSignature(constructor, visitingClass.getFullName()), WhitelistRule.RuleItem.INSTANTIATOR) &&
                             (!constructor.isDepreacated() || !jobConfiguration.isSkipDeprecated())) {
                         String cimName = generateName(configuration.getCreateSuperInstanceIdentifier(), apiClass.getExtending().getName());
                         boolean nameOk;
@@ -104,6 +105,7 @@ public class InstantiatorGenerator extends ClassGenerator {
                 // find first public constructor and use it for creating new instances of all implemented interfaces.
                 for (APIMethod constructor : apiClass.getConstructors()) {
                     if (constructor.getModifiers().contains(APIModifier.PUBLIC) &&
+                            isEnabled(methodSignature(constructor, visitingClass.getFullName()), WhitelistRule.RuleItem.INSTANTIATOR) &&
                             (!constructor.isDepreacated() || !jobConfiguration.isSkipDeprecated())) {
                         for (APIType implementing : apiClass.getImplementing()) {
                             String cimName = generateName(configuration.getCreateSuperInstanceIdentifier(), implementing.getName());
