@@ -1,5 +1,6 @@
 package cz.cvut.fit.hybljan2.apitestingcg.apimodel;
 
+import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
@@ -8,6 +9,7 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 import java.lang.reflect.*;
+import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -21,6 +23,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
     private SortedSet<APIMethod> constructors;
     private SortedSet<APIMethod> methods;
     private SortedSet<APIField> fields;
+    private Set<String> ancestors;
     /**
      * List of classes that are nested in current class.
      */
@@ -127,6 +130,20 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
                 this.implementing.add(new APIType(e.type));
             }
         }
+
+        ancestors = new HashSet<>();
+        com.sun.tools.javac.code.Type superclass = jccd.sym.getSuperclass();
+        while (superclass != null && !superclass.toString().equals("java.lang.Object")) {
+            if(superclass instanceof com.sun.tools.javac.code.Type.ClassType) {
+                com.sun.tools.javac.code.Type.ClassType ct = (com.sun.tools.javac.code.Type.ClassType) superclass;
+                ancestors.add(ct.tsym.getQualifiedName().toString());
+                superclass = ct.supertype_field;
+            } else {
+                //System.out.println(getName() + " " + superclass);
+                break;
+            }
+        }
+        //System.out.println(getName() + " > " + ancestors);
     }
 
     /**
@@ -135,7 +152,7 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
      *
      * @param cls Node in AST of API that represents class
      */
-    public APIClass(Class cls) {
+    public APIClass(Class cls) {        
         name = cls.getSimpleName();
         fullName = cls.getName();
 
@@ -223,6 +240,14 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
         if (cls.getAnnotation(java.lang.Deprecated.class) != null) {
             setDepreacated(true);
         }
+
+        ancestors = new HashSet<>();
+        Class superClass = cls.getSuperclass();
+        while(superClass != null && !superClass.equals(Object.class)) {
+            ancestors.add(superClass.getName());
+            superClass = superClass.getSuperclass();
+        }
+        //System.out.println(getName() + " > " + ancestors);
     }
 
     public void addMethod(APIMethod method) {
@@ -542,5 +567,10 @@ public class APIClass extends APIItem implements Comparable<APIClass> {
             }
         }
         throw new ClassNotFoundException();
+    }
+
+    public boolean isDescendantOf(String other) {
+        if(this.getFullName().equals(other) || other.equals("java.lang.Object")) return true;
+        return ancestors.contains(other);
     }
 }

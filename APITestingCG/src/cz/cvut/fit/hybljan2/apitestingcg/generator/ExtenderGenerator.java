@@ -145,55 +145,51 @@ public class ExtenderGenerator extends ClassGenerator {
 
     private class MethodMetadata {
         private String name;
-        private Class returnType;
         private String returnTypeName;
-        private List<Class> parameters;
         private List<String> parameterNames;
 
         public MethodMetadata(JMethod method) {
             this.name = method.name();
-            this.parameters = new LinkedList<>();
             this.parameterNames = new LinkedList<>();
 
             Map<String, APIType[]> methodTypeParams = convertTypeParams(method.typeParams());
             for(JVar param : method.params()) {
-                Class paramType = prepareCType(new APIType(param.type().erasure().fullName()),
+                String paramType = prepareSType(new APIType(param.type().erasure().fullName()),
                         visitingClass.getTypeParamsMap(),
                         methodTypeParams);
-                this.parameters.add(paramType);
-                if (paramType == null) {
-                    this.parameterNames.add(param.type().erasure().fullName());
-                } else {
-                    this.parameterNames.add(paramType.getName());
-                }
+                  this.parameterNames.add(paramType);
             }
             
-            this.returnType = prepareCType(new APIType(method.type().erasure().fullName()),
-                    visitingClass.getTypeParamsMap(),
-                    methodTypeParams);
-            if (returnType == null) this.returnTypeName = method.type().erasure().fullName();
-            else this.returnTypeName = returnType.getName();
+            String returnType = prepareSType(new APIType(method.type().erasure().fullName()),
+                            visitingClass.getTypeParamsMap(),
+                            methodTypeParams);
+            this.returnTypeName = returnType;
         }
 
         public MethodMetadata(APIMethod mth, Map<String, APIType[]>classTypeParams, Map<String, APIType[]>methodTypeParam) {
             this.name = mth.getName();
-            this.parameters = new LinkedList<>();
             this.parameterNames = new LinkedList<>();
 
             for(APIMethodParameter param : mth.getParameters()) {
-                Class paramType = prepareCType(param.getType(), classTypeParams, methodTypeParam);
-                this.parameters.add(paramType);
-                if (paramType == null) {
-                    this.parameterNames.add(param.getType().getName());
-                } else {
-                    this.parameterNames.add(paramType.getName());
-                }
+                String paramType = prepareSType(param.getType(), classTypeParams, methodTypeParam);
+                this.parameterNames.add(paramType);
             }
-            this.returnType = prepareCType(mth.getReturnType(), classTypeParams, methodTypeParam);
-            if (returnType == null) this.returnTypeName = mth.getReturnType().getName();
-            else this.returnTypeName = returnType.getName();
+            this.returnTypeName = prepareSType(mth.getReturnType(),classTypeParams,methodTypeParam);
         }
 
+        private boolean compareTypes(Class clsA, String clsAName, Class clsB, String clsBName) throws Exception {
+            if((clsA == null) || (clsB == null)) {
+                if(clsAName.equals(clsBName) || clsAName.equals("java.lang.Object")) {
+                    return true;
+                } else {
+                    APIClass apiClsB = findClass(clsBName);
+                    return apiClsB.isDescendantOf(clsAName);
+                }
+            } else {
+                return clsA.isAssignableFrom(clsB);
+            } 
+        }
+        
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -202,23 +198,31 @@ public class ExtenderGenerator extends ClassGenerator {
             MethodMetadata that = (MethodMetadata) o;
 
             if (!name.equals(that.name)) return false;
-            if (parameters.size() != that.parameters.size()) return false;
-            for (int i = 0; i < parameters.size(); i++) {
-                Class thisParam = parameters.get(i);
-                Class thatParam = that.parameters.get(i);
-                if (thisParam != null && thatParam != null) {
-                   if(!thisParam.isAssignableFrom(thatParam)) {
+            if (parameterNames.size() != that.parameterNames.size()) return false;
+            for (int i = 0; i < parameterNames.size(); i++) {
+                String thisParam = this.parameterNames.get(i);
+                String thatParam = that.parameterNames.get(i);
+                if(!thisParam.equals(thatParam)) {
+                    try {
+                        APIClass thatParamClass = findClass(thatParam);
+                        if (!thatParamClass.isDescendantOf(thisParam)) {
+                            return false;
+                        }
+                    } catch (Exception e) {
+                        System.err.println(e);
                         return false;
                     }
-                } else if(!this.parameterNames.get(i).equals(that.parameterNames.get(i))) return false;
+                }
             }
 
-            if (returnType != null && that.returnType != null) {
-                if(!returnType.isAssignableFrom(that.returnType)) {
+            if(!this.returnTypeName.equals(that.returnTypeName)) {
+                try {
+                    APIClass thatReturnType = findClass(that.returnTypeName);
+                    return thatReturnType.isDescendantOf(this.returnTypeName);
+                } catch (Exception e) {
+                    System.err.println(e);
                     return false;
                 }
-            } else if (!returnTypeName.equals(that.returnTypeName)) {
-                return false;
             }
             return true;
         }
@@ -230,14 +234,6 @@ public class ExtenderGenerator extends ClassGenerator {
 
         public String getName() {
             return name;
-        }
-
-        public Class getReturnType() {
-            return returnType;
-        }
-
-        public List<Class> getParameters() {
-            return parameters;
         }
 
         @Override
@@ -280,7 +276,11 @@ public class ExtenderGenerator extends ClassGenerator {
                 APIClass cls = findClass(classesToCheck.pop().getName());
                 for (APIMethod mth : cls.getMethods()) {
                     if (mth.getModifiers().contains(APIModifier.ABSTRACT)) {
-                        toImplement.add(new MethodMetadata(mth, cls.getTypeParamsMap(), mth.getTypeParamsMap()));
+                        if(isEnabled(methodSignature(mth, visitingClass.getFullName()), WhitelistRule.RuleItem.EXTENDER)) {
+                            toImplement.add(new MethodMetadata(mth, cls.getTypeParamsMap(), mth.getTypeParamsMap()));
+                        } else {
+                            setAbstractModifier();
+                        }                        
                     } else {
                         alreadyImplemented.add(new MethodMetadata(mth, cls.getTypeParamsMap(), mth.getTypeParamsMap()));
                     }
@@ -303,6 +303,7 @@ public class ExtenderGenerator extends ClassGenerator {
         for (MethodMetadata method : toImplement) {
             // check if method is not already implemented
             if(!alreadyImplemented.contains(method)) {
+                // check if method is enabled in configuration.
                 List<APIModifier> modifiers = new LinkedList<>();
                 modifiers.add(APIModifier.PUBLIC);
                 List<String> thrown = new LinkedList<>();
@@ -324,7 +325,42 @@ public class ExtenderGenerator extends ClassGenerator {
         return result;
     }
 
-    private static Class prepareCType(APIType type, Map<String, APIType[]> classTypeParams, Map<String, APIType[]> methodTypeParams) {
+    private String prepareSType(APIType type, Map<String, APIType[]> classTypeParams, Map<String, APIType[]> methodTypeParams) {
+        String result = type.getName();
+        // try to find it in class type params.
+        if(classTypeParams.containsKey(type.getName())) {
+            type.addTypeParameter(classTypeParams.get(type.getName())[0]);
+            result =  classTypeParams.get(type.getName())[0].getName();
+
+        }
+        // if it wasn't found, try to find it in method type params.
+        if(methodTypeParams.containsKey(type.getName())) {
+            type.addTypeParameter(methodTypeParams.get(type.getName())[0]);
+            result =  methodTypeParams.get(type.getName())[0].getName();
+        }
+
+        if(type.isArray()) {
+            //Class c = prepareCType(type.getTypeArgs().get(0),classTypeParams,methodTypeParams);
+            String fieldDescriptor = prepareSType(type.getTypeArgs().get(0),classTypeParams,methodTypeParams);
+            //if(c.isPrimitive()) { // this is ugly... but I have no better idea, how to get class of array of primitive type.
+                switch (fieldDescriptor) {
+                    case "boolean" : fieldDescriptor = "Z"; break;
+                    case "byte"    : fieldDescriptor = "B"; break;
+                    case "char"    : fieldDescriptor = "C"; break;
+                    case "short"   : fieldDescriptor = "S"; break;
+                    case "int"     : fieldDescriptor = "I"; break;
+                    case "long"    : fieldDescriptor = "L"; break;
+                    case "float"   : fieldDescriptor = "F"; break;
+                    case "double"  : fieldDescriptor = "D"; break;
+                    default        : fieldDescriptor = "L" + fieldDescriptor + ";";
+                }
+                fieldDescriptor = "[" + fieldDescriptor;
+                return fieldDescriptor;
+        }
+        return result;
+    }
+
+    private Class prepareCType(APIType type, Map<String, APIType[]> classTypeParams, Map<String, APIType[]> methodTypeParams) {
         APIType result = type;
         // try to find it in class type params.
         if(classTypeParams.containsKey(type.getName())) {
@@ -338,27 +374,31 @@ public class ExtenderGenerator extends ClassGenerator {
         }
 
         if(type.isArray()) {
-            Class c = prepareCType(type.getTypeArgs().get(0),classTypeParams,methodTypeParams);
-            String fieldDescriptor = c.getName();
-            if(c.isPrimitive()) { // this is ugly... but I have no better idea, how to get class of array of primitive type.
-                switch (c.getName()) {
-                    case "boolean" : fieldDescriptor = "Z"; break;
-                    case "byte"    : fieldDescriptor = "B"; break;
-                    case "char"    : fieldDescriptor = "C"; break;
-                    case "short"   : fieldDescriptor = "S"; break;
-                    case "int"     : fieldDescriptor = "I"; break;
-                    case "long"    : fieldDescriptor = "L"; break;
-                    case "float"   : fieldDescriptor = "F"; break;
-                    case "double"  : fieldDescriptor = "D";
-                }
-                fieldDescriptor = "[" + fieldDescriptor;
-            } else {
-                fieldDescriptor = "[L" + fieldDescriptor + ";";
-            }
             try {
+                Class c = prepareCType(type.getTypeArgs().get(0),classTypeParams,methodTypeParams);
+                String fieldDescriptor = c.getName();
+                if(c.isPrimitive()) { // this is ugly... but I have no better idea, how to get class of array of primitive type.
+                    switch (c.getName()) {
+                        case "boolean" : fieldDescriptor = "Z"; break;
+                        case "byte"    : fieldDescriptor = "B"; break;
+                        case "char"    : fieldDescriptor = "C"; break;
+                        case "short"   : fieldDescriptor = "S"; break;
+                        case "int"     : fieldDescriptor = "I"; break;
+                        case "long"    : fieldDescriptor = "L"; break;
+                        case "float"   : fieldDescriptor = "F"; break;
+                        case "double"  : fieldDescriptor = "D";
+                    }
+                    fieldDescriptor = "[" + fieldDescriptor;
+                } else {
+                    fieldDescriptor = "[L" + fieldDescriptor + ";";
+                }
+
                 return Class.forName(fieldDescriptor);
             } catch (ClassNotFoundException e) {
-                System.err.println("prepareCType1 - Class not found: " + fieldDescriptor);
+                System.err.println("prepareCType1 - Type cant be verified: " + type);
+                return null;
+            } catch (NullPointerException e) {
+                //System.err.println("prepareCType1 - Class not found in type " + type + " in class " + visitingClass.getFullName());
                 return null;
             }
         }
@@ -386,7 +426,8 @@ public class ExtenderGenerator extends ClassGenerator {
                 return null;
             }
         }
-    }    
+    }
+
 
     private void visitConstructor(APIMethod constructor) {
         // Check if constructor is enabled in job configuration.
@@ -479,6 +520,11 @@ public class ExtenderGenerator extends ClassGenerator {
     public void visit(APIMethod method) {
         // check if method is enabled in configuration.
         if (!isEnabled(methodSignature(method, visitingClass.getFullName()), WhitelistRule.RuleItem.EXTENDER)) {
+            // if abstract method is skipped, extender has to be abstract,
+            // because there is no implementation of the method.
+            if(method.getModifiers().contains(APIModifier.ABSTRACT)) {
+                cls.mods().setAbstract(true);
+            }
             return;
         }
 

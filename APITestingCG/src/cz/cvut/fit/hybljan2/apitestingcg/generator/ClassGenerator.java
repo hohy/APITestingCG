@@ -150,6 +150,10 @@ public abstract class ClassGenerator extends Generator {
     protected JClass getTypeRef(String className, Collection<String> genericClasses) {
         return getTypeRef(className, genericClasses, true);
     }
+    
+    public void setAbstractModifier() {
+        cls.mods().setAbstract(true);
+    }
 
     /**
      * TODO: rename the method to getClassRef when old getClassRef will be removed.

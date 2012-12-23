@@ -66,6 +66,10 @@ public class APIType {
      * Used for searching of nested classes. Has '$' char instead of '.' for indication of the inner class.
      */
     private String flatName;
+    /**
+     * used for ancestor checking.
+     */
+    private Type type;    
     
     private APIModifier accessModifier = APIModifier.UNSET;
 
@@ -91,6 +95,7 @@ public class APIType {
     }
 
     public APIType(Type type) {
+        this.type = type;
         this.typeVar = type.getKind().equals(TypeKind.TYPEVAR);
         this.name = type.tsym.getQualifiedName().toString();
         this.flatName = type.tsym.flatName().toString();
@@ -261,6 +266,11 @@ public class APIType {
 
     public boolean isTypeVar() {
         return typeVar;
+    }
+
+    public boolean isCompatible(APIType other) {
+
+        return false;
     }
 
     public static final APIType voidType = new APIType("void");
