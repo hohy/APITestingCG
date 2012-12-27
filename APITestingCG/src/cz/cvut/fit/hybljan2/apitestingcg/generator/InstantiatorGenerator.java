@@ -70,62 +70,62 @@ public class InstantiatorGenerator extends ClassGenerator {
             }
 
             // genetate test of extending - cant be performed if tested class has no public constructors or is abstract
-            if (apiClass.getExtending() != null
-                    && !visitingClass.getModifiers().contains(APIModifier.ABSTRACT)) {
-
-                // find first public constructor and use it for creating new instance.
-                for (APIMethod constructor : apiClass.getConstructors()) {
-                    if (constructor.getModifiers().contains(APIModifier.PUBLIC) &&
-                            isEnabled(methodSignature(constructor, visitingClass.getFullName()), WhitelistRule.RuleItem.INSTANTIATOR) &&
-                            (!constructor.isDepreacated() || !jobConfiguration.isSkipDeprecated())) {
-                        String cimName = generateName(configuration.getCreateSuperInstanceIdentifier(), apiClass.getExtending().getName());
-                        boolean nameOk;
-                        do {
-                            nameOk = true;
-                            for(JMethod m : cls.methods()) {
-                                if(m.name().equals(cimName)) {
-                                    nameOk = false;
-                                    cimName = cimName + "_";
-                                    break;
-                                }
-                            }
-                        } while (!nameOk);
-                        addCreateInstanceMethod(apiClass.getExtending(), cimName, constructor, false);
-                        break;
-                    }
-                }
-
-            }
+//            if (apiClass.getExtending() != null
+//                    && !visitingClass.getModifiers().contains(APIModifier.ABSTRACT)) {
+//
+//                // find first public constructor and use it for creating new instance.
+//                for (APIMethod constructor : apiClass.getConstructors()) {
+//                    if (constructor.getModifiers().contains(APIModifier.PUBLIC) &&
+//                            isEnabled(methodSignature(constructor, visitingClass.getFullName()), WhitelistRule.RuleItem.INSTANTIATOR) &&
+//                            (!constructor.isDepreacated() || !jobConfiguration.isSkipDeprecated())) {
+//                        String cimName = generateName(configuration.getCreateSuperInstanceIdentifier(), apiClass.getExtending().getName());
+//                        boolean nameOk;
+//                        do {
+//                            nameOk = true;
+//                            for(JMethod m : cls.methods()) {
+//                                if(m.name().equals(cimName)) {
+//                                    nameOk = false;
+//                                    cimName = cimName + "_";
+//                                    break;
+//                                }
+//                            }
+//                        } while (!nameOk);
+//                        addCreateInstanceMethod(apiClass.getExtending(), cimName, constructor, false);
+//                        break;
+//                    }
+//                }
+//
+//            }
 
             // genetate test of implementing - cant be performed if tested class has no constructors
-            if (!apiClass.getImplementing().isEmpty()
-                    && !apiClass.getConstructors().isEmpty()
-                    && !visitingClass.getModifiers().contains(APIModifier.ABSTRACT)) {
-
-                // find first public constructor and use it for creating new instances of all implemented interfaces.
-                for (APIMethod constructor : apiClass.getConstructors()) {
-                    if (constructor.getModifiers().contains(APIModifier.PUBLIC) &&
-                            isEnabled(methodSignature(constructor, visitingClass.getFullName()), WhitelistRule.RuleItem.INSTANTIATOR) &&
-                            (!constructor.isDepreacated() || !jobConfiguration.isSkipDeprecated())) {
-                        for (APIType implementing : apiClass.getImplementing()) {
-                            String cimName = generateName(configuration.getCreateSuperInstanceIdentifier(), implementing.getName());
-                            boolean nameOk;
-                            do {
-                                nameOk = true;
-                                for(JMethod m : cls.methods()) {
-                                    if(m.name().equals(cimName)) {
-                                        nameOk = false;
-                                        cimName = cimName + "_";
-                                        break;
-                                    }
-                                }
-                            } while (!nameOk);
-                            addCreateInstanceMethod(implementing, cimName, constructor, false);
-                        }
-                        break;
-                    }
-                }
-            }
+//            if (!apiClass.getImplementing().isEmpty()
+//                    && !apiClass.getConstructors().isEmpty()
+//                    && !visitingClass.getModifiers().contains(APIModifier.ABSTRACT)) {
+//
+//                // find first public constructor and use it for creating new instances of all implemented interfaces.
+//                for (APIMethod constructor : apiClass.getConstructors()) {
+//                    if (constructor.getModifiers().contains(APIModifier.PUBLIC) &&
+//                            isEnabled(methodSignature(constructor, visitingClass.getFullName()), WhitelistRule.RuleItem.INSTANTIATOR) &&
+//                            (!constructor.isDepreacated() || !jobConfiguration.isSkipDeprecated())) {
+//                        for (APIType implementing : apiClass.getImplementing()) {
+//                            String cimName = generateName(configuration.getCreateSuperInstanceIdentifier(), implementing.getName());
+//                            boolean nameOk;
+//                            do {
+//                                nameOk = true;
+//                                for(JMethod m : cls.methods()) {
+//                                    if(m.name().equals(cimName)) {
+//                                        nameOk = false;
+//                                        cimName = cimName + "_";
+//                                        break;
+//                                    }
+//                                }
+//                            } while (!nameOk);
+//                            addCreateInstanceMethod(implementing, cimName, constructor, false);
+//                        }
+//                        break;
+//                    }
+//                }
+//            }
 
             // ancestors test
             // class A implements Runnable { }

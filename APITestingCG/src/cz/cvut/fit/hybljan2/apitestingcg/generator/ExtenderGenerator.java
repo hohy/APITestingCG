@@ -348,11 +348,11 @@ public class ExtenderGenerator extends ClassGenerator {
             result = ancestorTypeParam.get(type.getName()).getName();
         // try to find it in class type params.
         } else if(classTypeParams.containsKey(type.getName())) {
-            type.addTypeParameter(classTypeParams.get(type.getName())[0]);
+            //type.addTypeParameter(classTypeParams.get(type.getName())[0]);
             result =  classTypeParams.get(type.getName())[0].getName();
         // if it wasn't found, try to find it in method type params.
         } else if(methodTypeParams.containsKey(type.getName())) {
-            type.addTypeParameter(methodTypeParams.get(type.getName())[0]);
+            //type.addTypeParameter(methodTypeParams.get(type.getName())[0]);
             result =  methodTypeParams.get(type.getName())[0].getName();
         }
 

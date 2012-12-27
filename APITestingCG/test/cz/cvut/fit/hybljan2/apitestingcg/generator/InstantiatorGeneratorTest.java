@@ -316,4 +316,24 @@ public class InstantiatorGeneratorTest {
 
         FileAssert.assertEquals(expected, resultFile);
     }
+
+    @Test
+    public void TestGenerics() {
+        Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("instantiator");
+        job.setOutputDir("output/tests/instantiator");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.INSTANTIATOR);
+        r.setRule("lib.Generics");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
+
+        File resultFile = new File("output/tests/instantiator/test/lib/GenericsInstantiator.java");
+
+        File expected = new File("testres/instantiator_exp/GenericsInstantiator.java");
+
+        FileAssert.assertEquals(expected, resultFile);
+    }
 }
