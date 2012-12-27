@@ -282,7 +282,7 @@ public class ExtenderGenerator extends ClassGenerator {
                 for (String s : cls.getTypeParamsMap().keySet()) {
                     i++;
                     for(APIType implIntrfc : visitingClass.getImplementing()) {
-                        if(implIntrfc.getName().equals(cls.getFullName())) {
+                        if(implIntrfc.getName().equals(cls.getFullName()) && implIntrfc.getTypeArgs().size() > i) {
                              clsTypeParamMap.put(s,implIntrfc.getTypeArgs().get(i));
                         }
                     }

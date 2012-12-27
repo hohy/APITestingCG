@@ -11,10 +11,6 @@ public class ExtendingClass1Instantiator {
         return new ExtendingClass1();
     }
 
-    public ClassA createClassA() {
-        return new ExtendingClass1();
-    }
-
      void ancestors(ExtendingClass1 a) {
         ClassA b = a;
     }

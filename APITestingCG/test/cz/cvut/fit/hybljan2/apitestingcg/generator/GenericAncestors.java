@@ -57,15 +57,10 @@ public class GenericAncestors {
         job.addWhitelistRule(new WhitelistRule("lib.GenericAncestor"));
         egenerator.generate(api, job);
 
-//        File resultFile = new File("output/tests/generics/test/lib/Generic01Instantiator.java");
-//        assertTrue(resultFile.exists());
-//        File expected = new File("testres/generics_exp/test/lib/Generic01Instantiator.java");
-//        FileAssert.assertEquals(expected, resultFile);
-//
-//        resultFile = new File("output/tests/generics/test/lib/Generic01Extender.java");
-//        assertTrue(resultFile.exists());
-//        expected = new File("testres/generics_exp/test/lib/Generic01Extender.java");
-//        FileAssert.assertEquals(expected, resultFile);
+        File resultFile = new File("output/tests/genancest/test/lib/GenericAncestorExtender.java");
+        assertTrue(resultFile.exists());
+        File expected = new File("testres/genancest_exp/GenericAncestorExtender.java");
+        FileAssert.assertEquals(expected, resultFile);
 
     }
 
