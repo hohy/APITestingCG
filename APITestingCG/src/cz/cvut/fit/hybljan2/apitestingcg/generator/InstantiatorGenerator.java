@@ -69,64 +69,6 @@ public class InstantiatorGenerator extends ClassGenerator {
                 }
             }
 
-            // genetate test of extending - cant be performed if tested class has no public constructors or is abstract
-//            if (apiClass.getExtending() != null
-//                    && !visitingClass.getModifiers().contains(APIModifier.ABSTRACT)) {
-//
-//                // find first public constructor and use it for creating new instance.
-//                for (APIMethod constructor : apiClass.getConstructors()) {
-//                    if (constructor.getModifiers().contains(APIModifier.PUBLIC) &&
-//                            isEnabled(methodSignature(constructor, visitingClass.getFullName()), WhitelistRule.RuleItem.INSTANTIATOR) &&
-//                            (!constructor.isDepreacated() || !jobConfiguration.isSkipDeprecated())) {
-//                        String cimName = generateName(configuration.getCreateSuperInstanceIdentifier(), apiClass.getExtending().getName());
-//                        boolean nameOk;
-//                        do {
-//                            nameOk = true;
-//                            for(JMethod m : cls.methods()) {
-//                                if(m.name().equals(cimName)) {
-//                                    nameOk = false;
-//                                    cimName = cimName + "_";
-//                                    break;
-//                                }
-//                            }
-//                        } while (!nameOk);
-//                        addCreateInstanceMethod(apiClass.getExtending(), cimName, constructor, false);
-//                        break;
-//                    }
-//                }
-//
-//            }
-
-            // genetate test of implementing - cant be performed if tested class has no constructors
-//            if (!apiClass.getImplementing().isEmpty()
-//                    && !apiClass.getConstructors().isEmpty()
-//                    && !visitingClass.getModifiers().contains(APIModifier.ABSTRACT)) {
-//
-//                // find first public constructor and use it for creating new instances of all implemented interfaces.
-//                for (APIMethod constructor : apiClass.getConstructors()) {
-//                    if (constructor.getModifiers().contains(APIModifier.PUBLIC) &&
-//                            isEnabled(methodSignature(constructor, visitingClass.getFullName()), WhitelistRule.RuleItem.INSTANTIATOR) &&
-//                            (!constructor.isDepreacated() || !jobConfiguration.isSkipDeprecated())) {
-//                        for (APIType implementing : apiClass.getImplementing()) {
-//                            String cimName = generateName(configuration.getCreateSuperInstanceIdentifier(), implementing.getName());
-//                            boolean nameOk;
-//                            do {
-//                                nameOk = true;
-//                                for(JMethod m : cls.methods()) {
-//                                    if(m.name().equals(cimName)) {
-//                                        nameOk = false;
-//                                        cimName = cimName + "_";
-//                                        break;
-//                                    }
-//                                }
-//                            } while (!nameOk);
-//                            addCreateInstanceMethod(implementing, cimName, constructor, false);
-//                        }
-//                        break;
-//                    }
-//                }
-//            }
-
             // ancestors test
             // class A implements Runnable { }
             // User will contain: void ancestors(A a) { Runnable r = a; }
@@ -407,6 +349,14 @@ public class InstantiatorGenerator extends ClassGenerator {
             }
         }
 
+        if (cls.getKind().equals(APIItem.Kind.ENUM)) { // checking of method added to enums by compiler.
+            if(method.getName().equals("valueOf")
+                    && method.getParameters().size() == 1
+                    && !method.getParameters().get(0).isPrimitive()) return false;
+            if(method.getName().equals("values")
+                    && method.getParameters().isEmpty()) return false;
+        }
+        
         // check collision in super class
         if (cls.getExtending() != null) {
             return checkNullCollision(method, cls.getExtending());

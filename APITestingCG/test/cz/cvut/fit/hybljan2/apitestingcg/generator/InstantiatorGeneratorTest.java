@@ -336,4 +336,24 @@ public class InstantiatorGeneratorTest {
 
         FileAssert.assertEquals(expected, resultFile);
     }
+
+    @Test
+    public void TestEnums() {
+        Generator generator = new InstantiatorGenerator(new GeneratorConfiguration());
+        GeneratorJobConfiguration job = new GeneratorJobConfiguration();
+        job.setApiId("instantiator");
+        job.setOutputDir("output/tests/instantiator");
+        job.setOutputPackage("test.%s");
+        WhitelistRule r = new WhitelistRule();
+        r.setItem(WhitelistRule.RuleItem.ALL);
+        r.setRule("lib.Planet");
+        job.addWhitelistRule(r);
+        generator.generate(api, job);
+
+        File resultFile = new File("output/tests/instantiator/test/lib/PlanetInstantiator.java");
+
+        File expected = new File("testres/instantiator_exp/PlanetInstantiator.java");
+
+        FileAssert.assertEquals(expected, resultFile);
+    }
 }
