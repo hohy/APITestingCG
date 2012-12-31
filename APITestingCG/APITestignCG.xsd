@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://github.com/hohy/APITestingCG"
+	xmlns:tns="https://github.com/hohy/APITestingCG" elementFormDefault="qualified">
+    
+    <xs:complexType name="api">
+    	<xs:sequence>
+    		<xs:element name="id" type="xs:string" minOccurs="1"
+    			maxOccurs="1">
+    			<xs:annotation>
+    				<xs:documentation>
+    					Idenfiticator of the API. It is used by
+    					generator configuration in generate
+    					tag to identify for which API will be the
+    					code generated.
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>                
+    		<xs:element name="name" type="xs:string" minOccurs="0"
+    			maxOccurs="1">
+    			<xs:annotation>
+    				<xs:documentation>
+    					Name of the API. Only for xs:documentation purpose.
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    		<xs:element name="version" type="xs:string" maxOccurs="1"
+    			minOccurs="0">
+    			<xs:annotation>
+    				<xs:documentation>
+    					Name of the API. Only for xs:documentation purpose.
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    		<xs:element name="path" type="xs:string" maxOccurs="1"
+    			minOccurs="1">
+    			<xs:annotation>
+    				<xs:documentation>
+    					Path to the directory in filesystem, where API
+    					is located. If source of the API is source code
+    					of a library, the value should be path to the
+    					directory with the source code of the library.
+    					If source of the API is bytecode, the value
+    					should be set to path to the one or more JAR
+    					files or directory containing JAR files.
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    		<xs:element name="classpath" type="xs:string" maxOccurs="1">
+    			<xs:annotation>
+    				<xs:documentation>
+    					If a tested library depends on some other
+    					libraries, this is the place where they should
+    					be specifed. One or more JAR files or directory
+    					could be specified.
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    		<xs:element name="sourceVersion" type="xs:string" minOccurs="0"
+    			maxOccurs="1">
+    			<xs:annotation>
+    				<xs:documentation>
+    					Source version parameter for javac. 1.7 is
+    					default value.
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    	</xs:sequence>
+    	<xs:attribute name="source" type="SourceType"/>
+    </xs:complexType>
+
+    <xs:simpleType name="SourceType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="sourcecode"/>
+            <xs:enumeration value="bytecode"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="configuration" type="configuration">
+    	<xs:annotation>
+    		<xs:documentation>Root element</xs:documentation>
+    	</xs:annotation>
+    </xs:element>
+    
+
+
+    <xs:complexType name="generate">
+    	<xs:sequence>
+    		<xs:element name="id" type="xs:string" minOccurs="1"
+    			maxOccurs="1">
+    			<xs:annotation>
+    				<xs:documentation>
+    					Identificator of an API used as input for
+    					generator.
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    		<xs:element name="output-directory" type="xs:string" minOccurs="1"
+    			maxOccurs="1">
+    			<xs:annotation>
+    				<xs:documentation>
+    					Directory in filesystem where generated code
+    					will be placed. Directory does not need to
+    					exist, the generator is able to create it.
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    		<xs:element name="output-package" type="xs:string" minOccurs="0"
+    			maxOccurs="1">
+    			<xs:annotation>
+    				<xs:documentation>
+    					Define name of the package for generated code.
+    					Default value is "test.%s". "%s" will be
+    					replaced with full name of tested classes.
+    					Example: java.lang.String ->
+    					test.java.lang.String.
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    		<xs:element name="blacklist" type="blacklist" minOccurs="0"
+    			maxOccurs="unbounded">
+    			<xs:annotation>
+    				<xs:documentation>
+    					Defines for which items the code will not be
+    					generated. Not whole name has to be specified.
+    					Whitelist rules are applied before blacklist
+    					rules. Examples: Class: java.lang.String - class
+    					java.lang.String will not be tested. Method:
+    					java.util.List.add(int, E) - method add(int, E)
+    					from class java.util.List will be ignored by
+    					generator. List.contains(java.lang.Object) -
+    					method add(java.lang.Object) from any class List
+    					will be ignored by generator. java.util.List.get
+    					- all methods get from class java.util.List will
+    					be ignored. specialMethod - all methods called
+    					specialMethod will be ignored. Constructors:
+    					java.util.List.List() Fields:
+    					package.SomeEnumeration.VALUEA VALUEB
+    				</xs:documentation>
+    			</xs:annotation>
+
+    		</xs:element>
+    		<xs:element name="whitelist" type="whitelist" minOccurs="0"
+    			maxOccurs="unbounded">
+    			<xs:annotation>
+    				<xs:documentation>
+    					Defines for only which items the code will be
+    					generated. Not whole name has to be specified.
+    					Whitelist rules are applied before blacklist
+    					(What was blacklisted, can't be whitelisted
+    					back). Examples: Class: java.lang.String - only
+    					class java.lang.String will be tested. Method:
+    					java.util.List.add(int, E) - Only method
+    					add(int, E) from class java.util.List will be
+    					generated. List.contains(java.lang.Object) -
+    					Only method add(java.lang.Object) from any class
+    					List will be generated. java.util.List.get -
+    					only all methods get from class java.util.List
+    					will be generated specialMethod - only all
+    					methods called specialMethod will be generated.
+    					Constructors: java.util.List.List() Fields:
+    					package.SomeEnumeration.VALUEA VALUEB
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    		<xs:element name="skip-deprecated" type="xs:boolean" minOccurs="0" maxOccurs="1">
+    			<xs:annotation>
+    				<xs:documentation>If true all deprecated items in API will be ignored by the generator. Default value is false.</xs:documentation>
+    			</xs:annotation></xs:element>
+    	</xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="configuration">
+    	<xs:sequence>
+    		<xs:element name="api" type="api" minOccurs="0"
+    			maxOccurs="unbounded" />
+
+    		<xs:element name="generate" type="generate"
+    			maxOccurs="unbounded" minOccurs="0" />
+
+            <xs:element name="generator" type="generator" maxOccurs="1" minOccurs="0"/>
+            <xs:element name="apiview" type="apiview"
+    			maxOccurs="unbounded" minOccurs="0" />
+    	</xs:sequence>
+    	
+    </xs:complexType>
+
+
+    <xs:complexType name="whitelist">
+    	<xs:simpleContent>
+    		<xs:extension base="xs:string">
+    			<xs:attribute name="item" type="ItemType"/>
+    		</xs:extension>
+    	</xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="blacklist">    	
+    	<xs:simpleContent>
+            <xs:extension base="xs:string">
+				<xs:attribute name="item" type="ItemType" />
+    		</xs:extension>
+    	</xs:simpleContent>
+    </xs:complexType>
+    
+    <xs:simpleType name="ItemType">
+    	<xs:restriction base="xs:string">
+    		<xs:enumeration value="extender"/>
+    		<xs:enumeration value="implementer"/>
+    		<xs:enumeration value="user"/>
+    		<xs:enumeration value="xs:annotation"/>
+    		<xs:enumeration value="all"/>
+    		<xs:enumeration value="null-call"/>
+    	</xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="generator">
+    	<xs:sequence>
+    		<xs:element name="instance-identifier" type="xs:string"
+    			maxOccurs="1" minOccurs="0">
+    			<xs:annotation>
+    				<xs:documentation>
+    					Name of object used to call non-static methods.
+    					Default value: instance
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    		<xs:element name="method-call-identifier" type="xs:string"
+    			maxOccurs="1" minOccurs="0">
+    			<xs:annotation>
+    				<xs:documentation>
+    					identifier of "Caller" - Method that call some
+    					method from tested library. Default value: "%s"
+    					%s will be replaced with name of tested item.
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    		<xs:element name="method-null-call-identifier" type="xs:string"
+    			maxOccurs="1" minOccurs="0">
+    			<xs:annotation>
+    				<xs:documentation>
+    					identifier of "Caller" with null parameters -
+    					Method that call some method from tested
+    					library. Default value: "%sNullCall" %s will be
+    					replaced with name of tested item.
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    		<xs:element name="user-class-identifier" type="xs:string"
+    			maxOccurs="1" minOccurs="0">
+    			<xs:annotation>
+    				<xs:documentation>
+    					Identifier of user class. Default value:
+    					"%sUser" %s will be replaced with name of tested
+    					item.
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    		<xs:element name="extender-class-identifier" type="xs:string"
+    			maxOccurs="1" minOccurs="0">
+    			<xs:annotation>
+    				<xs:documentation>
+    					Identifier of extender class. Default value:
+    					"%sExtender" %s will be replaced with name of
+    					tested item.
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    		<xs:element name="implementer-class-identifier" type="xs:string"
+    			maxOccurs="unbounded" minOccurs="0">
+    			<xs:annotation>
+    				<xs:documentation>
+    					Identifier of implementer class. Default value:
+    					"%sImplementer" %s will be replaced with name of
+    					tested item.
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    		<xs:element name="annotation-class-identifier" type="xs:string"
+    			maxOccurs="1" minOccurs="0">
+    			<xs:annotation>
+    				<xs:documentation>
+    					Identifier of xs:annotation. Default value:
+    					"%sAnnotation" %s will be replaced with name of
+    					tested item.
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    		<xs:element name="create-instance-identifier" type="xs:string"
+    			maxOccurs="1" minOccurs="0">
+    			<xs:annotation>
+    				<xs:documentation>
+    					name of method that is used for creating
+    					instance - test of the constructors in User.
+    					Default value: "create%s" %s will be replaced
+    					with name of tested item.
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    		<xs:element name="create-null-instance-identifier"
+    			type="xs:string" maxOccurs="1" minOccurs="0">
+    			<xs:annotation>
+    				<xs:documentation>
+    					name of method that is used for creating
+    					instance - test of the constructors with null
+    					parameters in User. Default value:
+    					"create%sNull" %s will be replaced with name of
+    					tested item.
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    		<xs:element name="create-super-instance-identifier"
+    			type="xs:string" maxOccurs="1" minOccurs="0">
+    			<xs:annotation>
+    				<xs:documentation>
+    					same as create-instance-identifier, but method
+    					test creating of super-class.
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    		<xs:element name="create-interface-instance-identifier"
+    			type="xs:string" maxOccurs="1" minOccurs="0">
+    			<xs:annotation>
+    				<xs:documentation>
+    					same as create-instance-identifier, but method
+    					test creating of implemented interface instance.
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    		<xs:element name="field-test-identifier" type="xs:string"
+    			maxOccurs="1" minOccurs="0">
+    			<xs:annotation>
+    				<xs:documentation>
+    					name of method which test fields in class.
+    					Default value: "fields"
+    				</xs:documentation>
+    			</xs:annotation>
+    		</xs:element>
+    		<xs:element name="field-test-variable-identifier" type="xs:string" maxOccurs="1" minOccurs="0">
+    			<xs:annotation>
+    				<xs:documentation>name of field used for fields tests. Default value: "%sValue".</xs:documentation>
+    			</xs:annotation></xs:element>
+    	</xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="apiview">
+    	<xs:sequence>
+    		<xs:element name="apiid" type="xs:string" maxOccurs="1" minOccurs="1">
+    			<xs:annotation>
+    				<xs:documentation>Identificator of displayed API.</xs:documentation>
+    			</xs:annotation></xs:element>
+    	</xs:sequence>
+    </xs:complexType>
+
+</xs:schema>
