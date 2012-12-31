@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://github.com/hohy/APITestingCG"
-	xmlns:tns="https://github.com/hohy/APITestingCG" elementFormDefault="qualified">
+	xmlns:tns="http://github.com/hohy/APITestingCG" elementFormDefault="qualified">
     
     <xs:complexType name="api">
     	<xs:sequence>
@@ -65,7 +65,7 @@
     			</xs:annotation>
     		</xs:element>
     	</xs:sequence>
-    	<xs:attribute name="source" type="SourceType"/>
+    	<xs:attribute name="source" type="tns:SourceType"/>
     </xs:complexType>
 
     <xs:simpleType name="SourceType">
@@ -75,7 +75,7 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <xs:element name="configuration" type="configuration">
+    <xs:element name="configuration" type="tns:configuration">
     	<xs:annotation>
     		<xs:documentation>Root element</xs:documentation>
     	</xs:annotation>
@@ -116,7 +116,7 @@
     				</xs:documentation>
     			</xs:annotation>
     		</xs:element>
-    		<xs:element name="blacklist" type="blacklist" minOccurs="0"
+    		<xs:element name="blacklist" type="tns:blacklist" minOccurs="0"
     			maxOccurs="unbounded">
     			<xs:annotation>
     				<xs:documentation>
@@ -139,7 +139,7 @@
     			</xs:annotation>
 
     		</xs:element>
-    		<xs:element name="whitelist" type="whitelist" minOccurs="0"
+    		<xs:element name="whitelist" type="tns:whitelist" minOccurs="0"
     			maxOccurs="unbounded">
     			<xs:annotation>
     				<xs:documentation>
@@ -171,14 +171,14 @@
 
     <xs:complexType name="configuration">
     	<xs:sequence>
-    		<xs:element name="api" type="api" minOccurs="0"
+    		<xs:element name="api" type="tns:api" minOccurs="0"
     			maxOccurs="unbounded" />
 
-    		<xs:element name="generate" type="generate"
+    		<xs:element name="generate" type="tns:generate"
     			maxOccurs="unbounded" minOccurs="0" />
 
-            <xs:element name="generator" type="generator" maxOccurs="1" minOccurs="0"/>
-            <xs:element name="apiview" type="apiview"
+            <xs:element name="generator" type="tns:generator" maxOccurs="1" minOccurs="0"/>
+            <xs:element name="apiview" type="tns:apiview"
     			maxOccurs="unbounded" minOccurs="0" />
     	</xs:sequence>
     	
@@ -188,7 +188,7 @@
     <xs:complexType name="whitelist">
     	<xs:simpleContent>
     		<xs:extension base="xs:string">
-    			<xs:attribute name="item" type="ItemType"/>
+    			<xs:attribute name="item" type="tns:ItemType"/>
     		</xs:extension>
     	</xs:simpleContent>
     </xs:complexType>
@@ -196,7 +196,7 @@
     <xs:complexType name="blacklist">    	
     	<xs:simpleContent>
             <xs:extension base="xs:string">
-				<xs:attribute name="item" type="ItemType" />
+				<xs:attribute name="item" type="tns:ItemType" />
     		</xs:extension>
     	</xs:simpleContent>
     </xs:complexType>
