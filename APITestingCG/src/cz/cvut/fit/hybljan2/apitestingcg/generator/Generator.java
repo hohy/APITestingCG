@@ -49,7 +49,8 @@ public abstract class Generator implements IAPIVisitor {
         try {
             cm.build(outputDir);
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            System.err.println(e.getMessage());
+            //e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
     }
 

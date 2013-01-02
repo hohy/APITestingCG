@@ -17,7 +17,7 @@ public class GeneratorConfiguration {
     // identifier of "Caller" - Method that call some method from tested library.
     private String methodCallIdentifier = "%s";
     private String methodNullCallIdentifier = "%sNullCall";
-    private String instantiatorClassIdentifier = "%sInstantiator";
+    private String instantiatorClassIdentifier = "%sUser";
     private String extenderClassIdentifier = "%sExtender";
     private String implementerClassIdentifier = "%sImplementer";
     private String annotationClassIdentifier = "%sAnnotation";
@@ -64,7 +64,7 @@ public class GeneratorConfiguration {
         this.methodNullCallIdentifier = methodNullCallIdentifier;
     }
 
-    @XmlElement(name = "instantiatior-identifier")
+    @XmlElement(name = "user-class-identifier")
     public String getInstantiatorClassIdentifier() {
         return instantiatorClassIdentifier;
     }
@@ -73,7 +73,16 @@ public class GeneratorConfiguration {
         this.instantiatorClassIdentifier = instantiatorClassIdentifier;
     }
 
-    @XmlElement(name = "extender-identifier")
+    @XmlElement(name = "instantiator-class-identifier")
+    public String getUserClassIdentifier() {
+        return instantiatorClassIdentifier;
+    }
+
+    public void setUserClassIdentifier(String instantiatorClassIdentifier) {
+        this.instantiatorClassIdentifier = instantiatorClassIdentifier;
+    }
+
+    @XmlElement(name = "extender-class-identifier")
     public String getExtenderClassIdentifier() {
         return extenderClassIdentifier;
     }
@@ -82,7 +91,7 @@ public class GeneratorConfiguration {
         this.extenderClassIdentifier = extenderClassIdentifier;
     }
 
-    @XmlElement(name = "implementer-identifier")
+    @XmlElement(name = "implementer-class-identifier")
     public String getImplementerClassIdentifier() {
         return implementerClassIdentifier;
     }

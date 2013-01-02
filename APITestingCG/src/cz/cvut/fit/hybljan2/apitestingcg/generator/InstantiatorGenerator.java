@@ -123,7 +123,8 @@ public class InstantiatorGenerator extends ClassGenerator {
             cls = classStack.pop();
 
         } catch (JClassAlreadyExistsException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            System.err.println(e.getMessage());
+            //e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
     }
 

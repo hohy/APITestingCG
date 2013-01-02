@@ -139,7 +139,8 @@ public class ExtenderGenerator extends ClassGenerator {
 
             cls = classStack.pop();
         } catch (JClassAlreadyExistsException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            System.err.println(e.getMessage());
         }
     }
 
@@ -310,7 +311,8 @@ public class ExtenderGenerator extends ClassGenerator {
                 }                
             } catch (ClassNotFoundException e) {
                 System.err.println("Class not found " + e.getMessage());
-                e.printStackTrace();
+                //e.printStackTrace();
+                
             }
         }
         

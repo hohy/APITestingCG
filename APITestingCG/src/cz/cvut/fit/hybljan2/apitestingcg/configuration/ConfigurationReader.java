@@ -2,9 +2,7 @@ package cz.cvut.fit.hybljan2.apitestingcg.configuration;
 
 import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.Configuration;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.*;
 import java.io.File;
 
 /**
@@ -29,7 +27,7 @@ public class ConfigurationReader {
             return configuration;
         } catch (JAXBException e) {
             System.out.println("Configuration read error.");
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return null;
     }

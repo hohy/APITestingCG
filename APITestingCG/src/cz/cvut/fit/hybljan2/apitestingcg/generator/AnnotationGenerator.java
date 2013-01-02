@@ -137,7 +137,8 @@ public class AnnotationGenerator extends ClassGenerator {
             }
 
         } catch (JClassAlreadyExistsException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            System.err.println(e.getMessage());
+            //e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
     }
 
