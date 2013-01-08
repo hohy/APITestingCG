@@ -74,7 +74,11 @@ public class APITestingCG {
         for (GeneratorJobConfiguration gjc : configuration.getGeneratorJobConfigurations()) {
             System.out.println("Generating code for api " + gjc.getApiId());
             for (Generator generator : generators) {
-                generator.generate(apiMap.get(gjc.getApiId()), gjc);
+                try{
+                    generator.generate(apiMap.get(gjc.getApiId()), gjc);
+                } catch (NullPointerException e) {
+                    System.err.println("API with id \'" + gjc.getApiId() + "\' was not found. Skipping it.");;
+                }
             }
         }
 
