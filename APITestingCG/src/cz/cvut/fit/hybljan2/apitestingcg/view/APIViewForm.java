@@ -1,4 +1,10 @@
 /*
+ * Copyright(c) Jan Hybl, FIT CTU in Prague. All rights reserved.
+ *
+ * The contents of this file are subject to the terms of the Common Developmen and Distribution License (CDDL). You can obtain a copy of the CDDL at http://www.netbeans.org/cddl.html.
+ */
+
+/*
  * APIViewForm.java
  *
  * Created on 16.10.2011, 16:13:55
