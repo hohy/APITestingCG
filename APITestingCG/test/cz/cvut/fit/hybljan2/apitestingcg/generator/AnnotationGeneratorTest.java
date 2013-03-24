@@ -16,13 +16,13 @@ import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
-import junitx.framework.FileAssert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 
+import static cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils.assertEqualFiles;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -72,7 +72,7 @@ public class AnnotationGeneratorTest {
 
         File expected = new File("testres/annotations_exp/test/lib/packageannotation/package-info.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
     }
 
@@ -95,7 +95,7 @@ public class AnnotationGeneratorTest {
 
         File expected = new File("testres/annotations_exp/test/lib/AnnotationAnnotationAnnotation.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
 
@@ -117,7 +117,7 @@ public class AnnotationGeneratorTest {
 
         File expected = new File("testres/annotations_exp/test/lib/FieldAnnotationClass.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
     @Test
@@ -140,37 +140,37 @@ public class AnnotationGeneratorTest {
         File resultFile = new File("output/tests/annotations/allTargets/test/lib/AllTargetsAnnotationClass.java");
         assertTrue(resultFile.exists());
         File expected = new File("testres/annotations_exp/test/lib/AllTargetsAnnotationClass.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
         //class default value
         resultFile = new File("output/tests/annotations/allTargets/test/lib/AllTargetsAnnotationClassDV.java");
         assertTrue(resultFile.exists());
         expected = new File("testres/annotations_exp/test/lib/AllTargetsAnnotationClassDV.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
         //annotation
         resultFile = new File("output/tests/annotations/allTargets/test/lib/AllTargetsAnnotationAnnotation.java");
         assertTrue(resultFile.exists());
         expected = new File("testres/annotations_exp/test/lib/AllTargetsAnnotationAnnotation.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
         //annotation default value
         resultFile = new File("output/tests/annotations/allTargets/test/lib/AllTargetsAnnotationAnnotationDV.java");
         assertTrue(resultFile.exists());
         expected = new File("testres/annotations_exp/test/lib/AllTargetsAnnotationAnnotationDV.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
         //package
         resultFile = new File("output/tests/annotations/allTargets/test/lib/alltargetsannotation/package-info.java");
         assertTrue(resultFile.exists());
         expected = new File("testres/annotations_exp/test/lib/package-info.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
         //package default value
         resultFile = new File("output/tests/annotations/allTargets/test/lib/alltargetsannotationDV/package-info.java");
         assertTrue(resultFile.exists());
         expected = new File("testres/annotations_exp/test/lib/package-info-dv.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
 
 
@@ -193,7 +193,7 @@ public class AnnotationGeneratorTest {
         File resultFile = new File("output/tests/annotations/test/lib/AllTypesAnnotationClass.java");
         assertTrue(resultFile.exists());
         File expected = new File("testres/annotations_exp/test/lib/AllTypesAnnotationClass.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
 

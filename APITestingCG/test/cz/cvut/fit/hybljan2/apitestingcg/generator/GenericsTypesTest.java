@@ -9,17 +9,20 @@
 package cz.cvut.fit.hybljan2.apitestingcg.generator;
 
 import cz.cvut.fit.hybljan2.apitestingcg.apimodel.API;
-import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.*;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorConfiguration;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.GeneratorJobConfiguration;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ScannerConfiguration;
+import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
-import junitx.framework.FileAssert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 
+import static cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils.assertEqualFiles;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -68,12 +71,12 @@ public class GenericsTypesTest {
         File resultFile = new File("output/tests/generics/test/lib/Generic01Instantiator.java");
         assertTrue(resultFile.exists());
         File expected = new File("testres/generics_exp/test/lib/Generic01Instantiator.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
         resultFile = new File("output/tests/generics/test/lib/Generic01Extender.java");
         assertTrue(resultFile.exists());
         expected = new File("testres/generics_exp/test/lib/Generic01Extender.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
         
     }
 
@@ -91,13 +94,13 @@ public class GenericsTypesTest {
         File resultFile = new File("output/tests/generics/test/lib/Generic2Instantiator.java");
         assertTrue(resultFile.exists());
         File expected = new File("testres/generics_exp/test/lib/Generic2Instantiator.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
 
         resultFile = new File("output/tests/generics/test/lib/Generic2Extender.java");
         assertTrue(resultFile.exists());
         expected = new File("testres/generics_exp/test/lib/Generic2Extender.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
         
     }
 
@@ -114,13 +117,13 @@ public class GenericsTypesTest {
         File resultFile = new File("output/tests/generics/test/lib/Generic3Instantiator.java");
         assertTrue(resultFile.exists());
         File expected = new File("testres/generics_exp/test/lib/Generic3Instantiator.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
 
         resultFile = new File("output/tests/generics/test/lib/Generic3Extender.java");
         assertTrue(resultFile.exists());
         expected = new File("testres/generics_exp/test/lib/Generic3Extender.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
 
@@ -137,13 +140,13 @@ public class GenericsTypesTest {
         File resultFile = new File("output/tests/generics/test/lib/Generic4Instantiator.java");
         assertTrue(resultFile.exists());
         File expected = new File("testres/generics_exp/test/lib/Generic4Instantiator.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
 
         resultFile = new File("output/tests/generics/test/lib/Generic4Extender.java");
         assertTrue(resultFile.exists());
         expected = new File("testres/generics_exp/test/lib/Generic4Extender.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
         
     }
 
@@ -160,13 +163,13 @@ public class GenericsTypesTest {
         File resultFile = new File("output/tests/generics/test/lib/Generic10Instantiator.java");
         assertTrue(resultFile.exists());
         File expected = new File("testres/generics_exp/test/lib/Generic10Instantiator.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
 
         resultFile = new File("output/tests/generics/test/lib/Generic10Extender.java");
         assertTrue(resultFile.exists());
         expected = new File("testres/generics_exp/test/lib/Generic10Extender.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
     }
 
@@ -183,13 +186,13 @@ public class GenericsTypesTest {
         File resultFile = new File("output/tests/generics/test/lib/Generic12Instantiator.java");
         assertTrue(resultFile.exists());
         File expected = new File("testres/generics_exp/test/lib/Generic12Instantiator.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
 
         resultFile = new File("output/tests/generics/test/lib/Generic12Extender.java");
         assertTrue(resultFile.exists());
         expected = new File("testres/generics_exp/test/lib/Generic12Extender.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
     }
 
@@ -206,13 +209,13 @@ public class GenericsTypesTest {
         File resultFile = new File("output/tests/generics/test/lib/Generic17Instantiator.java");
         assertTrue(resultFile.exists());
         File expected = new File("testres/generics_exp/test/lib/Generic17Instantiator.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
 
         resultFile = new File("output/tests/generics/test/lib/Generic17Extender.java");
         assertTrue(resultFile.exists());
         expected = new File("testres/generics_exp/test/lib/Generic17Extender.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
     }
 
@@ -230,13 +233,13 @@ public class GenericsTypesTest {
         File resultFile = new File("output/tests/generics/test/lib/Generic5Instantiator.java");
         assertTrue(resultFile.exists());
         File expected = new File("testres/generics_exp/test/lib/Generic5Instantiator.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
 
         resultFile = new File("output/tests/generics/test/lib/Generic5Extender.java");
         assertTrue(resultFile.exists());
         expected = new File("testres/generics_exp/test/lib/Generic5Extender.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
     }
 
@@ -253,13 +256,13 @@ public class GenericsTypesTest {
         File resultFile = new File("output/tests/generics/test/lib/Generic8Instantiator.java");
         assertTrue(resultFile.exists());
         File expected = new File("testres/generics_exp/test/lib/Generic8Instantiator.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
 
         resultFile = new File("output/tests/generics/test/lib/Generic8Extender.java");
         assertTrue(resultFile.exists());
         expected = new File("testres/generics_exp/test/lib/Generic8Extender.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
     }
 
@@ -276,13 +279,13 @@ public class GenericsTypesTest {
         File resultFile = new File("output/tests/generics/test/lib/Generic13Instantiator.java");
         assertTrue(resultFile.exists());
         File expected = new File("testres/generics_exp/test/lib/Generic13Instantiator.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
 
         resultFile = new File("output/tests/generics/test/lib/Generic13Extender.java");
         assertTrue(resultFile.exists());
         expected = new File("testres/generics_exp/test/lib/Generic13Extender.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
     @Test
@@ -298,13 +301,13 @@ public class GenericsTypesTest {
         File resultFile = new File("output/tests/generics/test/lib/TypeParamsInstantiator.java");
         assertTrue(resultFile.exists());
         File expected = new File("testres/generics_exp/test/lib/TypeParamsInstantiator.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
 
         resultFile = new File("output/tests/generics/test/lib/TypeParamsExtender.java");
         assertTrue(resultFile.exists());
         expected = new File("testres/generics_exp/test/lib/TypeParamsExtender.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
     }
 
@@ -322,12 +325,12 @@ public class GenericsTypesTest {
         File resultFile = new File("output/tests/generics/test/lib/GenericMethod1Instantiator.java");
         assertTrue(resultFile.exists());
         File expected = new File("testres/generics_exp/test/lib/GenericMethod1Instantiator.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
         resultFile = new File("output/tests/generics/test/lib/GenericMethod1Extender.java");
         assertTrue(resultFile.exists());
         expected = new File("testres/generics_exp/test/lib/GenericMethod1Extender.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
         
     }
 
@@ -346,12 +349,12 @@ public class GenericsTypesTest {
         File resultFile = new File("output/tests/generics/test/lib/GenericMethod2Instantiator.java");
         assertTrue(resultFile.exists());
         File expected = new File("testres/generics_exp/test/lib/GenericMethod2Instantiator.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
         resultFile = new File("output/tests/generics/test/lib/GenericMethod2Extender.java");
         assertTrue(resultFile.exists());
         expected = new File("testres/generics_exp/test/lib/GenericMethod2Extender.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
     @Test
@@ -368,12 +371,12 @@ public class GenericsTypesTest {
         File resultFile = new File("output/tests/generics/test/lib/GenericConstructor1Instantiator.java");
         assertTrue(resultFile.exists());
         File expected = new File("testres/generics_exp/test/lib/GenericConstructor1Instantiator.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
         resultFile = new File("output/tests/generics/test/lib/GenericConstructor1Extender.java");
         assertTrue(resultFile.exists());
         expected = new File("testres/generics_exp/test/lib/GenericConstructor1Extender.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
     @Test
@@ -389,13 +392,13 @@ public class GenericsTypesTest {
         File resultFile = new File("output/tests/generics/test/lib/GenericNamesInstantiator.java");
         assertTrue(resultFile.exists());
         File expected = new File("testres/generics_exp/test/lib/GenericNamesInstantiator.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
 
         resultFile = new File("output/tests/generics/test/lib/GenericNamesExtender.java");
         assertTrue(resultFile.exists());
         expected = new File("testres/generics_exp/test/lib/GenericNamesExtender.java");
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
 

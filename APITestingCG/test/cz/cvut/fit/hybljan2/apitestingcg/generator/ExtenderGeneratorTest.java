@@ -16,13 +16,13 @@ import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
-import junitx.framework.FileAssert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 
+import static cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils.assertEqualFiles;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -77,7 +77,7 @@ public class ExtenderGeneratorTest {
 
         File expected = new File("testres/extender_exp/ClassAExtender.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
     }
 
@@ -100,7 +100,7 @@ public class ExtenderGeneratorTest {
 
         File expected = new File("testres/extender_exp/ClassBExtender.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
     }
 
@@ -123,7 +123,7 @@ public class ExtenderGeneratorTest {
 
         File expected = new File("testres/extender_exp/BoxExtender.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
     }
 
@@ -145,7 +145,7 @@ public class ExtenderGeneratorTest {
 
         File expected = new File("testres/extender_exp/Fields1Extender.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
     @Test
@@ -166,7 +166,7 @@ public class ExtenderGeneratorTest {
 
         File expected = new File("testres/extender_exp/Fields2Extender.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
     @Test
@@ -187,7 +187,7 @@ public class ExtenderGeneratorTest {
 
         File expected = new File("testres/extender_exp/Fields3Extender.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
     @Test
@@ -208,7 +208,7 @@ public class ExtenderGeneratorTest {
 
         File expected = new File("testres/extender_exp/Fields4Extender.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
     @Test
@@ -230,7 +230,7 @@ public class ExtenderGeneratorTest {
 
         File expected = new File("testres/extender_exp/AbstractClassExtender.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
     }
 
@@ -275,7 +275,7 @@ public class ExtenderGeneratorTest {
 
         File expected = new File("testres/extender_exp/AbstractMethodsExtender.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
     @Test
@@ -295,6 +295,6 @@ public class ExtenderGeneratorTest {
 
         File expected = new File("testres/extender_exp/ArraysExtender.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 }

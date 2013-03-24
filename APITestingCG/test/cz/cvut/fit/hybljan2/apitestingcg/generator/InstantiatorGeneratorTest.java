@@ -16,13 +16,13 @@ import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.WhitelistRule;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
-import junitx.framework.FileAssert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 
+import static cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils.assertEqualFiles;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -75,7 +75,7 @@ public class InstantiatorGeneratorTest {
 
         File expected = new File("testres/instantiator_exp/ClassAInstantiator.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
     }
 
@@ -101,7 +101,7 @@ public class InstantiatorGeneratorTest {
 
         File expected = new File("testres/instantiator_exp/ConstructorsInstantiator.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
     }
 
@@ -130,7 +130,7 @@ public class InstantiatorGeneratorTest {
 
         File expected = new File("testres/instantiator_exp/MethodsInstantiator.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
     }
 
@@ -152,7 +152,7 @@ public class InstantiatorGeneratorTest {
 
         File expected = new File("testres/instantiator_exp/Fields1Instantiator.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
     @Test
@@ -173,7 +173,7 @@ public class InstantiatorGeneratorTest {
 
         File expected = new File("testres/instantiator_exp/Fields2Instantiator.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
     @Test
@@ -194,7 +194,7 @@ public class InstantiatorGeneratorTest {
 
         File expected = new File("testres/instantiator_exp/Fields3Instantiator.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
     @Test
@@ -215,7 +215,7 @@ public class InstantiatorGeneratorTest {
 
         File expected = new File("testres/instantiator_exp/Fields4Instantiator.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
     /**
@@ -240,7 +240,7 @@ public class InstantiatorGeneratorTest {
 
         File expected = new File("testres/instantiator_exp/ExtendingClass1Instantiator.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
     @Test
@@ -261,7 +261,7 @@ public class InstantiatorGeneratorTest {
 
         File expected = new File("testres/instantiator_exp/AncestorsInstantiator.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
     @Test
@@ -282,7 +282,7 @@ public class InstantiatorGeneratorTest {
 
         File expected = new File("testres/instantiator_exp/ExceptionNameInstantiator.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
     @Test
@@ -302,7 +302,7 @@ public class InstantiatorGeneratorTest {
 
         File expected = new File("testres/instantiator_exp/ExceptionsInstantiator.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
     @Test
@@ -322,7 +322,7 @@ public class InstantiatorGeneratorTest {
 
         File expected = new File("testres/instantiator_exp/ArraysInstantiator.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
     @Test
@@ -342,7 +342,7 @@ public class InstantiatorGeneratorTest {
 
         File expected = new File("testres/instantiator_exp/GenericsInstantiator.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 
     @Test
@@ -362,6 +362,6 @@ public class InstantiatorGeneratorTest {
 
         File expected = new File("testres/instantiator_exp/PlanetInstantiator.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
     }
 }

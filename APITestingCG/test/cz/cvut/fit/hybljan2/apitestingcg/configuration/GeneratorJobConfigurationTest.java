@@ -16,7 +16,6 @@ import cz.cvut.fit.hybljan2.apitestingcg.generator.Generator;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
-import junitx.framework.FileAssert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -25,6 +24,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import static cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils.assertEqualFiles;
 import static org.junit.Assert.*;
 
 /**
@@ -106,7 +106,7 @@ public class GeneratorJobConfigurationTest {
         assertTrue(fb.exists());
 
         File expected = new File("testres/configuration/expected/ClassBExtender.java");
-        FileAssert.assertEquals(expected, fb);
+        assertEqualFiles(expected, fb);
     }
 
     @Test
@@ -149,7 +149,7 @@ public class GeneratorJobConfigurationTest {
         assertTrue(fb.exists());
 
         File fe = new File("testres/configuration/lib-deprecated-expected/ClassBExtender.java");
-        FileAssert.assertEquals(fe, fb);
+        assertEqualFiles(fe, fb);
     }
 
 }

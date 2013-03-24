@@ -15,14 +15,13 @@ import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ScannerConfiguratio
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
-import junitx.framework.FileAssert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
 
+import static cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils.assertEqualFiles;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -81,7 +80,7 @@ public class NestedClassTests {
 
         File expected = new File("testres/nested_exp/lib/NestedInstantiator.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
     }
 
@@ -100,14 +99,14 @@ public class NestedClassTests {
 
         File expected = new File("testres/nestedme_exp/lib/NestedInstantiator.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
         resultFile = new File("output/tests/nestedme/test/lib/NestedExtender.java");
         assertTrue(resultFile.exists());
 
         expected = new File("testres/nestedme_exp/lib/NestedExtender.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
     }
 }

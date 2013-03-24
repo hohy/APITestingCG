@@ -15,13 +15,13 @@ import cz.cvut.fit.hybljan2.apitestingcg.configuration.model.ScannerConfiguratio
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
-import junitx.framework.FileAssert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 
+import static cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils.assertEqualFiles;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -67,7 +67,7 @@ public class EnumGeneratorTest {
 
         File expected = new File("testres/enum_exp/test/lib/PlanetInstantiator.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
     }
 

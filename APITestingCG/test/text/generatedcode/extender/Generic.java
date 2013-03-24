@@ -18,13 +18,13 @@ import cz.cvut.fit.hybljan2.apitestingcg.generator.InstantiatorGenerator;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.APIScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.scanner.SourceScanner;
 import cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils;
-import junitx.framework.FileAssert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 
+import static cz.cvut.fit.hybljan2.apitestingcg.test.TestUtils.assertEqualFiles;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -69,7 +69,7 @@ public class Generic {
 
         File expected = new File("testres/text/extender/generics_exp/test/lib/GenericExtender.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
     }
 
@@ -88,7 +88,7 @@ public class Generic {
 
         File expected = new File("testres/text/extender/generics_exp/test/lib/GenericInstantiator.java");
 
-        FileAssert.assertEquals(expected, resultFile);
+        assertEqualFiles(expected, resultFile);
 
     }
 }
